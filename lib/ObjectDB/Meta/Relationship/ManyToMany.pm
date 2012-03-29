@@ -1,0 +1,74 @@
+package ObjectDB::Meta::Relationship::ManyToMany;
+
+use strict;
+use warnings;
+
+use base 'ObjectDB::Meta::Relationship';
+
+use ObjectDB::Util qw(load_class);
+
+sub type {'many to many'}
+
+sub map_to   { $_[0]->{map_to} }
+sub map_from { $_[0]->{map_from} }
+
+sub map_class {
+    my $self = shift;
+
+    my $map_class = $self->{map_class};
+
+    load_class $map_class;
+
+    return $map_class;
+}
+
+sub class {
+    my $self = shift;
+
+    return $self->{class} if $self->{class};
+
+    $self->{class} =
+      $self->map_class->meta->relationships->{$self->{map_to}}->class;
+
+    return $self->{class};
+}
+
+sub to_source {
+    my $self = shift;
+    my (%options) = @_;
+
+    my ($map_from, $map_to) =
+      %{$self->map_class->meta->relationships->{$self->{map_from}}->map};
+    my ($rel_from, $rel_to) =
+      %{$self->map_class->meta->relationships->{$self->{map_to}}->map};
+
+    my $orig_table = $self->orig_class->meta->table;
+    my $map_table  = $self->map_class->meta->table;
+    my $rel_table  = $self->class->meta->table;
+
+    my @columns;
+    if ($options{columns}) {
+        $options{columns} = [$options{columns}]
+          unless ref $options{columns} eq 'ARRAY';
+        @columns = @{$options{columns}};
+        unshift @columns, $self->class->meta->get_primary_key;
+    }
+    else {
+        @columns = $self->class->meta->get_columns;
+    }
+
+    return {
+        table => $map_table,
+        join => 'left',
+        constraint =>
+          ["$orig_table.$map_to" => {-col => "$map_table.$map_from"}]
+      },
+      { table => $rel_table,
+        join => 'left',
+        constraint =>
+          ["$map_table.$rel_from" => {-col => "$rel_table.$rel_to"}],
+        columns => [@columns]
+      };
+}
+
+1;

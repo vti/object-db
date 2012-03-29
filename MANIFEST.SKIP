@@ -1,0 +1,15 @@
+^MANIFEST\.
+^Makefile$
+~$
+^#
+\.perltidyrc$
+\.old$
+\.swp$
+\.swo$
+^blib/
+^pm_to_blib
+\.gz$
+\.gitignore
+^\.shipit$
+\.git
+MYMETA
