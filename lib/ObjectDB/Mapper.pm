@@ -164,7 +164,8 @@ sub _map_row {
             }
 
             foreach my $column (@{$rel->{parts}->{$part}}) {
-                $rel_object->set_column($column => shift @$row);
+                my $name = ref $column eq 'HASH' ? $column->{as} || $column->{name} : $column;
+                $rel_object->set_column($name => shift @$row);
             }
 
             $meta = $rel_object->meta;

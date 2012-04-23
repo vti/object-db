@@ -71,6 +71,23 @@ sub build_sql_with_related_and_columns : Test(3) {
     is($book->related('description')->get_column('description'), 'Good');
 }
 
+sub build_sql_with_related_and_as_columns : Test(3) {
+    my $self = shift;
+
+    my $mapper = $self->_build_mapper(meta => Book->meta);
+
+    my ($sql, @bind) = $mapper->to_sql(with => {name => 'description', columns => [{name => 'description', as => 'about'}]});
+
+    is($sql,
+        'SELECT `book`.`id`, `book`.`author_id`, `book`.`title`, `book_description`.`id`, `book_description`.`description` AS `about` FROM `book` LEFT JOIN `book_description` ON `book`.`id` = `book_description`.`book_id`'
+    );
+    is_deeply([@bind], []);
+
+    my $book = $mapper->from_row([1, 1, 'Good', 1, 'Good']);
+
+    is($book->related('description')->get_column('about'), 'Good');
+}
+
 sub build_sql_with_related_and_where : Test(2) {
     my $self = shift;
 
