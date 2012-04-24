@@ -64,6 +64,15 @@ sub arrayref_in : Test(2) {
     is_deeply($expr->bind, [1, 2, 3]);
 }
 
+sub arrayref_not_in : Test(2) {
+    my $self = shift;
+
+    my $expr = $self->_build_expression->build(expr => [a => {not => [1, 2, 3]}]);
+
+    is($expr->to_string, '`a` NOT IN (?, ?, ?)');
+    is_deeply($expr->bind, [1, 2, 3]);
+}
+
 sub key_scalarref_as_is : Test(2) {
     my $self = shift;
 

@@ -49,7 +49,7 @@ sub _build_logic {
             }
         }
 
-        my $op = '=';
+        my $op;
         my $q  = '?';
 
         if (ref $value eq 'HASH') {
@@ -69,7 +69,12 @@ sub _build_logic {
         }
 
         if (ref $value eq 'ARRAY') {
-            $op = 'IN';
+            if ($op) {
+                $op = uc($op) . ' IN';
+            }
+            else {
+                $op = 'IN';
+            }
             $q = '(' . join(', ', split //, ('?' x @$value)) . ')';
             push @{$self->{bind}}, @$value;
         }
@@ -77,6 +82,7 @@ sub _build_logic {
             $q = $$value;
         }
         elsif (ref $value eq 'HASH') {
+            $op ||= '=';
             my $old_op = $op;
             ($op, $value) = %$value;
             if ($op eq '-col') {
@@ -93,6 +99,7 @@ sub _build_logic {
             push @{$self->{bind}}, $value;
         }
 
+        $op ||= '=';
         $key = $self->_parse_column($key);
         push @parts, $self->_quote_column($key) . " $op $q";
 
