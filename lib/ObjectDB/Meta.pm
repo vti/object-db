@@ -77,6 +77,15 @@ sub get_table {
     return $self->{table};
 }
 
+sub set_table {
+    my $self = shift;
+    my ($value) = @_;
+
+    $self->{table} = $value;
+
+    return $self;
+}
+
 sub is_column {
     my $self = shift;
     my ($name) = @_;
