@@ -208,7 +208,7 @@ sub create {
     my $sql = ObjectDB::SQLBuilder->build(
         'insert',
         table => $self->meta->table,
-        set => {map { $_ => $self->column($_) } $self->columns}
+        set => {map { $_ => $self->{_columns}->{$_} } $self->columns}
     );
 
     my $sth = $dbh->prepare($sql->to_string);
@@ -254,7 +254,7 @@ sub load {
 
     die ref($self) . ": no primary or unique keys specified" unless @columns;
 
-    $params{where} = [map { $_ => $self->get_column($_) } @columns];
+    $params{where} = [map { $_ => $self->{_columns}->{$_} } @columns];
 
     my $dbh = $self->init_db;
 
@@ -285,13 +285,13 @@ sub update {
 
     my %where;
     foreach my $name ($self->columns) {
-        $where{$name} = $self->get_column($name)
+        $where{$name} = $self->{_columns}->{$name}
           if $self->meta->is_primary_key($name);
     }
 
     if (!keys %where) {
         foreach my $name ($self->columns) {
-            $where{$name} = $self->get_column($name)
+            $where{$name} = $self->{_columns}->{$name}
               if $self->meta->is_unique_key($name);
         }
     }
@@ -302,7 +302,7 @@ sub update {
     my $dbh = $self->init_db;
 
     my @columns = grep { !$self->meta->is_primary_key($_) } $self->columns;
-    my @values  = map  { $self->column($_) } @columns;
+    my @values  = map  { $self->{_columns}->{$_} } @columns;
 
     my %set;
     @set{@columns} = @values;
@@ -328,13 +328,13 @@ sub delete {
 
     my %where;
     foreach my $name ($self->columns) {
-        $where{$name} = $self->get_column($name)
+        $where{$name} = $self->{_columns}->{$name}
           if $self->meta->is_primary_key($name);
     }
 
     if (!keys %where) {
         foreach my $name ($self->columns) {
-            $where{$name} = $self->get_column($name)
+            $where{$name} = $self->{_columns}->{$name}
               if $self->meta->is_unique_key($name);
         }
     }
