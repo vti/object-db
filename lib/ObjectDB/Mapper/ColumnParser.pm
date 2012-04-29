@@ -22,15 +22,17 @@ sub parse_column {
 
     my $meta = $self->{meta};
     my $rel_table;
+    my $name;
     foreach my $part (@parts) {
         my $relationship = $meta->relationships->{$part}
           or die "Unknown relationship '$part' in " . $meta->class;
+        $name      = $relationship->name;
         $rel_table = $relationship->class->meta->table;
         $meta      = $relationship->class->meta;
     }
 
     if ($rel_table) {
-        $column = $rel_table . '.' . $column;
+        $column = $name . '.' . $column;
 
         my $with = join '.', @parts;
         if (!grep { $_ eq $with } @{$self->{with}}) {
