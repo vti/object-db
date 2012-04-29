@@ -48,4 +48,7 @@ sub with {
     $_[0]->{with}
 }
 
+sub name {
+    $_[0]->{name}
+}
 1;

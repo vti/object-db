@@ -285,7 +285,7 @@ sub add_relationship {
 
     $self->{relationships}->{$name} =
       ObjectDB::Meta::RelationshipFactory->new->build($options->{type}, %$options,
-        orig_class => $self->get_class);
+        orig_class => $self->get_class, name => $name);
 }
 
 sub add_relationships {
@@ -309,8 +309,11 @@ sub _build_relationships {
 
     foreach my $rel (keys %{$relationships}) {
         $self->{relationships}->{$rel} =
-          ObjectDB::Meta::RelationshipFactory->new->build($relationships->{$rel}->{type}, %{$relationships->{$rel}},
-            orig_class => $self->{class});
+          ObjectDB::Meta::RelationshipFactory->new->build(
+            $relationships->{$rel}->{type}, %{$relationships->{$rel}},
+            orig_class => $self->{class},
+            name       => $rel
+          );
     }
 }
 

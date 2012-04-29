@@ -104,7 +104,7 @@ sub count {
     my $mapper = ObjectDB::Mapper->new(meta => $self->meta);
 
     my ($sql, @bind) = $mapper->to_sql(
-        columns => [{name => 'COUNT(*)', as => 'count'}],
+        columns => [{name => \'COUNT(*)', as => 'count'}],
         %params
     );
 

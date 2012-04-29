@@ -14,6 +14,7 @@ sub build_to_source : Test {
     my $self = shift;
 
     my $rel = $self->_build_relationship(
+        name       => 'author',
         type       => 'many to one',
         class      => 'Author',
         orig_class => 'Book',
@@ -23,9 +24,10 @@ sub build_to_source : Test {
     is_deeply(
         $rel->to_source,
         {   table      => 'author',
+            as         => 'author',
             join       => 'left',
             constraint => ['book.book_author_id' => {-col => 'author.id'}],
-            columns => ['id', 'name']
+            columns => ['author.id', 'author.name']
         }
     );
 }
@@ -34,6 +36,7 @@ sub accept_columns_but_leave_primary_key : Test {
     my $self = shift;
 
     my $rel = $self->_build_relationship(
+        name       => 'author',
         type       => 'many to one',
         class      => 'Author',
         orig_class => 'Book',
@@ -43,9 +46,10 @@ sub accept_columns_but_leave_primary_key : Test {
     is_deeply(
         $rel->to_source(columns => []),
         {   table      => 'author',
+            as         => 'author',
             join       => 'left',
             constraint => ['book.book_author_id' => {-col => 'author.id'}],
-            columns => ['id']
+            columns    => ['author.id']
         }
     );
 }

@@ -49,7 +49,7 @@ sub build_sql_with_related : Test(2) {
     my ($sql, @bind) = $mapper->to_sql(with => 'author');
 
     is($sql,
-        'SELECT `book`.`id`, `book`.`author_id`, `book`.`title`, `author`.`id`, `author`.`name` FROM `book` LEFT JOIN `author` ON `book`.`author_id` = `author`.`id`'
+        'SELECT `book`.`id`, `book`.`author_id`, `book`.`title`, `author`.`id`, `author`.`name` FROM `book` LEFT JOIN `author` AS `author` ON `book`.`author_id` = `author`.`id`'
     );
     is_deeply([@bind], []);
 }
@@ -62,7 +62,7 @@ sub build_sql_with_related_and_columns : Test(3) {
     my ($sql, @bind) = $mapper->to_sql(with => {name => 'description', columns => ['description']});
 
     is($sql,
-        'SELECT `book`.`id`, `book`.`author_id`, `book`.`title`, `book_description`.`id`, `book_description`.`description` FROM `book` LEFT JOIN `book_description` ON `book`.`id` = `book_description`.`book_id`'
+        'SELECT `book`.`id`, `book`.`author_id`, `book`.`title`, `description`.`id`, `description`.`description` FROM `book` LEFT JOIN `book_description` AS `description` ON `book`.`id` = `description`.`book_id`'
     );
     is_deeply([@bind], []);
 
@@ -79,7 +79,7 @@ sub build_sql_with_related_and_as_columns : Test(3) {
     my ($sql, @bind) = $mapper->to_sql(with => {name => 'description', columns => [{name => 'description', as => 'about'}]});
 
     is($sql,
-        'SELECT `book`.`id`, `book`.`author_id`, `book`.`title`, `book_description`.`id`, `book_description`.`description` AS `about` FROM `book` LEFT JOIN `book_description` ON `book`.`id` = `book_description`.`book_id`'
+        'SELECT `book`.`id`, `book`.`author_id`, `book`.`title`, `description`.`id`, `description`.`description` AS `about` FROM `book` LEFT JOIN `book_description` AS `description` ON `book`.`id` = `description`.`book_id`'
     );
     is_deeply([@bind], []);
 
@@ -97,7 +97,7 @@ sub build_sql_with_related_and_where : Test(2) {
       $mapper->to_sql(with => 'author', where => ['author.name' => 'vti']);
 
     is($sql,
-        'SELECT `book`.`id`, `book`.`author_id`, `book`.`title`, `author`.`id`, `author`.`name` FROM `book` LEFT JOIN `author` ON `book`.`author_id` = `author`.`id` WHERE `author`.`name` = ?'
+        'SELECT `book`.`id`, `book`.`author_id`, `book`.`title`, `author`.`id`, `author`.`name` FROM `book` LEFT JOIN `author` AS `author` ON `book`.`author_id` = `author`.`id` WHERE `author`.`name` = ?'
     );
     is_deeply([@bind], ['vti']);
 }
@@ -113,7 +113,7 @@ sub map_with_deep_related_and_where : Test(3) {
     );
 
     is($sql,
-        'SELECT `book_description`.`id`, `book_description`.`book_id`, `book_description`.`description`, `book`.`id`, `author`.`id`, `author`.`name` FROM `book_description` LEFT JOIN `book` ON `book_description`.`book_id` = `book`.`id` LEFT JOIN `author` ON `book`.`author_id` = `author`.`id` WHERE `author`.`name` = ?'
+        'SELECT `book_description`.`id`, `book_description`.`book_id`, `book_description`.`description`, `book`.`id`, `author`.`id`, `author`.`name` FROM `book_description` LEFT JOIN `book` AS `book` ON `book_description`.`book_id` = `book`.`id` LEFT JOIN `author` AS `author` ON `book`.`author_id` = `author`.`id` WHERE `author`.`name` = ?'
     );
     is_deeply([@bind], ['vti']);
 
@@ -137,8 +137,8 @@ sub map_with_multiple_deep_related : Test(4) {
         `book`.`id`, `book`.`author_id`, `book`.`title`,
         `author`.`id`, `author`.`name`
         FROM `book_description`
-        LEFT JOIN `book` ON `book_description`.`book_id` = `book`.`id`
-        LEFT JOIN `author` ON `book`.`author_id` = `author`.`id`';
+        LEFT JOIN `book` AS `book` ON `book_description`.`book_id` = `book`.`id`
+        LEFT JOIN `author` AS `author` ON `book`.`author_id` = `author`.`id`';
     $expected =~ s/\s+/ /g;
 
     is($sql, $expected);
@@ -167,8 +167,8 @@ sub map_automatically_on_where : Test(4) {
         `book`.`id`,
         `author`.`id`, `author`.`name`
         FROM `book_description`
-        LEFT JOIN `book` ON `book_description`.`book_id` = `book`.`id`
-        LEFT JOIN `author` ON `book`.`author_id` = `author`.`id`
+        LEFT JOIN `book` AS `book` ON `book_description`.`book_id` = `book`.`id`
+        LEFT JOIN `author` AS `author` ON `book`.`author_id` = `author`.`id`
         WHERE `author`.`name` = ?';
     $expected =~ s/\s+/ /g;
 
@@ -196,8 +196,8 @@ sub map_automatically_on_order_by : Test(4) {
        `book`.`id`,
        `author`.`id`, `author`.`name`
        FROM `book_description`
-       LEFT JOIN `book` ON `book_description`.`book_id` = `book`.`id`
-       LEFT JOIN `author` ON `book`.`author_id` = `author`.`id`
+       LEFT JOIN `book` AS `book` ON `book_description`.`book_id` = `book`.`id`
+       LEFT JOIN `author` AS `author` ON `book`.`author_id` = `author`.`id`
        ORDER BY `author`.`name`';
     $expected =~ s/\s+/ /g;
 

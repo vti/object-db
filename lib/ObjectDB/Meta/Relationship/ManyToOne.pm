@@ -21,12 +21,13 @@ sub to_source {
     my $self = shift;
     my (%options) = @_;
 
+    my $name      = $self->name;
     my $table     = $self->orig_class->meta->table;
     my $rel_table = $self->class->meta->table;
 
     my ($from, $to) = %{$self->{map}};
 
-    my $constraint = ["$table.$from" => {-col => "$rel_table.$to"}];
+    my $constraint = ["$table.$from" => {-col => "$name.$to"}];
 
     my @columns;
     if ($options{columns}) {
@@ -39,8 +40,13 @@ sub to_source {
         @columns = $self->class->meta->get_columns;
     }
 
+    @columns =
+      map { ref $_ ? {%$_, name => "$name.$_->{name}"} : "$name.$_" }
+      @columns;
+
     return {
         table      => $rel_table,
+        as         => $name,
         join       => $self->{join},
         constraint => $constraint,
         columns    => [@columns]

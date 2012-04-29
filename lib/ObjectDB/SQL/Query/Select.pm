@@ -110,8 +110,11 @@ sub _build_sources {
           .= ' '
           . uc($source->{type})
           . ' JOIN '
-          . $self->_quote_column($source->{table}) . ' ON '
-          . $expr->to_string;
+          . $self->_quote_column($source->{table});
+        if ($source->{as}) {
+            $sources .= ' AS ' . $self->_quote_column($source->{as});
+        }
+        $sources  .= ' ON ' . $expr->to_string;
         push @{$self->{bind}}, @{$self->{constraint}->bind};
     }
 

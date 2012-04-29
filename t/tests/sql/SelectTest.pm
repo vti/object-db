@@ -27,7 +27,7 @@ sub count_column : Test(2) {
     my $self = shift;
 
     my $sql = $self->_build_sql(
-        columns => ['COUNT(*)'],
+        columns => [\'COUNT(*)'],
         table   => 'table',
         where   => [a => 1]
     );
@@ -40,7 +40,7 @@ sub columns_as : Test(2) {
     my $self = shift;
 
     my $sql = $self->_build_sql(
-        columns => [{name => 'COUNT(*)', as => 'count'}],
+        columns => [{name => \'COUNT(*)', as => 'count'}],
         table   => 'table',
         where => [a => 1]
     );
@@ -141,12 +141,13 @@ sub join : Test(2) {
         table   => 'table'
       )->join(
         table      => 'table2',
+        as         => 'table3',
         columns    => 'bar',
-        constraint => ['table2.bar' => {-col => 'table.foo'}]
+        constraint => ['table3.bar' => {-col => 'table.foo'}]
       );
 
     is($sql->to_string,
-        'SELECT `table`.`foo`, `table2`.`bar` FROM `table` LEFT JOIN `table2` ON `table2`.`bar` = `table`.`foo`'
+        'SELECT `table`.`foo`, `table2`.`bar` FROM `table` LEFT JOIN `table2` AS `table3` ON `table3`.`bar` = `table`.`foo`'
     );
     is_deeply($sql->bind, []);
 }

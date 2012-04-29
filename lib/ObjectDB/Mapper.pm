@@ -121,7 +121,9 @@ sub _map_joins {
                 next;
             }
 
-            my @joins = $relationship->to_source(columns => @parts ? [] : $rel->{columns});
+            my @joins =
+              $relationship->to_source(%$rel,
+                columns => @parts ? [] : $rel->{columns});
 
             my @columns;
             foreach my $join (@joins) {
@@ -165,6 +167,7 @@ sub _map_row {
 
             foreach my $column (@{$rel->{parts}->{$part}}) {
                 my $name = ref $column eq 'HASH' ? $column->{as} || $column->{name} : $column;
+                $name =~ s{^$part\.}{};
                 $rel_object->set_column($name => shift @$row);
             }
 
