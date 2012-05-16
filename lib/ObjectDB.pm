@@ -81,12 +81,14 @@ sub txn {
         $dbh->commit;
         $dbh->{AutoCommit} = 1;
 
-        return 1;
+        return $self;
     } || do {
+        my $e = $@;
+
         $dbh->rollback;
         $dbh->{AutoCommit} = 1;
 
-        return 0;
+        die $e;
     };
 }
 

@@ -23,9 +23,7 @@ sub commit : Test {
 
     my $person = $self->_build_object(name => 'vti');
 
-    $person->txn(sub {
-        $person->create;
-    });
+    $person->txn(sub { $person->create });
 
     my $result = TestDBH->dbh->selectall_arrayref('SELECT * FROM `person`');
 
@@ -37,10 +35,14 @@ sub rollback : Test {
 
     my $person = $self->_build_object(name => 'vti');
 
-    $person->txn(sub {
-        $person->create;
-        die;
-    });
+    eval {
+        $person->txn(
+            sub {
+                $person->create;
+                die;
+            }
+        );
+    };
 
     my $result = TestDBH->dbh->selectall_arrayref('SELECT * FROM `person`');
 
