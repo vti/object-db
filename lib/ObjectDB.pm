@@ -67,6 +67,29 @@ sub init_db {
     return $DBH->isa('ObjectDB::DBHPool') ? $DBH->dbh : $DBH;
 }
 
+sub txn {
+    my $self = shift;
+    my ($cb) = @_;
+
+    my $dbh = $self->init_db;
+
+    eval {
+        $dbh->{AutoCommit} = 0;
+
+        $cb->();
+
+        $dbh->commit;
+        $dbh->{AutoCommit} = 1;
+
+        return 1;
+    } || do {
+        $dbh->rollback;
+        $dbh->{AutoCommit} = 1;
+
+        return 0;
+    };
+}
+
 sub meta {
     my $class = shift;
     $class = ref $class if ref $class;
