@@ -12,6 +12,11 @@ __PACKAGE__->meta(
     auto_increment => 'id',
     unique_keys    => 'name',
     relationships  => {
+        book_tag_map => {
+            type  => 'one to many',
+            class => 'BookTagMap',
+            map   => {id => 'tag_id'}
+        },
         books => {
             type      => 'many to many',
             map_class => 'BookTagMap',

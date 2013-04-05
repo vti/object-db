@@ -17,6 +17,11 @@ __PACKAGE__->meta(
             class => 'Author',
             map   => {author_id => 'id'}
         },
+        book_tag_map => {
+            type  => 'one to many',
+            class => 'BookTagMap',
+            map   => {id => 'book_id'}
+        },
         tags => {
             type      => 'many to many',
             map_class => 'BookTagMap',

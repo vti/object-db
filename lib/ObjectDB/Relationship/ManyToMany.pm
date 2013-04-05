@@ -44,70 +44,47 @@ sub create_related {
     return @related == 1 ? $objects[0] : @objects;
 }
 
-#sub find_related {
-#    my $self   = shift;
-#    my ($row)  = shift;
-#    my %params = @_;
-#
-#    my $meta = $self->meta;
-#
-#    my $map_from = $meta->map_from;
-#    my $map_to   = $meta->map_to;
-#
-#    my ($from, $to) = %{$meta->map_class->meta->relationships->{$map_to}->map};
-#
-#    my ($map_table_to, $map_table_from) =
-#      %{$meta->map_class->meta->relationships->{$map_from}->map};
-#
-#    push @{$params{where}}, 'books.id' => $row->column($map_table_from);
-#
-#    #my $table     = $meta->class->meta->table;
-#    #my $map_table = $meta->map_class->meta->table;
-#    #$params{joins} = [
-#        #{   table      => $map_table,
-#            #join       => 'left',
-#            #constraint => [
-#                #"$table.$to" => {-col => "$map_table.$from"},
-#                ##"$map_table.$map_table_to" => $row->column($map_table_from)
-#            #]
-#        #}
-#    #];
-#
-#    return $meta->class->table->find(%params);
-#}
-#
-#sub count_related {
-#    my $self = shift;
-#    my ($row) = shift;
-#    my %params = @_;
-#
-#    my $meta = $self->meta;
-#
-#    my $map_from = $meta->{map_from};
-#    my $map_to   = $meta->{map_to};
-#
-#    my ($map_table_to, $map_table_from) =
-#      %{$meta->map_class->meta->relationships->{$map_from}->map};
-#
-#    #push @{$params{where}},
-#      #($meta->map_class->meta->table . '.' . $to => $row->column($from));
-#
-#    my ($from, $to) = %{$meta->map_class->meta->relationships->{$map_to}->map};
-#
-#    my $table     = $meta->class->meta->table;
-#    my $map_table = $meta->map_class->meta->table;
-#    $params{joins} = [
-#        {   table      => $map_table,
-#            join       => 'left',
-#            constraint => [
-#                "$table.$to" => {-col => "$map_table.$from"},
-#                "$map_table.$map_table_to" => $row->column($map_table_from)
-#            ]
-#        }
-#    ];
-#
-#    return $meta->class->table->count(%params);
-#}
+sub find_related {
+    my $self   = shift;
+    my ($row)  = shift;
+    my %params = @_;
+
+    my $meta = $self->meta;
+
+    my $map_from = $meta->map_from;
+    my $map_to   = $meta->map_to;
+
+    my ($map_table_to, $map_table_from) =
+      %{$meta->map_class->meta->relationships->{$map_from}->map};
+
+    my $table     = $meta->class->meta->table;
+    my $map_table = $meta->map_class->meta->table;
+    $params{where} =
+      ["$map_table.$map_table_to" => $row->column($map_table_from)];
+
+    return $meta->class->table->find(%params);
+}
+
+sub count_related {
+    my $self = shift;
+    my ($row) = shift;
+    my %params = @_;
+
+    my $meta = $self->meta;
+
+    my $map_from = $meta->{map_from};
+    my $map_to   = $meta->{map_to};
+
+    my ($map_table_to, $map_table_from) =
+      %{$meta->map_class->meta->relationships->{$map_from}->map};
+
+    my $table     = $meta->class->meta->table;
+    my $map_table = $meta->map_class->meta->table;
+    $params{where} =
+      ["$map_table.$map_table_to" => $row->column($map_table_from)];
+
+    return $meta->class->table->count(%params);
+}
 
 sub delete_related {
     my $self = shift;
