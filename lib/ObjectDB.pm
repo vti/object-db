@@ -11,6 +11,8 @@ use ObjectDB::RelationshipFactory;
 use ObjectDB::SQLBuilder;
 use ObjectDB::Table;
 
+our $VERSION = '3.00';
+
 sub new {
     my $class = shift;
     $class = ref $class if ref $class;
