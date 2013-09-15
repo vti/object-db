@@ -67,11 +67,21 @@ sub init_db {
         return $self;
     }
 
-    die 'Setup a dbh first' unless ${"$class\::DBH"};
+    my $dbh = ${"$class\::DBH"};
 
-    return ${"$class\::DBH"}->isa('ObjectDB::DBHPool')
-      ? ${"$class\::DBH"}->dbh
-      : ${"$class\::DBH"};
+    if (!$dbh) {
+        foreach my $parent (_get_parents($class)) {
+            if ($dbh = ${"$parent\::DBH"}) {
+                last;
+            }
+        }
+    }
+
+    die 'Setup a dbh first' unless $dbh;
+
+    return $dbh->isa('ObjectDB::DBHPool')
+      ? $dbh->dbh
+      : $dbh;
 }
 
 sub txn {
@@ -502,6 +512,21 @@ sub _build_relationship {
     my $meta = $self->_load_relationship($name);
 
     return $self->{relationship_factory}->build($meta->type, meta => $meta);
+}
+
+sub _get_parents {
+    my ($for_class) = @_;
+
+    my @parents;
+
+    no strict 'refs';
+
+    foreach my $sub_class (@{"${for_class}::ISA"}) {
+        push @parents, _get_parents($sub_class)
+          if $sub_class->isa('ObjectDB') && $sub_class ne 'ObjectDB';
+    }
+
+    return $for_class, @parents;
 }
 
 1;
