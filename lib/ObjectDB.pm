@@ -49,24 +49,29 @@ sub is_modified {
     return $self->{is_modified};
 }
 
-our $DBH;
 sub init_db {
     my $self = shift;
 
+    no strict;
+
+    my $class = ref($self) ? ref($self) : $self;
+
     if (@_) {
         if (@_ == 1 && ref $_[0]) {
-            $DBH = shift;
+            ${"$class\::DBH"} = shift;
         }
         else {
-            $DBH = ObjectDB::DBHPool->new(@_);
+            ${"$class\::DBH"} = ObjectDB::DBHPool->new(@_);
         }
 
         return $self;
     }
 
-    die 'Setup a dbh first' unless $DBH;
+    die 'Setup a dbh first' unless ${"$class\::DBH"};
 
-    return $DBH->isa('ObjectDB::DBHPool') ? $DBH->dbh : $DBH;
+    return ${"$class\::DBH"}->isa('ObjectDB::DBHPool')
+      ? ${"$class\::DBH"}->dbh
+      : ${"$class\::DBH"};
 }
 
 sub txn {
