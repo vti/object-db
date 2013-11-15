@@ -73,13 +73,7 @@ sub find {
         order_by => $params{order_by},
     );
 
-    my $sql = $select->to_sql;
-    my @bind = $select->to_bind;
-
-    my $sth = $self->dbh->prepare($sql);
-    $sth->execute(@bind);
-
-    my $rows = $sth->fetchall_arrayref;
+    my $rows = $self->_execute($select);
     return unless $rows && @$rows;
 
     my @objects =
@@ -156,6 +150,24 @@ sub drop {
     my $self = shift;
 
     die 'implement';
+}
+
+sub _execute {
+    my $self = shift;
+    my ($stmt) = @_;
+
+    my $sql = $stmt->to_sql;
+    my @bind = $stmt->to_bind;
+
+    eval {
+        my $sth = $self->dbh->prepare($sql);
+        $sth->execute(@bind);
+        return $sth->fetchall_arrayref;
+    } or do {
+        my $e = $_;
+
+        Carp::croak($e);
+    };
 }
 
 1;
