@@ -17,7 +17,7 @@ sub new {
 
 sub quote {
     my $self = shift;
-    my ($column) = @_;
+    my ($column, $prefix) = @_;
 
     my @parts = split /\./, $column;
     $column = pop @parts;
@@ -41,7 +41,7 @@ sub quote {
           unless grep { $_ eq $with } @{$self->{with}};
     }
 
-    return $self->SUPER::quote($column);
+    return $self->SUPER::quote($column, $prefix);
 }
 
 sub with {
