@@ -5,18 +5,7 @@ use warnings;
 
 use base 'Exporter';
 
-our @EXPORT_OK = qw(each_pair load_class);
-
-sub each_pair(&@) {
-    my $block = shift;
-
-    my $i = 0;
-    while ($i < @_) {
-        $block->($_[$i], $_[$i + 1]);
-
-        $i += 2;
-    }
-}
+our @EXPORT_OK = qw(load_class);
 
 sub load_class {
     my ($class) = @_;

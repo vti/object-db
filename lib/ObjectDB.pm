@@ -179,7 +179,7 @@ sub columns {
 
     my @columns;
     foreach my $key ($self->meta->columns) {
-        if (exists $self->{_columns}->{$key}) {
+        if (exists $self->{columns}->{$key}) {
             push @columns, $key;
         }
     }
@@ -190,7 +190,7 @@ sub columns {
 sub column {
     my $self = shift;
 
-    $self->{_columns} ||= {};
+    $self->{columns} ||= {};
 
     if (@_ == 1) {
         return $self->get_column(@_);
@@ -207,7 +207,7 @@ sub get_column {
     my ($name) = @_;
 
     if ($self->meta->is_column($name)) {
-        unless (exists $self->{_columns}->{$name}) {
+        unless (exists $self->{columns}->{$name}) {
             if (exists $self->meta->get_column($name)->{default}) {
                 my $default = $self->meta->get_column($name)->{default};
                 return ref $default eq 'CODE' ? $default->() : $default;
@@ -217,12 +217,12 @@ sub get_column {
             }
         }
 
-        return $self->{_columns}->{$name};
+        return $self->{columns}->{$name};
     }
     elsif ($self->meta->is_relationship($name)) {
         return
-          exists $self->{_relationships}->{$name}
-          ? $self->{_relationships}->{$name}
+          exists $self->{relationships}->{$name}
+          ? $self->{relationships}->{$name}
           : undef;
     }
     else {
@@ -233,9 +233,6 @@ sub get_column {
 sub set_columns {
     my $self = shift;
     my %values = ref $_[0] ? %{$_[0]} : @_;
-
-    #$self->{_columns}        = {};
-    #$self->{virtual_columns} = {};
 
     while (my ($key, $value) = each %values) {
         $self->set_column($key => $value);
@@ -255,14 +252,14 @@ sub set_column {
             $value = '';
         }
 
-        if (!exists $self->{_columns}->{$name}
+        if (!exists $self->{columns}->{$name}
             || !(
-                   (defined $self->{_columns}->{$name} && defined $value)
-                && ($self->{_columns}->{$name} eq $value)
+                   (defined $self->{columns}->{$name} && defined $value)
+                && ($self->{columns}->{$name} eq $value)
             )
           )
         {
-            $self->{_columns}->{$name} = $value;
+            $self->{columns}->{$name} = $value;
             $self->{is_modified} = 1;
         }
     }
@@ -271,7 +268,7 @@ sub set_column {
             $value = $self->meta->relationships->{$name}->class->new(%$value);
         }
 
-        $self->{_relationships}->{$name} = $value;
+        $self->{relationships}->{$name} = $value;
     }
     else {
         $self->{virtual_columns}->{$name} = $value;
@@ -304,7 +301,7 @@ sub create {
     my $sql = SQL::Builder->build(
         'insert',
         into => $self->meta->table,
-        values => [map { $_ => $self->{_columns}->{$_} } $self->columns]
+        values => [map { $_ => $self->{columns}->{$_} } $self->columns]
     );
 
     my $sth = $dbh->prepare($sql->to_sql);
@@ -323,8 +320,8 @@ sub create {
     $self->{is_modified} = 0;
 
     foreach my $rel (keys %{$self->meta->relationships}) {
-        if (my $rel_values = $self->{_relationships}->{$rel}) {
-            $self->{_relationships}->{$rel} =
+        if (my $rel_values = $self->{relationships}->{$rel}) {
+            $self->{relationships}->{$rel} =
               $self->create_related($rel, $rel_values);
         }
     }
@@ -352,7 +349,7 @@ sub load {
 
     die ref($self) . ": no primary or unique keys specified" unless @columns;
 
-    my $where = [map { $_ => $self->{_columns}->{$_} } @columns];
+    my $where = [map { $_ => $self->{columns}->{$_} } @columns];
 
     my $with = ObjectDB::With->new(meta => $self->meta, with => $params{with});
 
@@ -394,13 +391,13 @@ sub update {
 
     my %where;
     foreach my $name ($self->columns) {
-        $where{$name} = $self->{_columns}->{$name}
+        $where{$name} = $self->{columns}->{$name}
           if $self->meta->is_primary_key($name);
     }
 
     if (!keys %where) {
         foreach my $name ($self->columns) {
-            $where{$name} = $self->{_columns}->{$name}
+            $where{$name} = $self->{columns}->{$name}
               if $self->meta->is_unique_key($name);
         }
     }
@@ -411,7 +408,7 @@ sub update {
     my $dbh = $self->init_db;
 
     my @columns = grep { !$self->meta->is_primary_key($_) } $self->columns;
-    my @values  = map  { $self->{_columns}->{$_} } @columns;
+    my @values  = map  { $self->{columns}->{$_} } @columns;
 
     my %set;
     @set{@columns} = @values;
@@ -437,13 +434,13 @@ sub delete {
 
     my %where;
     foreach my $name ($self->columns) {
-        $where{$name} = $self->{_columns}->{$name}
+        $where{$name} = $self->{columns}->{$name}
           if $self->meta->is_primary_key($name);
     }
 
     if (!keys %where) {
         foreach my $name ($self->columns) {
-            $where{$name} = $self->{_columns}->{$name}
+            $where{$name} = $self->{columns}->{$name}
               if $self->meta->is_unique_key($name);
         }
     }
@@ -475,7 +472,7 @@ sub to_hash {
     my $hash = {};
 
     foreach my $key ($self->meta->get_columns) {
-        if (exists $self->{_columns}->{$key}) {
+        if (exists $self->{columns}->{$key}) {
             $hash->{$key} = $self->get_column($key);
         }
         elsif (exists $self->meta->get_column($key)->{default}) {
@@ -487,8 +484,8 @@ sub to_hash {
         $hash->{$key} = $self->get_column($key);
     }
 
-    foreach my $name (keys %{$self->{_relationships}}) {
-        my $rel = $self->{_relationships}->{$name};
+    foreach my $name (keys %{$self->{relationships}}) {
+        my $rel = $self->{relationships}->{$name};
 
         die "unknown '$name' relationship" unless $rel;
 
@@ -502,21 +499,21 @@ sub is_related_loaded {
     my $self = shift;
     my ($name) = @_;
 
-    return exists $self->{_relationships}->{$name};
+    return exists $self->{relationships}->{$name};
 }
 
 sub related {
     my $self = shift;
     my ($name) = shift;
 
-    if (!$self->{_relationships}->{$name}) {
-        $self->{_relationships}->{$name} =
+    if (!$self->{relationships}->{$name}) {
+        $self->{relationships}->{$name} =
           wantarray
           ? [$self->find_related($name, @_)]
           : $self->find_related($name, @_);
     }
 
-    my $related = $self->{_relationships}->{$name};
+    my $related = $self->{relationships}->{$name};
 
     return
         wantarray

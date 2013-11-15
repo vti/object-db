@@ -5,7 +5,6 @@ use lib 't/tests';
 
 BEGIN { $ENV{TEST_SUITE} = 1 }
 
-use UtilTest;
 use ColumnsTest;
 use ConnectionTest;
 use DBHPoolTest;
