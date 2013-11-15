@@ -17,9 +17,11 @@ WriteMakefile(
 
     ($mm < 6.3002 ? () : ('LICENSE' => 'artistic_2')),
 
-    (   $mm < 6.46
+    (
+        $mm < 6.46
         ? ()
-        : ( META_MERGE => {
+        : (
+            META_MERGE => {
                 requires  => {perl => '5.008007'},
                 resources => {
                     license    => 'http://dev.perl.org/licenses/',
@@ -31,7 +33,9 @@ WriteMakefile(
     ),
 
     PREREQ_PM => {
-        'Carp' => 0
+        'Carp' => 0,
+
+        'SQL::Builder' => 0
     },
     dist  => {COMPRESS => 'gzip -9f', SUFFIX => 'gz'},
     clean => {FILES    => 'ObjectDB-*'},

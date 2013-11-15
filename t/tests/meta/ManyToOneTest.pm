@@ -27,7 +27,7 @@ sub build_to_source : Test {
             as         => 'author',
             join       => 'left',
             constraint => ['book.book_author_id' => {-col => 'author.id'}],
-            columns => ['author.id', 'author.name']
+            columns => ['id', 'name']
         }
     );
 }
@@ -49,7 +49,7 @@ sub accept_columns_but_leave_primary_key : Test {
             as         => 'author',
             join       => 'left',
             constraint => ['book.book_author_id' => {-col => 'author.id'}],
-            columns    => ['author.id']
+            columns    => ['id']
         }
     );
 }

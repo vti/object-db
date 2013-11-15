@@ -1,19 +1,21 @@
-package ObjectDB::Mapper::ColumnParser;
+package ObjectDB::Quoter;
 
 use strict;
 use warnings;
 
-use base 'ObjectDB::SQL::ColumnParser';
+use base 'SQL::Builder::Quoter';
 
 sub new {
     my $self = shift->SUPER::new(@_);
+    my (%params) = @_;
 
+    $self->{meta} = $params{meta};
     $self->{with} = [];
 
     return $self;
 }
 
-sub parse_column {
+sub quote {
     my $self = shift;
     my ($column) = @_;
 
@@ -35,13 +37,17 @@ sub parse_column {
         $column = $name . '.' . $column;
 
         my $with = join '.', @parts;
-        if (!grep { $_ eq $with } @{$self->{with}}) {
-            $self->{callback}->($with);
-            push @{$self->{with}}, $with;
-        }
+        push @{$self->{with}}, $with
+          unless grep { $_ eq $with } @{$self->{with}};
     }
 
-    return $column;
+    return $self->SUPER::quote($column);
+}
+
+sub with {
+    my $self = shift;
+
+    return @{$self->{with} || []};
 }
 
 1;

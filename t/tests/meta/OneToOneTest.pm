@@ -27,7 +27,7 @@ sub build_to_source : Test {
             as         => 'books',
             join       => 'left',
             constraint => ['author.id' => {-col => 'books.book_author_id'}],
-            columns    => ['books.id', 'books.author_id', 'books.title']
+            columns    => ['id', 'author_id', 'title']
         }
     );
 }

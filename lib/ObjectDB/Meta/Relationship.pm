@@ -51,4 +51,5 @@ sub with {
 sub name {
     $_[0]->{name}
 }
+
 1;

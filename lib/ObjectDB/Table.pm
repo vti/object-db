@@ -4,10 +4,10 @@ use strict;
 use warnings;
 
 require Carp;
-use ObjectDB::SQLBuilder;
+use SQL::Builder;
+use ObjectDB::Quoter;
+use ObjectDB::With;
 use ObjectDB::Meta;
-use ObjectDB::Iterator;
-use ObjectDB::Mapper;
 
 sub new {
     my $class = shift;
@@ -48,9 +48,28 @@ sub find {
         }
     }
 
-    my $mapper = ObjectDB::Mapper->new(meta => $self->meta);
+    my $quoter = ObjectDB::Quoter->new(meta => $self->meta);
+    my $where = SQL::Builder::Expression->new(
+        quoter         => $quoter,
+        expr           => $params{where},
+        default_prefix => $self->meta->table
+    );
+    my $with =
+      ObjectDB::With->new(meta => $self->meta, with => [$quoter->with]);
 
-    my ($sql, @bind) = $mapper->to_sql(%params);
+    my $select = SQL::Builder->build(
+        'select',
+        from     => $self->meta->table,
+        columns  => [$self->meta->get_columns],
+        join     => $with->to_joins,
+        where    => $where,
+        limit    => $params{limit},
+        offset   => $params{offset},
+        order_by => $params{order_by},
+    );
+
+    my $sql = $select->to_sql;
+    my @bind = $select->to_bind;
 
     my $sth = $self->dbh->prepare($sql);
     $sth->execute(@bind);
@@ -58,10 +77,8 @@ sub find {
     my $rows = $sth->fetchall_arrayref;
     return unless $rows && @$rows;
 
-    my @objects;
-    foreach my $row (@$rows) {
-        push @objects, $mapper->from_row($row);
-    }
+    my @objects =
+      map { $self->meta->class->new(%{$_}) } @{$select->from_rows($rows)};
 
     return $single ? $objects[0] : @objects;
 }
@@ -70,13 +87,13 @@ sub update {
     my $self = shift;
     my (%params) = @_;
 
-    my $sql = ObjectDB::SQLBuilder->build(
+    my $sql = SQL::Builder->build(
         'update',
         table => $self->meta->table,
         %params
     );
 
-    return $self->dbh->do($sql->to_string, undef, @{$sql->bind});
+    return $self->dbh->do($sql->to_sql, undef, $sql->to_bind);
 }
 
 sub delete {
@@ -84,15 +101,15 @@ sub delete {
 
     my $dbh = $class->dbh;
 
-    my $sql = ObjectDB::SQLBuilder->build(
+    my $sql = SQL::Builder->build(
         'delete',
-        table => $class->meta->table,
+        from => $class->meta->table,
         @_
     );
 
-    my $sth = $dbh->prepare($sql->to_string);
+    my $sth = $dbh->prepare($sql->to_sql);
 
-    return $sth->execute(@{$sql->bind});
+    return $sth->execute($sql->to_bind);
 }
 
 sub count {
@@ -101,28 +118,39 @@ sub count {
 
     my $dbh = $self->dbh;
 
-    my $mapper = ObjectDB::Mapper->new(meta => $self->meta);
-
-    my ($sql, @bind) = $mapper->to_sql(
-        columns => [{name => \'COUNT(*)', as => 'count'}],
-        %params
+    my $quoter = ObjectDB::Quoter->new(meta => $self->meta);
+    my $where = SQL::Builder::Expression->new(
+        quoter         => $quoter,
+        expr           => $params{where},
+        default_prefix => $self->meta->table
     );
+    my $with =
+      ObjectDB::With->new(meta => $self->meta, with => [$quoter->with]);
+
+    my $select = SQL::Builder->build(
+        'select',
+        from    => $self->meta->table,
+        columns => [{-col => \'COUNT(*)', -as => 'count'}],
+        where   => $where,
+        join    => $with->to_joins
+    );
+
+    my $sql  = $select->to_sql;
+    my @bind = $select->to_bind;
 
     my $sth = $dbh->prepare($sql);
     $sth->execute(@bind);
 
     my $results = $sth->fetchall_arrayref;
-    my $object = $mapper->from_row($results->[0]);
+    my $object  = $select->from_rows($results);
 
-    return $object->get_column('count');
+    return $object->[0]->{count};
 }
 
 sub drop {
     my $self = shift;
 
-    my $sql = ObjectDB::SQL::Query::DropTable->new(table => $self->meta->table);
-
-    return !!$self->dbh->do($sql->to_string);
+    die 'implement';
 }
 
 1;

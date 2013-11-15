@@ -4,12 +4,14 @@ use strict;
 use warnings;
 
 require Carp;
+use Scalar::Util ();
+use SQL::Builder;
 use ObjectDB::DBHPool;
-use ObjectDB::Mapper;
 use ObjectDB::Meta;
+use ObjectDB::Quoter;
 use ObjectDB::RelationshipFactory;
-use ObjectDB::SQLBuilder;
 use ObjectDB::Table;
+use ObjectDB::With;
 
 our $VERSION = '3.00';
 
@@ -217,6 +219,10 @@ sub set_column {
         }
     }
     elsif ($self->meta->is_relationship($name)) {
+        if (!Scalar::Util::blessed($value)) {
+            $value = $self->meta->relationships->{$name}->class->new(%$value);
+        }
+
         $self->{_relationships}->{$name} = $value;
     }
     else {
@@ -247,14 +253,14 @@ sub create {
 
     my $dbh = $self->init_db;
 
-    my $sql = ObjectDB::SQLBuilder->build(
+    my $sql = SQL::Builder->build(
         'insert',
-        table => $self->meta->table,
-        set => {map { $_ => $self->{_columns}->{$_} } $self->columns}
+        into => $self->meta->table,
+        values => [map { $_ => $self->{_columns}->{$_} } $self->columns]
     );
 
-    my $sth = $dbh->prepare($sql->to_string);
-    my $rv  = $sth->execute(@{$sql->bind});
+    my $sth = $dbh->prepare($sql->to_sql);
+    my $rv  = $sth->execute($sql->to_bind);
     return unless $rv;
 
     if (my $auto_increment = $self->meta->auto_increment) {
@@ -296,12 +302,23 @@ sub load {
 
     die ref($self) . ": no primary or unique keys specified" unless @columns;
 
-    $params{where} = [map { $_ => $self->{_columns}->{$_} } @columns];
+    my $where = [map { $_ => $self->{_columns}->{$_} } @columns];
+
+    my $with = ObjectDB::With->new(meta => $self->meta, with => $params{with});
+
+    my $select = SQL::Builder->build(
+        'select',
+        columns => [$self->meta->get_columns],
+        from    => $self->meta->table,
+        where   => $where,
+        join    => $with->to_joins,
+        limit   => 1
+    );
+
+    my $sql = $select->to_sql;
+    my @bind = $select->to_bind;
 
     my $dbh = $self->init_db;
-
-    my $mapper = ObjectDB::Mapper->new(meta => $self->meta);
-    my ($sql, @bind) = $mapper->to_sql(%params);
 
     my $sth = $dbh->prepare($sql);
     $sth->execute(@bind);
@@ -309,10 +326,9 @@ sub load {
     my $results = $sth->fetchall_arrayref;
     return unless $results && @$results;
 
-    my $object = $mapper->from_row($results->[0]);
+    my $object = $select->from_rows($results);
 
-    $self->{_columns}       = $object->{_columns};
-    $self->{_relationships} = $object->{_relationships};
+    $self->set_columns(%{$object->[0]});
 
     $self->{is_modified} = 0;
     $self->{is_in_db}    = 1;
@@ -348,15 +364,15 @@ sub update {
 
     my %set;
     @set{@columns} = @values;
-    my $sql = ObjectDB::SQLBuilder->build(
+    my $sql = SQL::Builder->build(
         'update',
         table => $self->meta->table,
-        set   => \%set,
+        values   => [%set],
         where => [%where]
     );
 
-    my $sth = $dbh->prepare($sql->to_string);
-    my $rv  = $sth->execute(@{$sql->bind});
+    my $sth = $dbh->prepare($sql->to_sql);
+    my $rv  = $sth->execute($sql->to_bind);
     die "Object was not updated" if $rv eq '0E0';
 
     $self->{is_modified} = 0;
@@ -386,15 +402,15 @@ sub delete {
 
     my $dbh = $self->init_db;
 
-    my $sql = ObjectDB::SQLBuilder->build(
+    my $sql = SQL::Builder->build(
         'delete',
-        table => $self->meta->table,
+        from  => $self->meta->table,
         where => [%where]
     );
 
-    my $sth = $dbh->prepare($sql->to_string);
+    my $sth = $dbh->prepare($sql->to_sql);
 
-    my $rv = $sth->execute(@{$sql->bind});
+    my $rv = $sth->execute($sql->to_bind);
     die "Object was not deleted" if $rv eq '0E0';
 
     %$self = ();

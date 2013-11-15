@@ -5,8 +5,6 @@ use warnings;
 
 use base 'ObjectDB::Meta::Relationship';
 
-use ObjectDB::Util qw(each_pair);
-
 sub new {
     my $self = shift->SUPER::new(@_);
 
@@ -41,7 +39,7 @@ sub to_source {
     }
 
     @columns =
-      map { ref $_ ? {%$_, name => "$name.$_->{name}"} : "$name.$_" }
+      map { ref $_ ? {%$_, name => $_->{name}} : $_ }
       @columns;
 
     return {
