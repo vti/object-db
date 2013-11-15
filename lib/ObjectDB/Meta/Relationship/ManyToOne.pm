@@ -20,7 +20,7 @@ sub to_source {
     my (%options) = @_;
 
     my $name      = $self->name;
-    my $table     = $self->orig_class->meta->table;
+    my $table     = $options{table} || $self->orig_class->meta->table;
     my $rel_table = $self->class->meta->table;
 
     my ($from, $to) = %{$self->{map}};

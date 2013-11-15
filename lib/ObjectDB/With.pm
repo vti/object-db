@@ -14,7 +14,8 @@ sub new {
 
     $self->{meta} = $params{meta};
     $self->{with} = $params{with};
-    $self->{with} = [$self->{with}] if $self->{with} &&  ref $self->{with} ne 'ARRAY';
+    $self->{with} = [$self->{with}]
+      if $self->{with} && ref $self->{with} ne 'ARRAY';
 
     my $joins = $self->{joins} = [];
 
@@ -26,22 +27,24 @@ sub new {
             my @parts = split /\./, $with;
 
             my $seen = '';
+            my $parent_as;
             foreach my $part (@parts) {
-                $seen .= '.'. $part;
+                $seen .= '.' . $part;
 
                 my $rel = $meta->relationships->{$part};
                 Carp::croak("Unknown relationship '$part' in " . $meta->class)
                   unless $rel;
 
                 if (!$seen{$seen}++) {
-                    my $join = $rel->to_source;
+                    my $join = $rel->to_source(table => $parent_as);
+                    $parent_as = $join->{as};
                     push @$joins,
                       {
                         source  => $join->{table},
+                        as      => $join->{as},
                         on      => $join->{constraint},
                         op      => $join->{join},
                         columns => $join->{columns},
-                        as      => $join->{as},
                       };
                 }
 
