@@ -5,6 +5,7 @@ use warnings;
 
 require Carp;
 use SQL::Builder;
+use ObjectDB;
 use ObjectDB::Quoter;
 use ObjectDB::With;
 use ObjectDB::Meta;
