@@ -30,6 +30,20 @@ sub create_related : Test {
     ok($book->related('description'));
 }
 
+sub create_related_object : Test {
+    my $self = shift;
+
+    my $book = Book->new(title => 'fiction')->create;
+    $book->create_related('description',
+        BookDescription->new(description => 'Crap'));
+
+    my $description = BookDescription->table->find(
+        first => 1,
+        where => [book_id => $book->get_column('id')]
+    );
+    is($description->get_column('description'), 'Crap');
+}
+
 sub find_related : Test {
     my $self = shift;
 

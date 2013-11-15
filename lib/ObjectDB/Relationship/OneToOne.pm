@@ -5,6 +5,8 @@ use warnings;
 
 use base 'ObjectDB::Relationship::ManyToOne';
 
+use Scalar::Util ();
+
 sub create_related {
     my $self = shift;
     my ($row) = shift;
@@ -25,8 +27,12 @@ sub create_related {
 
     my @objects;
     foreach my $related (@related) {
-        push @objects,
-          $meta->class->new->set_columns(%$related, @params)->create;
+        if (!Scalar::Util::blessed($related)) {
+            $related = $meta->class->new;
+        }
+        $related->set_columns(%$related, @params);
+        $related->create;
+        push @objects, $related;
     }
 
     return @related == 1 ? $objects[0] : @objects;
