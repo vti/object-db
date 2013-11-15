@@ -119,20 +119,44 @@ sub txn {
     eval {
         $dbh->{AutoCommit} = 0;
 
-        $cb->();
+        $cb->($self);
 
-        $dbh->commit;
-        $dbh->{AutoCommit} = 1;
+        $self->commit;
 
         return $self;
     } || do {
         my $e = $@;
 
-        $dbh->rollback;
-        $dbh->{AutoCommit} = 1;
+        $self->rollback;
 
-        die $e;
+        Carp::croak($e);
     };
+}
+
+sub commit {
+    my $self = shift;
+
+    my $dbh = $self->init_db();
+
+    if ($dbh->{AutoCommit} == 0) {
+        $dbh->commit();
+        $dbh->{AutoCommit} = 1;
+    }
+
+    return $self;
+}
+
+sub rollback {
+    my $self = shift;
+
+    my $dbh = $self->init_db();
+
+    if ($dbh->{AutoCommit} == 0) {
+        $dbh->rollback();
+        $dbh->{AutoCommit} = 1;
+    }
+
+    return $self;
 }
 
 sub meta {
