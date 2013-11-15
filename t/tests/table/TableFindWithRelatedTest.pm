@@ -21,7 +21,7 @@ sub setup : Test(setup) {
     TestEnv->prepare_table('book');
 }
 
-sub find_many_to_one : Test {
+sub find_many_to_one : Test(2) {
     my $self = shift;
 
     my $author = Author->new(name => 'vti')->create;
@@ -30,10 +30,11 @@ sub find_many_to_one : Test {
       ->create;
 
     $book = Book->new->table->find(first => 1, with => 'author');
+    ok $book->is_related_loaded('author');
     is($book->related('author')->get_column('name'), 'vti');
 }
 
-sub find_many_to_one_with_query : Test {
+sub find_many_to_one_with_query : Test(2) {
     my $self = shift;
 
     my $author = Author->new(name => 'vti')->create;
@@ -43,6 +44,7 @@ sub find_many_to_one_with_query : Test {
     Author->new(name => 'foo')->create;
 
     $book = Book->new->table->find(first => 1, with => 'author', where => ['author.name' => 'vti']);
+    ok $book->is_related_loaded('author');
     is($book->related('author')->get_column('name'), 'vti');
 }
 

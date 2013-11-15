@@ -35,6 +35,9 @@ sub find {
     my $self = shift;
     my (%params) = @_;
 
+    $params{with} ||= [];
+    $params{with} = [$params{with}] unless ref $params{with} eq 'ARRAY';
+
     my $single = delete $params{single} || delete $params{first};
 
     unless ($single) {
@@ -54,8 +57,10 @@ sub find {
         expr           => $params{where},
         default_prefix => $self->meta->table
     );
-    my $with =
-      ObjectDB::With->new(meta => $self->meta, with => [$quoter->with]);
+    my $with = ObjectDB::With->new(
+        meta => $self->meta,
+        with => [@{$params{with}}, $quoter->with]
+    );
 
     my $select = SQL::Builder->build(
         'select',
