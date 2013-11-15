@@ -308,6 +308,8 @@ sub create {
     return $self;
 }
 
+sub find { shift->table->find(@_) }
+
 sub load {
     my $self = shift;
     my (%params) = @_;
