@@ -358,11 +358,12 @@ sub load {
 
     my $select = SQL::Builder->build(
         'select',
-        columns => [$self->meta->get_columns],
-        from    => $self->meta->table,
-        where   => $where,
-        join    => $with->to_joins,
-        limit   => 1
+        columns    => [$self->meta->get_columns],
+        from       => $self->meta->table,
+        where      => $where,
+        join       => $with->to_joins,
+        limit      => 1,
+        for_update => $params{for_update},
     );
 
     my $sql = $select->to_sql;

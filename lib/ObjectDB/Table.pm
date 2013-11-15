@@ -65,14 +65,15 @@ sub find {
 
     my $select = SQL::Builder->build(
         'select',
-        from     => $self->meta->table,
-        columns  => [$self->meta->get_columns],
-        join     => $with->to_joins,
-        where    => $where,
-        limit    => $params{limit},
-        offset   => $params{offset},
-        order_by => $params{order_by},
-        group_by => $params{group_by},
+        from       => $self->meta->table,
+        columns    => [$self->meta->get_columns],
+        join       => $with->to_joins,
+        where      => $where,
+        limit      => $params{limit},
+        offset     => $params{offset},
+        order_by   => $params{order_by},
+        group_by   => $params{group_by},
+        for_update => $params{for_update},
     );
 
     my $rows = $self->_execute($select);
