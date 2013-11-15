@@ -27,10 +27,10 @@ sub create_related : Test {
     my $book = Book->new(title => 'fiction')->create;
     $book->create_related('description', description => 'Crap');
 
-    ok($book->related('description'));
+    is($book->related('description')->get_column('description'), 'Crap');
 }
 
-sub create_related_object : Test {
+sub create_related_from_object : Test {
     my $self = shift;
 
     my $book = Book->new(title => 'fiction')->create;

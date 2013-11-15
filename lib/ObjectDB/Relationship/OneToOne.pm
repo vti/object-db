@@ -28,9 +28,9 @@ sub create_related {
     my @objects;
     foreach my $related (@related) {
         if (!Scalar::Util::blessed($related)) {
-            $related = $meta->class->new;
+            $related = $meta->class->new(%$related);
         }
-        $related->set_columns(%$related, @params);
+        $related->set_columns(@params);
         $related->create;
         push @objects, $related;
     }
