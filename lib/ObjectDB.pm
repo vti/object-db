@@ -119,11 +119,11 @@ sub txn {
     eval {
         $dbh->{AutoCommit} = 0;
 
-        $cb->($self);
+        my $retval = $cb->($self);
 
         $self->commit;
 
-        return $self;
+        return $retval;
     } || do {
         my $e = $@;
 

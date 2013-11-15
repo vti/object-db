@@ -61,4 +61,18 @@ subtest 'rollback manually' => sub {
     is(Book->table->count, 0);
 };
 
+subtest 'return block value' => sub {
+    TestEnv->prepare_table('book');
+
+    my $result = Book->txn(
+        sub {
+            my $self = shift;
+
+            'hi there'
+        }
+    );
+
+    is($result, 'hi there');
+};
+
 done_testing;
