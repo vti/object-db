@@ -10,16 +10,17 @@ use Book;
 use BookDescription;
 
 subtest 'convert with to joins' => sub {
-    my $with = ObjectDB::With->new(meta => Book->meta, with => ['author']);
+    my $with =
+      ObjectDB::With->new(meta => Book->meta, with => ['parent_author']);
 
     is_deeply $with->to_joins,
       [
         {
             source  => 'author',
-            as      => 'author',
+            as      => 'parent_author',
             op      => 'left',
             columns => [qw/id name/],
-            on      => ['book.author_id' => {-col => 'author.id'}],
+            on      => ['book.author_id' => {-col => 'parent_author.id'}],
             join    => [],
         }
       ];
@@ -28,25 +29,26 @@ subtest 'convert with to joins' => sub {
 subtest 'convert with to joins deeply' => sub {
     my $with = ObjectDB::With->new(
         meta => BookDescription->meta,
-        with => ['book', 'book.author']
+        with => ['parent_book', 'parent_book.parent_author']
     );
 
     is_deeply $with->to_joins,
       [
         {
             source  => 'book',
-            as      => 'book',
+            as      => 'parent_book',
             op      => 'left',
             columns => [qw/id author_id title/],
-            on      => ['book_description.book_id' => {-col => 'book.id'}],
-            join    => [
+            on   => ['book_description.book_id' => {-col => 'parent_book.id'}],
+            join => [
                 {
                     source  => 'author',
-                    as      => 'author',
+                    as      => 'parent_author',
                     op      => 'left',
                     columns => [qw/id name/],
-                    on      => ['book.author_id' => {-col => 'author.id'}],
-                    join    => []
+                    on =>
+                      ['parent_book.author_id' => {-col => 'parent_author.id'}],
+                    join => []
                 }
             ]
         },
@@ -56,25 +58,26 @@ subtest 'convert with to joins deeply' => sub {
 subtest 'autoload intermediate joins' => sub {
     my $with = ObjectDB::With->new(
         meta => BookDescription->meta,
-        with => ['book.author']
+        with => ['parent_book.parent_author']
     );
 
     is_deeply $with->to_joins,
       [
         {
             source  => 'book',
-            as      => 'book',
+            as      => 'parent_book',
             op      => 'left',
             columns => [qw/id author_id title/],
-            on      => ['book_description.book_id' => {-col => 'book.id'}],
-            join    => [
+            on   => ['book_description.book_id' => {-col => 'parent_book.id'}],
+            join => [
                 {
                     source  => 'author',
-                    as      => 'author',
+                    as      => 'parent_author',
                     op      => 'left',
                     columns => [qw/id name/],
-                    on      => ['book.author_id' => {-col => 'author.id'}],
-                    join    => []
+                    on =>
+                      ['parent_book.author_id' => {-col => 'parent_author.id'}],
+                    join => []
                 }
             ]
         },

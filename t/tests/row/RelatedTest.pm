@@ -29,9 +29,9 @@ sub related : Test {
       Book->new(title => 'Crap', author_id => $author->get_column('id'))
       ->create;
 
-    $book = Book->new(title => 'Crap')->load(with => 'author');
+    $book = Book->new(title => 'Crap')->load(with => 'parent_author');
 
-    is($book->related('author')->get_column('name'), 'vti');
+    is($book->related('parent_author')->get_column('name'), 'vti');
 }
 
 sub is_related_loaded : Test {
@@ -42,9 +42,9 @@ sub is_related_loaded : Test {
       Book->new(title => 'Crap', author_id => $author->get_column('id'))
       ->create;
 
-    $book = Book->new(title => 'Crap')->load(with => 'author');
+    $book = Book->new(title => 'Crap')->load(with => 'parent_author');
 
-    ok($book->is_related_loaded('author'));
+    ok($book->is_related_loaded('parent_author'));
 }
 
 sub load_related_on_demand : Test {
@@ -57,7 +57,7 @@ sub load_related_on_demand : Test {
 
     $book = Book->new(title => 'Crap')->load;
 
-    is($book->related('author')->get_column('name'), 'vti');
+    is($book->related('parent_author')->get_column('name'), 'vti');
 }
 
 sub is_related_loaded_false : Test {
@@ -70,7 +70,7 @@ sub is_related_loaded_false : Test {
 
     $book = Book->new(title => 'Crap')->load;
 
-    ok(!$book->is_related_loaded('author'));
+    ok(!$book->is_related_loaded('parent_author'));
 }
 
 1;

@@ -31,9 +31,9 @@ sub find_many_to_one : Test(2) {
       Book->new(title => 'Crap', author_id => $author->get_column('id'))
       ->create;
 
-    $book = Book->new->table->find(first => 1, with => 'author');
-    ok $book->is_related_loaded('author');
-    is($book->related('author')->get_column('name'), 'vti');
+    $book = Book->new->table->find(first => 1, with => 'parent_author');
+    ok $book->is_related_loaded('parent_author');
+    is($book->related('parent_author')->get_column('name'), 'vti');
 }
 
 sub find_many_to_one_deeply : Test(4) {
@@ -48,11 +48,18 @@ sub find_many_to_one_deeply : Test(4) {
         book_id     => $book->get_column('id')
     )->create;
 
-    $description = BookDescription->new->table->find(first => 1, with => 'book.author');
-    ok $description->is_related_loaded('book');
-    is($description->related('book')->get_column('title'), 'Crap');
-    ok $description->related('book')->is_related_loaded('author');
-    is($description->related('book')->related('author')->get_column('name'), 'vti');
+    $description = BookDescription->new->table->find(
+        first => 1,
+        with  => 'parent_book.parent_author'
+    );
+    ok $description->is_related_loaded('parent_book');
+    is($description->related('parent_book')->get_column('title'), 'Crap');
+    ok $description->related('parent_book')->is_related_loaded('parent_author');
+    is(
+        $description->related('parent_book')->related('parent_author')
+          ->get_column('name'),
+        'vti'
+    );
 }
 
 sub find_many_to_one_with_query : Test(2) {
@@ -64,9 +71,12 @@ sub find_many_to_one_with_query : Test(2) {
       ->create;
     Author->new(name => 'foo')->create;
 
-    $book = Book->new->table->find(first => 1, with => 'author', where => ['author.name' => 'vti']);
-    ok $book->is_related_loaded('author');
-    is($book->related('author')->get_column('name'), 'vti');
+    $book = Book->new->table->find(
+        first => 1,
+        where => ['parent_author.name' => 'vti']
+    );
+    ok $book->is_related_loaded('parent_author');
+    is($book->related('parent_author')->get_column('name'), 'vti');
 }
 
 1;

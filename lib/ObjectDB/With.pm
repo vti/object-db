@@ -17,7 +17,7 @@ sub new {
     $self->{with} = [$self->{with}]
       if $self->{with} && ref $self->{with} ne 'ARRAY';
 
-    my $joins = $self->{joins} = [];
+    my $joins = {join => []};
 
     my %seen;
     if (my @with = sort @{$self->{with} || []}) {
@@ -41,9 +41,9 @@ sub new {
                     next;
                 }
 
-                my $join = $rel->to_source;
+                my $join = $rel->to_source(table => $parent_join->{as});
 
-                push @{$parent_join},
+                push @{$parent_join->{join}},
                   {
                     source  => $join->{table},
                     as      => $join->{as},
@@ -53,13 +53,15 @@ sub new {
                     join    => []
                   };
 
-                $parent_join = $joins->[-1]->{join};
+                $parent_join = $parent_join->{join}->[-1];
                 $seen{$seen} = $parent_join;
 
                 $meta = $rel->class->meta;
             }
         }
     }
+
+    $self->{joins} = $joins->{join};
 
     return $self;
 }

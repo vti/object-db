@@ -11,7 +11,7 @@ __PACKAGE__->meta(
     primary_key    => 'id',
     auto_increment => 'id',
     relationships  => {
-        book => {
+        parent_book => {
             type  => 'one to one',
             class => 'Book',
             map   => {book_id => 'id'}

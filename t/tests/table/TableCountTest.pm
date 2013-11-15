@@ -64,7 +64,7 @@ sub count_rows_with_query_and_join : Test {
 
     my $table = $self->_build_table(class => 'Book');
 
-    is($table->count(where => ['author.name' => 'author']), 2);
+    is($table->count(where => ['parent_author.name' => 'author']), 2);
 }
 
 sub _build_table {

@@ -12,7 +12,7 @@ __PACKAGE__->meta(
     auto_increment => 'id',
     unique_keys    => 'title',
     relationships  => {
-        author => {
+        parent_author => {
             type  => 'many to one',
             class => 'Author',
             map   => {author_id => 'id'}

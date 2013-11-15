@@ -31,7 +31,7 @@ sub find_related : Test {
 
     $book = Book->new(title => 'Crap')->load;
 
-    $author = $book->find_related('author');
+    $author = $book->find_related('parent_author');
 
     is($author->get_column('name'), 'vti');
 }

@@ -17,17 +17,17 @@ subtest 'quote' => sub {
 subtest 'collect with' => sub {
     my $quoter = ObjectDB::Quoter->new(meta => Book->meta);
 
-    is $quoter->quote('author.name'), '`author`.`name`';
-    is_deeply [$quoter->with], ['author'];
+    is $quoter->quote('parent_author.name'), '`parent_author`.`name`';
+    is_deeply [$quoter->with], ['parent_author'];
 };
 
 subtest 'not collect with if exists' => sub {
     my $quoter = ObjectDB::Quoter->new(meta => Book->meta);
 
-    $quoter->quote('author.name');
-    $quoter->quote('author.name');
+    $quoter->quote('parent_author.name');
+    $quoter->quote('parent_author.name');
 
-    is_deeply [$quoter->with], ['author'];
+    is_deeply [$quoter->with], ['parent_author'];
 };
 
 done_testing;

@@ -51,14 +51,15 @@ sub with_related : Test {
     my $author = Author->new(name => 'vti')->create;
     $author->create_related('books', title => 'Crap');
 
-    my $book = Book->new(title => 'Crap')->load(with => 'author');
+    my $book = Book->new(title => 'Crap')->load(with => 'parent_author');
 
     is_deeply(
         $book->to_hash,
-        {   id        => 1,
-            author_id => 1,
-            title     => 'Crap',
-            author    => {id => 1, name => 'vti'}
+        {
+            id            => 1,
+            author_id     => 1,
+            title         => 'Crap',
+            parent_author => {id => 1, name => 'vti'}
         }
     );
 }

@@ -66,7 +66,7 @@ sub find_related : Test(2) {
     my @books = $author->find_related('books');
 
     is(@books, 2);
-    is($books[0]->related('author')->get_column('name'), 'vti');
+    is($books[0]->related('parent_author')->get_column('name'), 'vti');
 }
 
 sub related : Test(2) {
@@ -80,7 +80,7 @@ sub related : Test(2) {
     my @books = $author->related('books');
 
     is(@books, 2);
-    is($books[0]->related('author')->get_column('name'), 'vti');
+    is($books[0]->related('parent_author')->get_column('name'), 'vti');
 }
 
 sub count_related : Test {
