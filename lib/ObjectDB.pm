@@ -15,6 +15,30 @@ use ObjectDB::With;
 
 our $VERSION = '3.00';
 
+$Carp::Internal{(__PACKAGE__)}++;
+$Carp::Internal{"ObjectDB::$_"}++ for qw/
+  With
+  Relationship
+  Relationship::ManyToOne
+  Relationship::OneToOne
+  Relationship::ManyToMany
+  Relationship::OneToMany
+  Meta::Relationship
+  Meta::Relationship::ManyToOne
+  Meta::Relationship::OneToOne
+  Meta::Relationship::Proxy
+  Meta::Relationship::ManyToMany
+  Meta::Relationship::OneToMany
+  Meta::RelationshipFactory
+  Base
+  Table
+  Util
+  Quoter
+  DBHPool
+  Meta
+  RelationshipFactory
+  /;
+
 sub new {
     my $class = shift;
     $class = ref $class if ref $class;
