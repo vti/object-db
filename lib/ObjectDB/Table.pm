@@ -165,7 +165,7 @@ sub _execute {
         $sth->execute(@bind);
         return $sth->fetchall_arrayref;
     } or do {
-        my $e = $_;
+        my $e = $@;
 
         Carp::croak($e);
     };
