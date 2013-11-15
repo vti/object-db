@@ -19,7 +19,8 @@ subtest 'convert with to joins' => sub {
             as      => 'author',
             op      => 'left',
             columns => [qw/id name/],
-            on      => ['book.author_id' => {-col => 'author.id'}]
+            on      => ['book.author_id' => {-col => 'author.id'}],
+            join    => [],
         }
       ];
 };
@@ -37,15 +38,18 @@ subtest 'convert with to joins deeply' => sub {
             as      => 'book',
             op      => 'left',
             columns => [qw/id author_id title/],
-            on      => ['book_description.book_id' => {-col => 'book.id'}]
+            on      => ['book_description.book_id' => {-col => 'book.id'}],
+            join    => [
+                {
+                    source  => 'author',
+                    as      => 'author',
+                    op      => 'left',
+                    columns => [qw/id name/],
+                    on      => ['book.author_id' => {-col => 'author.id'}],
+                    join    => []
+                }
+            ]
         },
-        {
-            source  => 'author',
-            as      => 'author',
-            op      => 'left',
-            columns => [qw/id name/],
-            on      => ['book.author_id' => {-col => 'author.id'}]
-        }
       ];
 };
 
@@ -62,15 +66,18 @@ subtest 'autoload intermediate joins' => sub {
             as      => 'book',
             op      => 'left',
             columns => [qw/id author_id title/],
-            on      => ['book_description.book_id' => {-col => 'book.id'}]
+            on      => ['book_description.book_id' => {-col => 'book.id'}],
+            join    => [
+                {
+                    source  => 'author',
+                    as      => 'author',
+                    op      => 'left',
+                    columns => [qw/id name/],
+                    on      => ['book.author_id' => {-col => 'author.id'}],
+                    join    => []
+                }
+            ]
         },
-        {
-            source  => 'author',
-            as      => 'author',
-            op      => 'left',
-            columns => [qw/id name/],
-            on      => ['book.author_id' => {-col => 'author.id'}]
-        }
       ];
 };
 

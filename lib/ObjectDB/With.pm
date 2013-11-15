@@ -26,8 +26,8 @@ sub new {
 
             my @parts = split /\./, $with;
 
-            my $seen = '';
-            my $parent_as;
+            my $seen        = '';
+            my $parent_join = $joins;
             foreach my $part (@parts) {
                 $seen .= '.' . $part;
 
@@ -35,18 +35,26 @@ sub new {
                 Carp::croak("Unknown relationship '$part' in " . $meta->class)
                   unless $rel;
 
-                if (!$seen{$seen}++) {
-                    my $join = $rel->to_source(table => $parent_as);
-                    $parent_as = $join->{as};
-                    push @$joins,
-                      {
-                        source  => $join->{table},
-                        as      => $join->{as},
-                        on      => $join->{constraint},
-                        op      => $join->{join},
-                        columns => $join->{columns},
-                      };
+                if ($seen{$seen}) {
+                    $parent_join = $seen{$seen};
+                    $meta        = $rel->class->meta;
+                    next;
                 }
+
+                my $join = $rel->to_source;
+
+                push @{$parent_join},
+                  {
+                    source  => $join->{table},
+                    as      => $join->{as},
+                    on      => $join->{constraint},
+                    op      => $join->{join},
+                    columns => $join->{columns},
+                    join    => []
+                  };
+
+                $parent_join = $joins->[-1]->{join};
+                $seen{$seen} = $parent_join;
 
                 $meta = $rel->class->meta;
             }
