@@ -149,12 +149,6 @@ sub count {
     return $object->[0]->{count};
 }
 
-sub drop {
-    my $self = shift;
-
-    die 'implement';
-}
-
 sub _execute {
     my $self = shift;
     my ($stmt) = @_;
