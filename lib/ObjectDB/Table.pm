@@ -72,6 +72,7 @@ sub find {
         limit    => $params{limit},
         offset   => $params{offset},
         order_by => $params{order_by},
+        group_by => $params{group_by},
     );
 
     my $rows = $self->_execute($select);
