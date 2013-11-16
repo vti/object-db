@@ -1,0 +1,78 @@
+use Test::Spec;
+use Test::Fatal;
+
+use TestDBH;
+use TestEnv;
+use ObjectDB::Table;
+use Book;
+use BookDescription;
+
+describe 'one to one' => sub {
+
+    before each => sub {
+        TestEnv->prepare_table('book');
+        TestEnv->prepare_table('book_description');
+    };
+
+    it 'create_related' => sub {
+        my $book = Book->new(title => 'fiction')->create;
+        $book->create_related('description', description => 'Crap');
+
+        is($book->related('description')->get_column('description'), 'Crap');
+    };
+
+    it 'create_related_from_object' => sub {
+        my $book = Book->new(title => 'fiction')->create;
+        $book->create_related('description',
+            BookDescription->new(description => 'Crap'));
+
+        my $description = BookDescription->table->find(
+            first => 1,
+            where => [book_id => $book->get_column('id')]
+        );
+        is($description->get_column('description'), 'Crap');
+    };
+
+    it 'find_related' => sub {
+        my $book = Book->new(title => 'fiction')->create;
+        my $description = BookDescription->new(
+            description => 'Crap',
+            book_id     => $book->get_column('id')
+        )->create;
+
+        $book = Book->new(id => $book->get_column('id'))->load;
+
+        $description = $book->find_related('description');
+
+        is($description->get_column('description'), 'Crap');
+    };
+
+    it 'updated_related' => sub {
+        my $book = Book->new(title => 'fiction')->create;
+        my $description = BookDescription->new(
+            description => 'Crap',
+            book_id     => $book->get_column('id')
+        )->create;
+
+        $book = Book->new(id => $book->get_column('id'))->load;
+
+        $book->update_related('description', set => {description => 'Good'});
+
+        $book =
+          Book->new(id => $book->get_column('id'))->load(with => 'description');
+
+        is($book->related('description')->get_column('description'), 'Good');
+    };
+
+    it 'delete_related' => sub {
+        my $book = Book->new(title => 'fiction')->create;
+        $book->create_related('description', description => 'Crap');
+
+        $book->delete_related('description');
+
+        ok(!$book->related('description'));
+    };
+
+};
+
+runtests unless caller;

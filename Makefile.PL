@@ -33,9 +33,13 @@ WriteMakefile(
     ),
 
     PREREQ_PM => {
-        'Carp' => 0,
+        'Carp'        => 0,
+        'Storable'    => 0,
+        'Test::More'  => 0,
+        'Test::Fatal' => 0,
+        'Test::Spec'  => 0,
 
-        'SQL::Builder' => 0
+        'SQL::Builder' => 0,
     },
     dist  => {COMPRESS => 'gzip -9f', SUFFIX => 'gz'},
     clean => {FILES    => 'ObjectDB-*'},
