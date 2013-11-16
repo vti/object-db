@@ -26,8 +26,8 @@ sub quote {
     my $rel_table;
     my $name;
     foreach my $part (@parts) {
-        my $relationship = $meta->relationships->{$part}
-          or die "Unknown relationship '$part' in " . $meta->class;
+        my $relationship = $meta->get_relationship($part);
+
         $name      = $relationship->name;
         $rel_table = $relationship->class->meta->table;
         $meta      = $relationship->class->meta;

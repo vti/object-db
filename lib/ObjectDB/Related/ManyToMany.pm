@@ -1,9 +1,9 @@
-package ObjectDB::Relationship::ManyToMany;
+package ObjectDB::Related::ManyToMany;
 
 use strict;
 use warnings;
 
-use base 'ObjectDB::Relationship';
+use base 'ObjectDB::Related';
 
 sub create_related {
     my $self = shift;
@@ -28,10 +28,10 @@ sub create_related {
         my $map_to   = $meta->map_to;
 
         my ($from_foreign_pk, $from_pk) =
-          %{$meta->map_class->meta->relationships->{$map_from}->map};
+          %{$meta->map_class->meta->get_relationship($map_from)->map};
 
         my ($to_foreign_pk, $to_pk) =
-          %{$meta->map_class->meta->relationships->{$map_to}->map};
+          %{$meta->map_class->meta->get_relationship($map_to)->map};
 
         $meta->map_class->new(
             $from_foreign_pk => $row->get_column($from_pk),
@@ -55,7 +55,7 @@ sub find_related {
     my $map_to   = $meta->map_to;
 
     my ($map_table_to, $map_table_from) =
-      %{$meta->map_class->meta->relationships->{$map_from}->map};
+      %{$meta->map_class->meta->get_relationship($map_from)->map};
 
     my $table     = $meta->class->meta->table;
     my $map_table = $meta->map_class->meta->table;
@@ -76,7 +76,7 @@ sub count_related {
     my $map_to   = $meta->{map_to};
 
     my ($map_table_to, $map_table_from) =
-      %{$meta->map_class->meta->relationships->{$map_from}->map};
+      %{$meta->map_class->meta->get_relationship($map_from)->map};
 
     my $table     = $meta->class->meta->table;
     my $map_table = $meta->map_class->meta->table;
@@ -98,7 +98,7 @@ sub delete_related {
     my $map_to   = $meta->map_to;
 
     my ($to, $from) =
-      %{$meta->map_class->meta->relationships->{$map_from}->map};
+      %{$meta->map_class->meta->get_relationship($map_from)->map};
 
     push @{$params{where}}, ($to => $row->get_column($from));
 

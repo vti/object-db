@@ -3,6 +3,7 @@ package ObjectDB::Meta::Relationship;
 use strict;
 use warnings;
 
+require Carp;
 use ObjectDB::Util qw(load_class);
 
 sub new {
@@ -12,9 +13,9 @@ sub new {
     my $self = {};
     bless $self, $class;
 
-    $self->{name}       = $params{name};
-    $self->{type}       = $params{type};
-    $self->{orig_class} = $params{orig_class};
+    $self->{name}       = $params{name} || Carp::croak('name required');
+    $self->{type}       = $params{type} || Carp::croak('type required');
+    $self->{orig_class} = $params{orig_class} || Carp::croak('orig_class required');
     $self->{class}      = $params{class};
     $self->{map}        = $params{map};
     $self->{join}       = $params{join};
@@ -43,12 +44,6 @@ sub class {
     load_class $class;
 
     return $class;
-}
-
-sub related_table {
-    my $self = shift;
-
-    return $self->class->meta->table;
 }
 
 1;

@@ -1,9 +1,9 @@
-package ObjectDB::Relationship::OneToOne;
+package ObjectDB::Related::OneToOne;
 
 use strict;
 use warnings;
 
-use base 'ObjectDB::Relationship::ManyToOne';
+use base 'ObjectDB::Related::ManyToOne';
 
 use Scalar::Util ();
 

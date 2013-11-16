@@ -9,7 +9,7 @@ use SQL::Builder;
 use ObjectDB::DBHPool;
 use ObjectDB::Meta;
 use ObjectDB::Quoter;
-use ObjectDB::RelationshipFactory;
+use ObjectDB::RelatedFactory;
 use ObjectDB::Table;
 use ObjectDB::With;
 
@@ -18,15 +18,14 @@ our $VERSION = '3.00';
 $Carp::Internal{(__PACKAGE__)}++;
 $Carp::Internal{"ObjectDB::$_"}++ for qw/
   With
-  Relationship
-  Relationship::ManyToOne
-  Relationship::OneToOne
-  Relationship::ManyToMany
-  Relationship::OneToMany
+  Related
+  Related::ManyToOne
+  Related::OneToOne
+  Related::ManyToMany
+  Related::OneToMany
   Meta::Relationship
   Meta::Relationship::ManyToOne
   Meta::Relationship::OneToOne
-  Meta::Relationship::Proxy
   Meta::Relationship::ManyToMany
   Meta::Relationship::OneToMany
   Meta::RelationshipFactory
@@ -58,7 +57,7 @@ sub new {
     $self->{is_in_db}    = 0;
     $self->{is_modified} = 0;
 
-    $self->{relationship_factory} ||= ObjectDB::RelationshipFactory->new;
+    $self->{related_factory} ||= ObjectDB::RelatedFactory->new;
 
     return $self;
 }
@@ -163,8 +162,8 @@ sub meta {
     my $class = shift;
     $class = ref $class if ref $class;
 
-    return $ObjectDB::Meta::objects{$class}
-      ||= ObjectDB::Meta->new(class => $class, @_);
+    return $ObjectDB::Meta::objects{$class} ||=
+      ObjectDB::Meta->new(class => $class, @_);
 }
 
 sub table {
@@ -252,7 +251,8 @@ sub set_column {
             $value = '';
         }
 
-        if (!exists $self->{columns}->{$name}
+        if (
+            !exists $self->{columns}->{$name}
             || !(
                    (defined $self->{columns}->{$name} && defined $value)
                 && ($self->{columns}->{$name} eq $value)
@@ -265,7 +265,7 @@ sub set_column {
     }
     elsif ($self->meta->is_relationship($name)) {
         if (!Scalar::Util::blessed($value)) {
-            $value = $self->meta->relationships->{$name}->class->new(%$value);
+            $value = $self->meta->get_relationship($name)->class->new(%$value);
         }
 
         $self->{relationships}->{$name} = $value;
@@ -284,7 +284,7 @@ sub clone {
     foreach my $column ($self->meta->columns) {
         next
           if $self->meta->is_primary_key($column)
-              || $self->meta->is_unique_key($column);
+          || $self->meta->is_unique_key($column);
         $data{$column} = $self->column($column);
     }
 
@@ -300,7 +300,7 @@ sub create {
 
     my $sql = SQL::Builder->build(
         'insert',
-        into => $self->meta->table,
+        into   => $self->meta->table,
         values => [map { $_ => $self->{columns}->{$_} } $self->columns]
     );
 
@@ -363,7 +363,7 @@ sub load {
         for_update => $params{for_update},
     );
 
-    my $sql = $select->to_sql;
+    my $sql  = $select->to_sql;
     my @bind = $select->to_bind;
 
     my $dbh = $self->init_db;
@@ -414,9 +414,9 @@ sub update {
     @set{@columns} = @values;
     my $sql = SQL::Builder->build(
         'update',
-        table => $self->meta->table,
-        values   => [%set],
-        where => [%where]
+        table  => $self->meta->table,
+        values => [%set],
+        where  => [%where]
     );
 
     my $sth = $dbh->prepare($sql->to_sql);
@@ -536,46 +536,19 @@ sub _do_related {
 
     die 'Relationship name is required' unless $name;
 
-    my $relationship = $self->_build_relationship($name);
+    my $related = $self->_build_related($name);
 
     my $method = "$action\_related";
-    return $relationship->$method($self, @_);
+    return $related->$method($self, @_);
 }
 
-sub _load_relationship {
+sub _build_related {
     my $self = shift;
     my ($name) = @_;
 
-    die "unknown relationship $name"
-      unless $self->meta->relationships
-          && exists $self->meta->relationships->{$name};
+    my $meta = $self->meta->get_relationship($name);
 
-    my $relationship = $self->meta->relationships->{$name};
-
-    if ($relationship->{type} eq 'proxy') {
-        my $proxy_key = $relationship->{proxy_key};
-
-        die "proxy_key is required for $name" unless $proxy_key;
-
-        $name = $self->column($proxy_key);
-
-        die "proxy_key '$proxy_key' is empty" unless $name;
-
-        $relationship = $self->meta->relationships->{$name};
-
-        die "unknown relationship $name" unless $relationship;
-    }
-
-    return $relationship;
-}
-
-sub _build_relationship {
-    my $self = shift;
-    my ($name) = @_;
-
-    my $meta = $self->_load_relationship($name);
-
-    return $self->{relationship_factory}->build($meta->type, meta => $meta);
+    return $self->{related_factory}->build($meta->type, meta => $meta);
 }
 
 sub _get_parents {

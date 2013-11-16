@@ -3,8 +3,6 @@ package ObjectDB::With;
 use strict;
 use warnings;
 
-require Carp;
-
 sub new {
     my $class = shift;
     my (%params) = @_;
@@ -31,9 +29,7 @@ sub new {
             foreach my $part (@parts) {
                 $seen .= '.' . $part;
 
-                my $rel = $meta->relationships->{$part};
-                Carp::croak("Unknown relationship '$part' in " . $meta->class)
-                  unless $rel;
+                my $rel = $meta->get_relationship($part);
 
                 if ($seen{$seen}) {
                     $parent_join = $seen{$seen};

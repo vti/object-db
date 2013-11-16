@@ -1,4 +1,4 @@
-package ObjectDB::Relationship;
+package ObjectDB::Related;
 
 use strict;
 use warnings;
@@ -7,15 +7,17 @@ require Carp;
 
 sub new {
     my $class = shift;
+    my (%params) = @_;
 
-    my $self = {@_};
+    my $self = {};
     bless $self, $class;
+
+    $self->{meta} = $params{meta};
 
     return $self;
 }
 
 sub meta { $_[0]->{meta} }
-
 sub type { $_[0]->meta->type }
 
 sub find_related {

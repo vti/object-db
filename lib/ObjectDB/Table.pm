@@ -13,9 +13,13 @@ use ObjectDB::Meta;
 sub new {
     my $class = shift;
     $class = ref $class if ref $class;
+    my (%params) = @_;
 
-    my $self = {@_};
+    my $self = {};
     bless $self, $class;
+
+    $self->{class} = $params{class};
+    $self->{dbh}   = $params{dbh};
 
     return $self;
 }

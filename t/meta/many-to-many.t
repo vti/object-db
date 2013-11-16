@@ -7,6 +7,7 @@ describe 'many to many' => sub {
 
     it 'build_to_source' => sub {
         my $rel = _build_relationship(
+            name       => 'map',
             orig_class => 'Book',
             type       => 'many to many',
             map_class  => 'BookTagMap',

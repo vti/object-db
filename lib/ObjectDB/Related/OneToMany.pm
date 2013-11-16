@@ -1,9 +1,9 @@
-package ObjectDB::Relationship::OneToMany;
+package ObjectDB::Related::OneToMany;
 
 use strict;
 use warnings;
 
-use base 'ObjectDB::Relationship';
+use base 'ObjectDB::Related';
 
 sub create_related {
     my $self = shift;

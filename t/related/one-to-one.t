@@ -3,7 +3,6 @@ use Test::Fatal;
 
 use TestDBH;
 use TestEnv;
-use ObjectDB::Table;
 use Book;
 use BookDescription;
 

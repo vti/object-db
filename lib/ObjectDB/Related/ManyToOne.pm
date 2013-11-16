@@ -1,9 +1,9 @@
-package ObjectDB::Relationship::ManyToOne;
+package ObjectDB::Related::ManyToOne;
 
 use strict;
 use warnings;
 
-use base 'ObjectDB::Relationship';
+use base 'ObjectDB::Related';
 
 sub find_related {
     my $self = shift;

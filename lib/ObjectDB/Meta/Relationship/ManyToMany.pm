@@ -39,7 +39,7 @@ sub class {
     return $self->{class} if $self->{class};
 
     $self->{class} =
-      $self->map_class->meta->relationships->{$self->{map_to}}->class;
+      $self->map_class->meta->get_relationship($self->{map_to})->class;
 
     return $self->{class};
 }
@@ -49,9 +49,9 @@ sub to_source {
     my (%options) = @_;
 
     my ($map_from, $map_to) =
-      %{$self->map_class->meta->relationships->{$self->{map_from}}->map};
+      %{$self->map_class->meta->get_relationship($self->{map_from})->map};
     my ($rel_from, $rel_to) =
-      %{$self->map_class->meta->relationships->{$self->{map_to}}->map};
+      %{$self->map_class->meta->get_relationship($self->{map_to})->map};
 
     my $orig_table = $self->orig_class->meta->table;
     my $map_table  = $self->map_class->meta->table;

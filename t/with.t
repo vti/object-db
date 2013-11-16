@@ -87,7 +87,7 @@ subtest 'autoload intermediate joins' => sub {
 subtest 'throw when unknown relationship' => sub {
     like
       exception { ObjectDB::With->new(meta => Book->meta, with => ['unknown']) }
-    , qr/Unknown relationship 'unknown' in Book/;
+    , qr/Unknown relationship 'unknown'/;
 };
 
 done_testing;
