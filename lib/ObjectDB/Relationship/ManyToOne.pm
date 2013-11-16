@@ -22,14 +22,6 @@ sub find_related {
 
     push @{$params{where}}, ($to => $row->column($from));
 
-    if ($meta->where) {
-        push @{$params{where}}, %{$meta->where};
-    }
-
-    if ($meta->with) {
-        $params{with} = $meta->with;
-    }
-
     return $meta->class->table->find(%params);
 }
 

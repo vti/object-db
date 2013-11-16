@@ -7,8 +7,12 @@ use base 'Exporter';
 
 our @EXPORT_OK = qw(load_class);
 
+require Carp;
+
 sub load_class {
     my ($class) = @_;
+
+    Carp::croak('class name is required') unless $class;
 
     die "Invalid class name '$class'" unless $class =~ m/^[a-z0-9:]+$/i;
 

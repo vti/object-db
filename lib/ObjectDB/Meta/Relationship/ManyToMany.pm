@@ -7,6 +7,17 @@ use base 'ObjectDB::Meta::Relationship';
 
 use ObjectDB::Util qw(load_class);
 
+sub new {
+    my $self = shift->SUPER::new(@_);
+    my (%params) = @_;
+
+    $self->{map_class} = $params{map_class};
+    $self->{map_from}  = $params{map_from};
+    $self->{map_to}    = $params{map_to};
+
+    return $self;
+}
+
 sub type {'many to many'}
 
 sub map_to   { $_[0]->{map_to} }

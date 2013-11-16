@@ -75,28 +75,6 @@ describe 'many to one' => sub {
         );
     };
 
-    #it 'accept_join_args' => sub {
-    #    my $rel = _build_relationship(
-    #        type       => 'many to one',
-    #        class      => 'User',
-    #        orig_class => 'Article',
-    #        map        => {user_id => 'id'},
-    #        join_args  => [master_type => \'foo']
-    #    );
-    #
-    #    is_deeply(
-    #        $rel->to_source,
-    #        {   table      => 'user',
-    #            join       => 'left',
-    #            constraint => [
-    #                'article.user_id'  => {-col => 'user.id'},
-    #                'user.master_type' => 'foo'
-    #            ],
-    #            columns => []
-    #        }
-    #    );
-    #};
-
 };
 
 sub _build_relationship {

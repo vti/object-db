@@ -15,11 +15,6 @@ sub create_related {
 
     my @params = ($to => $row->column($from));
 
-    if ($meta->where) {
-        my ($column, $value) = %{$meta->where};
-        push @params, ($column => $value);
-    }
-
     my @related =
       @_ == 1 ? ref $_[0] eq 'ARRAY' ? @{$_[0]} : ($_[0]) : ({@_});
 
@@ -46,14 +41,6 @@ sub find_related {
     return unless defined $row->column($from);
 
     push @{$params{where}}, ($to => $row->column($from));
-
-    if ($meta->where) {
-        push @{$params{where}}, %{$meta->where};
-    }
-
-    if ($meta->with) {
-        $params{with} = $meta->with;
-    }
 
     return $meta->class->table->find(%params);
 }
@@ -90,10 +77,6 @@ sub update_related {
 
     push @$where, @{$params{where}} if $params{where};
 
-    if ($meta->where) {
-        push @$where, %{$meta->where};
-    }
-
     return $meta->class->table->update(where => $where, @_);
 }
 
@@ -109,10 +92,6 @@ sub delete_related {
     my ($from, $to) = %{$meta->map};
 
     push @{$params{where}}, ($to => $row->get_column($from));
-
-    if ($meta->where) {
-        push @{$params{where}}, %{$meta->where};
-    }
 
     return $meta->class->table->delete(%params);
 }

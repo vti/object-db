@@ -19,9 +19,6 @@ sub to_source {
 
     my $constraint = ["$table.$from" => {-col => "$name.$to"}];
 
-    push @$constraint, @{$self->{where}} if $self->{where};
-    push @$constraint, @{$options{where}} if $options{where};
-
     my @columns;
     if ($options{columns}) {
         $options{columns} = [$options{columns}]
