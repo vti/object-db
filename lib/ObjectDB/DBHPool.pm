@@ -3,6 +3,8 @@ package ObjectDB::DBHPool;
 use strict;
 use warnings;
 
+require Carp;
+
 sub new {
     my $class = shift;
 
@@ -126,7 +128,7 @@ sub _get_dbh {
       DBI->connect($self->{dsn}, $self->{username}, $self->{password},
         $self->{attrs});
 
-    die "Can't connect $DBI::errstr" unless $dbh;
+    Carp::croak("Can't connect $DBI::errstr") unless $dbh;
 
     return $dbh;
 }

@@ -5,13 +5,15 @@ use warnings;
 
 use base 'ObjectDB::Meta::Relationship';
 
-sub type {'one to many'}
+require Carp;
+
+sub type { 'one to many' }
 
 sub to_source {
     my $self = shift;
     my (%options) = @_;
 
-    my $name      = $self->name or die 'Name is required';
+    my $name      = $self->name || Carp::croak('Name is required');
     my $table     = $self->orig_class->meta->table;
     my $rel_table = $self->class->meta->table;
 

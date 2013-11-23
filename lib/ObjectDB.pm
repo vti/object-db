@@ -102,7 +102,7 @@ sub init_db {
         }
     }
 
-    die 'Setup a dbh first' unless $dbh;
+    Carp::croak('Setup a dbh first') unless $dbh;
 
     return $dbh->isa('ObjectDB::DBHPool')
       ? $dbh->dbh
@@ -115,7 +115,7 @@ sub txn {
 
     my $dbh = $self->init_db;
 
-    eval {
+    return eval {
         $dbh->{AutoCommit} = 0;
 
         my $retval = $cb->($self);
@@ -212,7 +212,7 @@ sub get_column {
                 return ref $default eq 'CODE' ? $default->() : $default;
             }
             else {
-                return undef;
+                return;
             }
         }
 
@@ -347,7 +347,8 @@ sub load {
         }
     }
 
-    die ref($self) . ": no primary or unique keys specified" unless @columns;
+    Carp::croak(ref($self) . ": no primary or unique keys specified")
+      unless @columns;
 
     my $where = [map { $_ => $self->{columns}->{$_} } @columns];
 
@@ -402,7 +403,7 @@ sub update {
         }
     }
 
-    die ref($self) . ": no primary or unique keys specified"
+    Carp::croak(ref($self) . ": no primary or unique keys specified")
       unless keys %where;
 
     my $dbh = $self->init_db;
@@ -421,7 +422,7 @@ sub update {
 
     my $sth = $dbh->prepare($sql->to_sql);
     my $rv  = $sth->execute($sql->to_bind);
-    die "Object was not updated" if $rv eq '0E0';
+    Carp::croak("Object was not updated") if $rv eq '0E0';
 
     $self->{is_modified} = 0;
     $self->{is_in_db}    = 1;
@@ -429,7 +430,7 @@ sub update {
     return $rv;
 }
 
-sub delete {
+sub delete : method {
     my $self = shift;
 
     my %where;
@@ -445,7 +446,7 @@ sub delete {
         }
     }
 
-    die ref($self) . ": no primary or unique keys specified"
+    Carp::croak(ref($self) . ": no primary or unique keys specified")
       unless keys %where;
 
     my $dbh = $self->init_db;
@@ -459,7 +460,7 @@ sub delete {
     my $sth = $dbh->prepare($sql->to_sql);
 
     my $rv = $sth->execute($sql->to_bind);
-    die "Object was not deleted" if $rv eq '0E0';
+    Carp::croak("Object was not deleted") if $rv eq '0E0';
 
     %$self = ();
 
@@ -487,7 +488,7 @@ sub to_hash {
     foreach my $name (keys %{$self->{relationships}}) {
         my $rel = $self->{relationships}->{$name};
 
-        die "unknown '$name' relationship" unless $rel;
+        Carp::croak("unknown '$name' relationship") unless $rel;
 
         $hash->{$name} = $rel->to_hash;
     }
@@ -534,7 +535,7 @@ sub _do_related {
     my $action = shift;
     my $name   = shift;
 
-    die 'Relationship name is required' unless $name;
+    Carp::croak('Relationship name is required') unless $name;
 
     my $related = $self->_build_related($name);
 

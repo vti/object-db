@@ -3,6 +3,8 @@ package ObjectDB::Table;
 use strict;
 use warnings;
 
+use constant DEFAULT_PAGE_SIZE => 10;
+
 require Carp;
 use SQL::Builder;
 use ObjectDB;
@@ -47,7 +49,7 @@ sub find {
 
     unless ($single) {
         my $page = delete $params{page};
-        my $page_size = delete $params{page_size} || 10;
+        my $page_size = delete $params{page_size} || DEFAULT_PAGE_SIZE;
 
         if (defined $page) {
             $page = 1 unless $page && $page =~ m/^[0-9]+$/o;

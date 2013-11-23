@@ -13,7 +13,7 @@ sub new {
     return $self;
 }
 
-sub type {'many to one'}
+sub type { 'many to one' }
 
 sub to_source {
     my $self = shift;

@@ -3,6 +3,7 @@ package ObjectDB::Factory;
 use strict;
 use warnings;
 
+require Carp;
 use ObjectDB::Util qw(load_class);
 
 sub new {
@@ -14,14 +15,14 @@ sub new {
     return $self;
 }
 
-sub namespace { die 'implement' }
+sub namespace { Carp::croak('implement') }
 
 sub build {
     my $self   = shift;
     my $type   = shift;
     my %params = @_;
 
-    die 'type is required' unless $type;
+    Carp::croak('type is required') unless $type;
 
     my @parts = map { ucfirst } split(' ', $type);
     my $rel_class = $self->namespace . join('', @parts);

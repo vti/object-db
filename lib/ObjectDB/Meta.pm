@@ -90,7 +90,7 @@ sub is_column {
     my $self = shift;
     my ($name) = @_;
 
-    die 'Name is required' unless $name;
+    Carp::croak('Name is required') unless $name;
 
     return !!first { $name eq $_->{name} } @{$self->{columns}};
 }
@@ -339,9 +339,9 @@ sub _get_parents {
 
     my @parents;
 
-    no strict 'refs';
+    my @isa = do { no strict 'refs'; @{"${for_class}::ISA"} };
 
-    foreach my $sub_class (@{"${for_class}::ISA"}) {
+    foreach my $sub_class (@isa) {
         push @parents, _get_parents($sub_class)
           if $sub_class->isa('ObjectDB') && $sub_class ne 'ObjectDB';
     }
