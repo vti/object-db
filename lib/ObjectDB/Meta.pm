@@ -3,13 +3,23 @@ package ObjectDB::Meta;
 use strict;
 use warnings;
 
+our $VERSION = '3.00';
+
 require Storable;
 require Carp;
 use List::Util qw(first);
 
 use ObjectDB::Meta::RelationshipFactory;
 
-our %objects;
+my %OBJECTS;
+
+sub find_or_register_meta {
+    my $class = shift;
+    my ($meta_class, @args) = @_;
+
+    return $OBJECTS{$meta_class} ||=
+      ObjectDB::Meta->new(class => $meta_class, @args);
+}
 
 sub new {
     my $class = shift;
@@ -32,7 +42,8 @@ sub new {
     $self->set_columns($params{columns});
     $self->set_primary_key($params{primary_key}) if $params{primary_key};
     $self->set_unique_keys($params{unique_keys}) if $params{unique_keys};
-    $self->set_auto_increment($params{auto_increment}) if $params{auto_increment};
+    $self->set_auto_increment($params{auto_increment})
+      if $params{auto_increment};
 
     $self->_build_relationships($params{relationships});
 
@@ -51,7 +62,7 @@ sub is_primary_key {
     my $self = shift;
     my ($name) = @_;
 
-    return !!first {$name eq $_} $self->get_primary_key;
+    return !!first { $name eq $_ } $self->get_primary_key;
 }
 
 sub is_unique_key {
@@ -59,7 +70,7 @@ sub is_unique_key {
     my ($name) = @_;
 
     foreach my $key (@{$self->{unique_keys}}) {
-        return 1 if first {$name eq $_} @$key;
+        return 1 if first { $name eq $_ } @$key;
     }
 
     return 0;
@@ -194,7 +205,8 @@ sub set_primary_key {
     my (@columns) = @_ == 1 && ref $_[0] eq 'ARRAY' ? @{$_[0]} : @_;
 
     foreach my $column (@columns) {
-        Carp::croak("Unknown column '$column'") unless $self->is_column($column);
+        Carp::croak("Unknown column '$column'")
+          unless $self->is_column($column);
     }
 
     $self->{primary_key} = [@columns];
@@ -235,7 +247,8 @@ sub add_unique_key {
     my (@columns) = @_ == 1 && ref $_[0] eq 'ARRAY' ? @{$_[0]} : @_;
 
     foreach my $column (@columns) {
-        Carp::croak("Unknown column '$column'") unless $self->is_column($column);
+        Carp::croak("Unknown column '$column'")
+          unless $self->is_column($column);
     }
 
     push @{$self->{unique_keys}}, [@columns];
@@ -281,11 +294,14 @@ sub add_relationship {
     my $self = shift;
     my ($name, $options) = @_;
 
-    Carp::croak("Name and options are required") unless $name && $options;
+    Carp::croak('Name and options are required') unless $name && $options;
 
     $self->{relationships}->{$name} =
-      ObjectDB::Meta::RelationshipFactory->new->build($options->{type}, %$options,
-        orig_class => $self->get_class, name => $name);
+      ObjectDB::Meta::RelationshipFactory->new->build(
+        $options->{type}, %{$options},
+        orig_class => $self->get_class,
+        name       => $name
+      );
 }
 
 sub add_relationships {
@@ -322,7 +338,7 @@ sub _is_inheriting {
     my ($for_class) = @_;
 
     foreach my $parent (_get_parents($for_class)) {
-        if (my $parent_meta = $objects{$parent}) {
+        if (my $parent_meta = $OBJECTS{$parent}) {
             my $meta = Storable::dclone($parent_meta);
 
             $meta->{class} = $for_class;

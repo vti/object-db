@@ -162,8 +162,7 @@ sub meta {
     my $class = shift;
     $class = ref $class if ref $class;
 
-    return $ObjectDB::Meta::objects{$class} ||=
-      ObjectDB::Meta->new(class => $class, @_);
+    return ObjectDB::Meta->find_or_register_meta($class, @_);
 }
 
 sub table {
