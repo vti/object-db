@@ -293,7 +293,8 @@ sub clone {
 sub create {
     my $self = shift;
 
-    return $self if $self->is_in_db;
+    Carp::croak(q{Calling 'create' on already created object})
+      if $self->is_in_db;
 
     my $dbh = $self->init_db;
 
@@ -326,6 +327,17 @@ sub create {
     }
 
     return $self;
+}
+
+sub create_or_update {
+    my $self = shift;
+
+    if ($self->is_in_db) {
+        return $self->update;
+    }
+    else {
+        return $self->create;
+    }
 }
 
 sub find { shift->table->find(@_) }

@@ -32,15 +32,12 @@ describe 'create' => sub {
         is_deeply($result->[0], [1, 'vti']);
     };
 
-    it 'do_nothing_on_double_create' => sub {
+    it 'throws on double created' => sub {
         my $person = _build_object(name => 'vti');
         $person->create;
 
-        $person->create;
-
-        my $result = TestDBH->dbh->selectall_arrayref('SELECT * FROM `person`');
-
-        is(@$result, 1);
+        like exception { $person->create },
+          qr/Calling 'create' on already created object/;
     };
 
     it 'autoincrement_field_is_set' => sub {

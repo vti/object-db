@@ -5,11 +5,19 @@ use warnings;
 
 use base 'ObjectDB::Related::ManyToOne';
 
+our $VERSION = '3.00';
+
 use Scalar::Util ();
 
 sub create_related {
     my $self = shift;
     my ($row) = shift;
+    my @related =
+      @_ == 1 ? ref $_[0] eq 'ARRAY' ? @{$_[0]} : ($_[0]) : ({@_});
+
+    if (@related > 1) {
+        Carp::croak('cannot create multiple related objects in one to one');
+    }
 
     my $meta = $self->{meta};
 
@@ -17,8 +25,9 @@ sub create_related {
 
     my @params = ($to => $row->column($from));
 
-    my @related =
-      @_ == 1 ? ref $_[0] eq 'ARRAY' ? @{$_[0]} : ($_[0]) : ({@_});
+    if ($meta->class->find(first => 1, where => \@params)) {
+        Carp::croak('Related object is already created');
+    }
 
     my @objects;
     foreach my $related (@related) {
@@ -26,7 +35,7 @@ sub create_related {
             $related = $meta->class->new(%$related);
         }
         $related->set_columns(@params);
-        $related->create;
+        $related->create_or_update;
         push @objects, $related;
     }
 

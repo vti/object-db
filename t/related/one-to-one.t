@@ -13,11 +13,40 @@ describe 'one to one' => sub {
         TestEnv->prepare_table('book_description');
     };
 
+    it 'throws when trying to create multiple objects' => sub {
+        my $book = Book->new(title => 'fiction')->create;
+
+        like exception {
+            $book->create_related('description',
+                [{description => 'Crap'}, {description => 'Nice'}]);
+        },
+          qr/cannot create multiple related objects in one to one/;
+    };
+
+    it 'throws when there is already a related object' => sub {
+        my $book = Book->new(title => 'fiction')->create;
+        $book->create_related('description', description => 'Crap');
+
+        like exception {
+            $book->create_related('description', description => 'Crap');
+        },
+          qr/Related object is already created/;
+    };
+
     it 'create_related' => sub {
         my $book = Book->new(title => 'fiction')->create;
         $book->create_related('description', description => 'Crap');
 
         is($book->related('description')->get_column('description'), 'Crap');
+    };
+
+    it 'updates related object it if is already created' => sub {
+        my $description = BookDescription->new(description => 'Crap')->create;
+
+        my $book = Book->new(title => 'fiction')->create;
+        $book->create_related('description', $description);
+
+        is($description->get_column('id'), $book->get_column('id'));
     };
 
     it 'create_related_from_object' => sub {
