@@ -3,6 +3,8 @@ package ObjectDB::Meta::Relationship;
 use strict;
 use warnings;
 
+our $VERSION = '3.00';
+
 require Carp;
 use ObjectDB::Util qw(load_class);
 
@@ -13,12 +15,13 @@ sub new {
     my $self = {};
     bless $self, $class;
 
-    $self->{name}       = $params{name} || Carp::croak('name required');
-    $self->{type}       = $params{type} || Carp::croak('type required');
-    $self->{orig_class} = $params{orig_class} || Carp::croak('orig_class required');
-    $self->{class}      = $params{class};
-    $self->{map}        = $params{map};
-    $self->{join}       = $params{join};
+    $self->{name} = $params{name} || Carp::croak('name required');
+    $self->{type} = $params{type} || Carp::croak('type required');
+    $self->{orig_class} =
+      $params{orig_class} || Carp::croak('orig_class required');
+    $self->{class} = $params{class};
+    $self->{map}   = $params{map};
+    $self->{join}  = $params{join};
 
     return $self;
 }

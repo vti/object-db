@@ -11,7 +11,7 @@ __PACKAGE__->meta(
     primary_key    => 'id',
     auto_increment => 'id',
     unique_keys    => 'name',
-    relationships   => {
+    relationships  => {
         books => {
             type  => 'one to many',
             class => 'Book',

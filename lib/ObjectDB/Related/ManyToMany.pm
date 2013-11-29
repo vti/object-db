@@ -5,23 +5,25 @@ use warnings;
 
 use base 'ObjectDB::Related';
 
+our $VERSION = '3.00';
+
 sub create_related {
     my $self = shift;
     my ($row) = shift;
 
-    my @related = @_ == 1 ? ref $_[0] eq 'ARRAY' ? @{$_[0]} : ($_[0]): ({@_});
+    my @related = @_ == 1 ? ref $_[0] eq 'ARRAY' ? @{$_[0]} : ($_[0]) : ({@_});
 
-    my @objects;
+    my @row_objects;
     foreach my $related (@related) {
         my %params = %$related;
 
         my $meta = $self->meta;
 
-        my $object;
+        my $row_object;
 
-        $object = $meta->class->new(%params)->load;
-        if (!$object) {
-            $object = $meta->class->new(%params)->create;
+        $row_object = $meta->class->new(%params)->load;
+        if (!$row_object) {
+            $row_object = $meta->class->new(%params)->create;
         }
 
         my $map_from = $meta->map_from;
@@ -35,13 +37,13 @@ sub create_related {
 
         $meta->map_class->new(
             $from_foreign_pk => $row->get_column($from_pk),
-            $to_foreign_pk   => $object->get_column($to_pk)
+            $to_foreign_pk   => $row_object->get_column($to_pk)
         )->create;
 
-        push @objects, $object;
+        push @row_objects, $row_object;
     }
 
-    return @related == 1 ? $objects[0] : @objects;
+    return @related == 1 ? $row_objects[0] : @row_objects;
 }
 
 sub find_related {
@@ -66,8 +68,8 @@ sub find_related {
 }
 
 sub count_related {
-    my $self = shift;
-    my ($row) = shift;
+    my $self   = shift;
+    my ($row)  = shift;
     my %params = @_;
 
     my $meta = $self->meta;

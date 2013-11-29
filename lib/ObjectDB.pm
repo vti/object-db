@@ -2,6 +2,7 @@ package ObjectDB;
 
 use strict;
 use warnings;
+use mro;
 
 require Carp;
 use Scalar::Util ();
@@ -95,7 +96,8 @@ sub init_db {
     my $dbh = ${"$class\::DBH"};
 
     if (!$dbh) {
-        foreach my $parent (_get_parents($class)) {
+        my $parents = mro::get_linear_isa($class);
+        foreach my $parent (@$parents) {
             if ($dbh = ${"$parent\::DBH"}) {
                 last;
             }
@@ -244,10 +246,10 @@ sub set_column {
     my ($name, $value) = @_;
 
     if ($self->meta->is_column($name)) {
-        if (not defined $value
+        if (   !defined $value
             && !$self->meta->get_column($name)->{is_null})
         {
-            $value = '';
+            $value = q{};
         }
 
         if (
@@ -279,15 +281,15 @@ sub set_column {
 sub clone {
     my $self = shift;
 
-    my %data;
+    my %columns;
     foreach my $column ($self->meta->columns) {
         next
           if $self->meta->is_primary_key($column)
           || $self->meta->is_unique_key($column);
-        $data{$column} = $self->column($column);
+        $columns{$column} = $self->column($column);
     }
 
-    return (ref $self)->new->set_columns(%data);
+    return (ref $self)->new->set_columns(%columns);
 }
 
 sub create {
@@ -358,7 +360,7 @@ sub load {
         }
     }
 
-    Carp::croak(ref($self) . ": no primary or unique keys specified")
+    Carp::croak(ref($self) . ': no primary or unique keys specified')
       unless @columns;
 
     my $where = [map { $_ => $self->{columns}->{$_} } @columns];
@@ -386,9 +388,9 @@ sub load {
     my $results = $sth->fetchall_arrayref;
     return unless $results && @$results;
 
-    my $object = $select->from_rows($results);
+    my $row_object = $select->from_rows($results);
 
-    $self->set_columns(%{$object->[0]});
+    $self->set_columns(%{$row_object->[0]});
 
     $self->{is_modified} = 0;
     $self->{is_in_db}    = 1;
@@ -414,7 +416,7 @@ sub update {
         }
     }
 
-    Carp::croak(ref($self) . ": no primary or unique keys specified")
+    Carp::croak(ref($self) . ': no primary or unique keys specified')
       unless keys %where;
 
     my $dbh = $self->init_db;
@@ -422,18 +424,18 @@ sub update {
     my @columns = grep { !$self->meta->is_primary_key($_) } $self->columns;
     my @values  = map  { $self->{columns}->{$_} } @columns;
 
-    my %set;
-    @set{@columns} = @values;
+    my %columns_set;
+    @columns_set{@columns} = @values;
     my $sql = SQL::Builder->build(
         'update',
         table  => $self->meta->table,
-        values => [%set],
+        values => [%columns_set],
         where  => [%where]
     );
 
     my $sth = $dbh->prepare($sql->to_sql);
     my $rv  = $sth->execute($sql->to_bind);
-    Carp::croak("Object was not updated") if $rv eq '0E0';
+    Carp::croak('Object was not updated') if $rv eq '0E0';
 
     $self->{is_modified} = 0;
     $self->{is_in_db}    = 1;
@@ -457,7 +459,7 @@ sub delete : method {
         }
     }
 
-    Carp::croak(ref($self) . ": no primary or unique keys specified")
+    Carp::croak(ref($self) . ': no primary or unique keys specified')
       unless keys %where;
 
     my $dbh = $self->init_db;
@@ -471,7 +473,7 @@ sub delete : method {
     my $sth = $dbh->prepare($sql->to_sql);
 
     my $rv = $sth->execute($sql->to_bind);
-    Carp::croak("Object was not deleted") if $rv eq '0E0';
+    Carp::croak('Object was not deleted') if $rv eq '0E0';
 
     %$self = ();
 
@@ -561,21 +563,6 @@ sub _build_related {
     my $meta = $self->meta->get_relationship($name);
 
     return $self->{related_factory}->build($meta->type, meta => $meta);
-}
-
-sub _get_parents {
-    my ($for_class) = @_;
-
-    my @parents;
-
-    no strict 'refs';
-
-    foreach my $sub_class (@{"${for_class}::ISA"}) {
-        push @parents, _get_parents($sub_class)
-          if $sub_class->isa('ObjectDB') && $sub_class ne 'ObjectDB';
-    }
-
-    return $for_class, @parents;
 }
 
 1;

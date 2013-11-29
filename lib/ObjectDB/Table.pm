@@ -3,10 +3,13 @@ package ObjectDB::Table;
 use strict;
 use warnings;
 
+our $VERSION = '3.00';
+
 use constant DEFAULT_PAGE_SIZE => 10;
 
 require Carp;
 use SQL::Builder;
+use SQL::Builder::Expression;
 use ObjectDB;
 use ObjectDB::Quoter;
 use ObjectDB::With;
@@ -52,7 +55,7 @@ sub find {
         my $page_size = delete $params{page_size} || DEFAULT_PAGE_SIZE;
 
         if (defined $page) {
-            $page = 1 unless $page && $page =~ m/^[0-9]+$/o;
+            $page = 1 unless $page && $page =~ m/^\d+$/smx;
             $params{offset} = ($page - 1) * $page_size;
             $params{limit}  = $page_size;
         }
@@ -104,7 +107,7 @@ sub update {
     return $self->dbh->do($sql->to_sql, undef, $sql->to_bind);
 }
 
-sub delete {
+sub delete : method {
     my $class = shift;
 
     my $dbh = $class->dbh;
@@ -149,17 +152,17 @@ sub count {
     my $sth = $dbh->prepare($sql);
     $sth->execute(@bind);
 
-    my $results = $sth->fetchall_arrayref;
-    my $object  = $select->from_rows($results);
+    my $results    = $sth->fetchall_arrayref;
+    my $row_object = $select->from_rows($results);
 
-    return $object->[0]->{count};
+    return $row_object->[0]->{count};
 }
 
 sub _execute {
     my $self = shift;
     my ($stmt) = @_;
 
-    my $sql = $stmt->to_sql;
+    my $sql  = $stmt->to_sql;
     my @bind = $stmt->to_bind;
 
     eval {

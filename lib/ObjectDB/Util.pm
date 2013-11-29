@@ -5,6 +5,7 @@ use warnings;
 
 use base 'Exporter';
 
+our $VERSION   = '3.00';
 our @EXPORT_OK = qw(load_class);
 
 require Carp;
@@ -15,10 +16,10 @@ sub load_class {
     Carp::croak('class name is required') unless $class;
 
     Carp::croak("Invalid class name '$class'")
-      unless $class =~ m/^[a-z0-9:]+$/i;
+      unless $class =~ m/^[[:lower:]\d:]+$/smxi;
 
     my $path = $class;
-    $path =~ s{::}{/}g;
+    $path =~ s{::}{/}smxg;
     $path .= '.pm';
 
     return 1 if exists $INC{$path} && defined $INC{$path};
@@ -45,7 +46,7 @@ sub load_class {
             %{"$class\::"} = ();
         }
 
-        die $e;
+        Carp::croak($e);
     };
 }
 

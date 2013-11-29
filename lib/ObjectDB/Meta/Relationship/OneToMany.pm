@@ -5,6 +5,8 @@ use warnings;
 
 use base 'ObjectDB::Meta::Relationship';
 
+our $VERSION = '3.00';
+
 require Carp;
 
 sub type { 'one to many' }

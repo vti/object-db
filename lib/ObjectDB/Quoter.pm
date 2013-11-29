@@ -3,7 +3,11 @@ package ObjectDB::Quoter;
 use strict;
 use warnings;
 
+our $VERSION = '3.00';
+
 use base 'SQL::Builder::Quoter';
+
+use List::Util qw(first);
 
 sub new {
     my $self = shift->SUPER::new(@_);
@@ -19,7 +23,7 @@ sub quote {
     my $self = shift;
     my ($column, $prefix) = @_;
 
-    my @parts = split /\./, $column;
+    my @parts = split /[.]/xsm, $column;
     $column = pop @parts;
 
     my $meta = $self->{meta};
@@ -34,11 +38,11 @@ sub quote {
     }
 
     if ($rel_table) {
-        $column = $name . '.' . $column;
+        $column = $name . q{.} . $column;
 
-        my $with = join '.', @parts;
+        my $with = join q{.}, @parts;
         push @{$self->{with}}, $with
-          unless grep { $_ eq $with } @{$self->{with}};
+          unless first { $_ eq $with } @{$self->{with}};
     }
 
     return $self->SUPER::quote($column, $prefix);

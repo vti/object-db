@@ -3,6 +3,8 @@ package ObjectDB::With;
 use strict;
 use warnings;
 
+our $VERSION = '3.00';
+
 sub new {
     my $class = shift;
     my (%params) = @_;
@@ -22,12 +24,12 @@ sub new {
         foreach my $with (@with) {
             my $meta = $self->{meta};
 
-            my @parts = split /\./, $with;
+            my @parts = split /[.]/xms, $with;
 
-            my $seen        = '';
+            my $seen        = q{};
             my $parent_join = $joins;
             foreach my $part (@parts) {
-                $seen .= '.' . $part;
+                $seen .= q{.} . $part;
 
                 my $rel = $meta->get_relationship($part);
 

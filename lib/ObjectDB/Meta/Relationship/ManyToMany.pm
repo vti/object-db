@@ -5,6 +5,8 @@ use warnings;
 
 use base 'ObjectDB::Meta::Relationship';
 
+our $VERSION = '3.00';
+
 use ObjectDB::Util qw(load_class);
 
 sub new {
@@ -18,7 +20,7 @@ sub new {
     return $self;
 }
 
-sub type {'many to many'}
+sub type { 'many to many' }
 
 sub map_to   { $_[0]->{map_to} }
 sub map_from { $_[0]->{map_from} }
@@ -70,12 +72,13 @@ sub to_source {
 
     return {
         table => $map_table,
-        join => 'left',
+        join  => 'left',
         constraint =>
           ["$orig_table.$map_to" => {-col => "$map_table.$map_from"}]
       },
-      { table => $rel_table,
-        join => 'left',
+      {
+        table => $rel_table,
+        join  => 'left',
         constraint =>
           ["$map_table.$rel_from" => {-col => "$rel_table.$rel_to"}],
         columns => [@columns]

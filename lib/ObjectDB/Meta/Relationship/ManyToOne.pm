@@ -5,6 +5,8 @@ use warnings;
 
 use base 'ObjectDB::Meta::Relationship';
 
+our $VERSION = '3.00';
+
 sub new {
     my $self = shift->SUPER::new(@_);
 

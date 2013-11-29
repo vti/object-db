@@ -3,6 +3,8 @@ package ObjectDB::Factory;
 use strict;
 use warnings;
 
+our $VERSION = '3.00';
+
 require Carp;
 use ObjectDB::Util qw(load_class);
 
@@ -24,8 +26,8 @@ sub build {
 
     Carp::croak('type is required') unless $type;
 
-    my @parts = map { ucfirst } split(' ', $type);
-    my $rel_class = $self->namespace . join('', @parts);
+    my @parts = map { ucfirst } split q{ }, $type;
+    my $rel_class = $self->namespace . join q{}, @parts;
 
     load_class $rel_class;
 

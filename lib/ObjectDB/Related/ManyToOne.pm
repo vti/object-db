@@ -5,9 +5,11 @@ use warnings;
 
 use base 'ObjectDB::Related';
 
+our $VERSION = '3.00';
+
 sub find_related {
-    my $self = shift;
-    my ($row) = shift;
+    my $self   = shift;
+    my ($row)  = shift;
     my %params = @_;
 
     my $meta = $self->meta;

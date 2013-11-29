@@ -2,6 +2,7 @@ package ObjectDB::Meta;
 
 use strict;
 use warnings;
+use mro;
 
 our $VERSION = '3.00';
 
@@ -337,7 +338,8 @@ sub _is_inheriting {
     my $class = shift;
     my ($for_class) = @_;
 
-    foreach my $parent (_get_parents($for_class)) {
+    my $parents = mro::get_linear_isa($for_class);
+    foreach my $parent (@$parents) {
         if (my $parent_meta = $OBJECTS{$parent}) {
             my $meta = Storable::dclone($parent_meta);
 
@@ -348,21 +350,6 @@ sub _is_inheriting {
     }
 
     return;
-}
-
-sub _get_parents {
-    my ($for_class) = @_;
-
-    my @parents;
-
-    my @isa = do { no strict 'refs'; @{"${for_class}::ISA"} };
-
-    foreach my $sub_class (@isa) {
-        push @parents, _get_parents($sub_class)
-          if $sub_class->isa('ObjectDB') && $sub_class ne 'ObjectDB';
-    }
-
-    return $for_class, @parents;
 }
 
 1;
