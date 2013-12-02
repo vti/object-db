@@ -6,6 +6,8 @@ use Test::Fatal;
 
 use ObjectDB::With;
 
+use lib 't/lib';
+
 use Book;
 use BookDescription;
 

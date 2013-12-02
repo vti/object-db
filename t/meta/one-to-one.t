@@ -1,6 +1,8 @@
 use Test::Spec;
 use Test::Fatal;
 
+use lib 't/lib';
+
 use ObjectDB::Meta::Relationship::OneToOne;
 
 describe 'one to one' => sub {

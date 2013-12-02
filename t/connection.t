@@ -1,3 +1,8 @@
+use Test::Spec;
+use Test::Fatal;
+
+use lib 't/lib';
+
 package InheritedConnection;
 use base 'TestDB';
 
@@ -5,9 +10,6 @@ package SetterConnection;
 use base 'ObjectDB';
 
 package main;
-
-use Test::Spec;
-use Test::Fatal;
 
 use TestDBH;
 use Book;

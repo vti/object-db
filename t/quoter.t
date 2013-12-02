@@ -5,6 +5,8 @@ use Test::More;
 
 use ObjectDB::Quoter;
 
+use lib 't/lib';
+
 use Book;
 
 subtest 'quote' => sub {

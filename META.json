@@ -1,0 +1,76 @@
+{
+   "abstract" : "usable ORM",
+   "author" : [
+      "Viacheslav Tykhanovskyi"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Minilla/v0.7.5, CPAN::Meta::Converter version 2.130880",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "ObjectDB",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "xt",
+         "inc",
+         "share",
+         "eg",
+         "examples",
+         "author",
+         "builder"
+      ]
+   },
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "CPAN::Meta" : "0",
+            "CPAN::Meta::Prereqs" : "0",
+            "Module::Build" : "0.38"
+         }
+      },
+      "develop" : {
+         "requires" : {
+            "Test::CPAN::Meta" : "0",
+            "Test::MinimumVersion" : "0.10108",
+            "Test::Pod" : "1.41",
+            "Test::Spellunker" : "v0.2.7"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Carp" : "0",
+            "SQL::Builder" : "0",
+            "Storable" : "0",
+            "perl" : "5.010"
+         }
+      },
+      "test" : {
+         "requires" : {
+            "Test::Fatal" : "0",
+            "Test::More" : "0.98",
+            "Test::Spec" : "0"
+         }
+      }
+   },
+   "release_status" : "unstable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/vti/object-db3/issues"
+      },
+      "homepage" : "https://github.com/vti/object-db3",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/vti/object-db3.git",
+         "web" : "https://github.com/vti/object-db3"
+      }
+   },
+   "version" : "3.00",
+   "x_contributors" : [
+      "vti <viacheslav.t@gmail.com>"
+   ]
+}
