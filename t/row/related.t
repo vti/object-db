@@ -7,12 +7,14 @@ use TestDBH;
 use TestEnv;
 use Author;
 use Book;
+use BookDescription;
 
 describe 'related' => sub {
 
     before each => sub {
         TestEnv->prepare_table('author');
         TestEnv->prepare_table('book');
+        TestEnv->prepare_table('book_description');
     };
 
     it 'related' => sub {
@@ -24,6 +26,24 @@ describe 'related' => sub {
         $book = Book->new(title => 'Crap')->load(with => 'parent_author');
 
         is($book->related('parent_author')->get_column('name'), 'vti');
+    };
+
+    it 'does not load empty related objects' => sub {
+        my $book = Book->new(title => 'Crap')->create;
+
+        $book = Book->new(title => 'Crap')->load(with => 'parent_author');
+
+        ok(!defined $book->related('parent_author'));
+    };
+
+    it 'does not load empty deeply related objects' => sub {
+        my $book_description = BookDescription->new(description => 'Crap')->create;
+
+        $book_description =
+          BookDescription->new(id => $book_description->get_column('id'))
+          ->load(with => ['parent_book', 'parent_book.parent_author']);
+
+        ok(!defined $book_description->related('parent_book'));
     };
 
     it 'is_related_loaded' => sub {

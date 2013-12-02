@@ -265,11 +265,13 @@ sub set_column {
         }
     }
     elsif ($self->meta->is_relationship($name)) {
-        if (!Scalar::Util::blessed($value)) {
-            $value = $self->meta->get_relationship($name)->class->new(%$value);
-        }
+        if (!$self->_is_empty_hash_ref($value)) {
+            if (!Scalar::Util::blessed($value)) {
+                $value = $self->meta->get_relationship($name)->class->new(%$value);
+            }
 
-        $self->{relationships}->{$name} = $value;
+            $self->{relationships}->{$name} = $value;
+        }
     }
     else {
         $self->{virtual_columns}->{$name} = $value;
@@ -563,6 +565,25 @@ sub _build_related {
     my $meta = $self->meta->get_relationship($name);
 
     return $self->{related_factory}->build($meta->type, meta => $meta);
+}
+
+sub _is_empty_hash_ref {
+    my $self = shift;
+    my ($hash_ref) = @_;
+
+    foreach my $key (keys %$hash_ref) {
+        if (defined $hash_ref->{$key} && $hash_ref->{$key} ne '') {
+            if (ref ($hash_ref->{$key}) eq 'HASH') {
+                my $is_empty = $self->_is_empty_hash_ref($hash_ref->{$key});
+                return 0 unless $is_empty;
+            }
+            else {
+                return 0;
+            }
+        }
+    }
+
+    return 1;
 }
 
 1;
