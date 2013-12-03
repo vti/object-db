@@ -5,7 +5,7 @@ use warnings;
 
 our $VERSION = '3.00';
 
-use base 'SQL::Builder::Quoter';
+use base 'SQL::Composer::Quoter';
 
 use List::Util qw(first);
 

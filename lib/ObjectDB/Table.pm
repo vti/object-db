@@ -8,8 +8,8 @@ our $VERSION = '3.00';
 use constant DEFAULT_PAGE_SIZE => 10;
 
 require Carp;
-use SQL::Builder;
-use SQL::Builder::Expression;
+use SQL::Composer;
+use SQL::Composer::Expression;
 use ObjectDB;
 use ObjectDB::Quoter;
 use ObjectDB::With;
@@ -62,7 +62,7 @@ sub find {
     }
 
     my $quoter = ObjectDB::Quoter->new(meta => $self->meta);
-    my $where = SQL::Builder::Expression->new(
+    my $where = SQL::Composer::Expression->new(
         quoter         => $quoter,
         expr           => $params{where},
         default_prefix => $self->meta->table
@@ -72,7 +72,7 @@ sub find {
         with => [@{$params{with}}, $quoter->with]
     );
 
-    my $select = SQL::Builder->build(
+    my $select = SQL::Composer->build(
         'select',
         from       => $self->meta->table,
         columns    => [$self->meta->get_columns],
@@ -98,7 +98,7 @@ sub update {
     my $self = shift;
     my (%params) = @_;
 
-    my $sql = SQL::Builder->build(
+    my $sql = SQL::Composer->build(
         'update',
         table => $self->meta->table,
         %params
@@ -112,7 +112,7 @@ sub delete : method {
 
     my $dbh = $class->dbh;
 
-    my $sql = SQL::Builder->build(
+    my $sql = SQL::Composer->build(
         'delete',
         from => $class->meta->table,
         @_
@@ -130,7 +130,7 @@ sub count {
     my $dbh = $self->dbh;
 
     my $quoter = ObjectDB::Quoter->new(meta => $self->meta);
-    my $where = SQL::Builder::Expression->new(
+    my $where = SQL::Composer::Expression->new(
         quoter         => $quoter,
         expr           => $params{where},
         default_prefix => $self->meta->table
@@ -138,7 +138,7 @@ sub count {
     my $with =
       ObjectDB::With->new(meta => $self->meta, with => [$quoter->with]);
 
-    my $select = SQL::Builder->build(
+    my $select = SQL::Composer->build(
         'select',
         from    => $self->meta->table,
         columns => [{-col => \'COUNT(*)', -as => 'count'}],

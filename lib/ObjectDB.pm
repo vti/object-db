@@ -6,7 +6,7 @@ use mro;
 
 require Carp;
 use Scalar::Util ();
-use SQL::Builder;
+use SQL::Composer;
 use ObjectDB::DBHPool;
 use ObjectDB::Meta;
 use ObjectDB::Quoter;
@@ -302,7 +302,7 @@ sub create {
 
     my $dbh = $self->init_db;
 
-    my $sql = SQL::Builder->build(
+    my $sql = SQL::Composer->build(
         'insert',
         into   => $self->meta->table,
         values => [map { $_ => $self->{columns}->{$_} } $self->columns]
@@ -369,7 +369,7 @@ sub load {
 
     my $with = ObjectDB::With->new(meta => $self->meta, with => $params{with});
 
-    my $select = SQL::Builder->build(
+    my $select = SQL::Composer->build(
         'select',
         columns    => [$self->meta->get_columns],
         from       => $self->meta->table,
@@ -428,7 +428,7 @@ sub update {
 
     my %columns_set;
     @columns_set{@columns} = @values;
-    my $sql = SQL::Builder->build(
+    my $sql = SQL::Composer->build(
         'update',
         table  => $self->meta->table,
         values => [%columns_set],
@@ -466,7 +466,7 @@ sub delete : method {
 
     my $dbh = $self->init_db;
 
-    my $sql = SQL::Builder->build(
+    my $sql = SQL::Composer->build(
         'delete',
         from  => $self->meta->table,
         where => [%where]
