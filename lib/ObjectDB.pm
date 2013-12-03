@@ -702,7 +702,7 @@ Commit transaction.
 
 Rollback transaction.
 
-=cut
+=back
 
 =head2 Utility methods
 
@@ -730,7 +730,7 @@ Checks if related objects are loaded.
 
 Converts object into a hash reference, including all preloaded objects.
 
-=cut
+=back
 
 =head1 AUTHOR
 
