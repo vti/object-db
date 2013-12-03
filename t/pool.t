@@ -1,10 +1,3 @@
-package DBHPoolTest;
-
-use strict;
-use warnings;
-
-package main;
-
 use Test::Spec;
 use Test::Fatal;
 
