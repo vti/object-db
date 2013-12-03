@@ -44,7 +44,7 @@
       "runtime" : {
          "requires" : {
             "Carp" : "0",
-            "SQL::Builder" : "0",
+            "SQL::Composer" : "0.02",
             "Storable" : "0",
             "perl" : "5.010"
          }

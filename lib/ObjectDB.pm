@@ -597,7 +597,140 @@ ObjectDB - usable ORM
 
 =head1 SYNOPSIS
 
+    package MyDB;
+    use base 'ObjectDB';
+
+    sub init_db {
+        ...
+        return $dbh;
+    }
+
+    package MyAuthor;
+    use base 'MyDB';
+
+    __PACKAGE__->meta(
+        table          => 'author',
+        columns        => [qw/id name/],
+        primary_key    => 'id',
+        auto_increment => 'id',
+        relationships  => {
+            books => {
+                type = 'one to many',
+                class => 'MyBook',
+                map   => {id => 'author_id'}
+            }
+        }
+    );
+
+    package MyBook;
+    use base 'MyDB';
+
+    __PACKAGE__->meta(
+        table          => 'book',
+        columns        => [qw/id author_id title/],
+        primary_key    => 'id',
+        auto_increment => 'id',
+        relationships  => {
+            author => {
+                type = 'many to one',
+                class => 'MyAuthor',
+                map   => {author_id => 'id'}
+            }
+        }
+    );
+
+    my $book_by_id = MyBook->new(id => 1)->load(with => 'author');
+
+    my @books_authored_by_Pushkin =
+      MyBook->table->find(where => ['author.name' => 'Pushkin']);
+
+    $author->create_related('books', title => 'New Book');
+
 =head1 DESCRIPTION
+
+ObjectDB is a lightweight and flexible object-relational mapper. While being
+light it stays usable. ObjectDB borrows many things from L<Rose::DB::Object>,
+but unlike the last one columns are not objects, everything is pretty much
+straight forward and flat.
+
+=head2 Actions on rows
+
+=head2 Actions on tables
+
+In order to perform an action on table a L<ObjectDB::Table> object must be
+obtained via C<table> method (see L<ObjectDB::Table> for all available actions).
+The only exception is C<find>, it is available in a row object for convenience.
+
+    MyBook->table->delete; # deletes ALL records from MyBook
+
+=head2 Actions on related objects
+
+=head2 Transactions
+
+All the exceptions will be catched, a rollback will be run and exceptions will
+be rethrown. It is safe to use C<rollback> or C<commit> inside of a transaction
+when you want to do custom exception handling.
+
+    MyDB->txn(
+        sub {
+            ... do smth that can throw ...
+        }
+    );
+
+C<txn>'s return value is preserved, so it is safe to do something like:
+
+    my $result = MyDB->txn(
+        sub {
+            return 'my result';
+        }
+    );
+
+=head3 Methods
+
+=over
+
+=item C<txn>
+
+Accepts a subroutine reference, wraps code into eval and runs it rethrowing all
+exceptions.
+
+=item C<commit>
+
+Commit transaction.
+
+=item C<rollback>
+
+Rollback transaction.
+
+=cut
+
+=head2 Utility methods
+
+=head3 Methods
+
+=over
+
+=item C<init_db>
+
+Returns current C<DBI> instance.
+
+=item C<is_modified>
+
+Returns 1 if object is modified.
+
+=item C<is_in_db>
+
+Returns 1 if object is in database.
+
+=item C<is_related_loaded>
+
+Checks if related objects are loaded.
+
+=item C<to_hash>
+
+Converts object into a hash reference, including all preloaded objects.
+
+=cut
 
 =head1 AUTHOR
 
