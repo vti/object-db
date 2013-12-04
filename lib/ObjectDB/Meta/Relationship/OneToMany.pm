@@ -34,12 +34,10 @@ sub to_source {
         @columns = $self->class->meta->get_columns;
     }
 
-    @columns = map { ref $_ ? $_ : "$name.$_" } @columns;
-
     return {
         table      => $rel_table,
         as         => $name,
-        join       => 'left',
+        join       => $self->{join},
         constraint => $constraint,
         columns    => [@columns]
     };

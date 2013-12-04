@@ -21,7 +21,7 @@ sub new {
       $params{orig_class} || Carp::croak('orig_class required');
     $self->{class} = $params{class};
     $self->{map}   = $params{map};
-    $self->{join}  = $params{join};
+    $self->{join}  = $params{join} || 'left';
 
     return $self;
 }

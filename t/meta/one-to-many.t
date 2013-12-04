@@ -23,7 +23,7 @@ describe 'one to many' => sub {
                 as         => 'books',
                 join       => 'left',
                 constraint => ['author.id' => {-col => 'books.book_author_id'}],
-                columns    => ['books.id', 'books.author_id', 'books.title']
+                columns    => ['id', 'author_id', 'title']
             }
         );
     };

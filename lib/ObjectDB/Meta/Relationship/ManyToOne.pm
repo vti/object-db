@@ -7,14 +7,6 @@ use base 'ObjectDB::Meta::Relationship';
 
 our $VERSION = '3.00';
 
-sub new {
-    my $self = shift->SUPER::new(@_);
-
-    $self->{join} ||= 'left';
-
-    return $self;
-}
-
 sub type { 'many to one' }
 
 sub to_source {
