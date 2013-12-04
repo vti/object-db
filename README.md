@@ -57,10 +57,81 @@ ObjectDB - usable ORM
 
 ObjectDB is a lightweight and flexible object-relational mapper. While being
 light it stays usable. ObjectDB borrows many things from [Rose::DB::Object](http://search.cpan.org/perldoc?Rose::DB::Object),
-but unlike the last one columns are not objects, everything is pretty much
-straight forward and flat.
+but unlike in the last one columns are not objects, everything is pretty much
+straightforward and flat.
+
+## Actions on columns
+
+### Methods
+
+- `set_columns`
+
+    Set columns.
+
+        $book->set_columns(title => 'New Book', pages => 140);
+
+- `set_column`
+
+    Set column.
+
+        $book->set_column(title => 'New Book');
+
+- `get_column`
+
+        my $title = $book->get_column('title');
+- `column`
+
+    A shortcut for `set_column`/`get_column`.
+
+        $book->column(title => 'New Book');
+        my $title = $book->column('title');
 
 ## Actions on rows
+
+Main ObjectDB instance represents a row object. All actions performed on this
+instance are performed on one row. For performing actions on several rows see
+[ObjectDB::Table](http://search.cpan.org/perldoc?ObjectDB::Table).
+
+### Methods
+
+- `create`
+
+    Creates a new row. If `meta` has an `auto_increment` column then it is
+    properly set.
+
+        my $author = MyAuthor->new(name => 'Me')->create;
+
+    It is possible to create related objects automatically:
+
+        my $author = MyAuthor->new(
+            name  => 'Me',
+            books => [{title => 'Book1'}, {title => 'Book2'}]
+        )->create;
+
+    Which is a convenient way of calling C <create\_related> manually .
+
+- `load`
+
+    Loads an object by primary or unique key.
+
+        my $author = MyAuthor->new(id => 1)->load;
+
+    It is possible to load an object with related objects.
+
+        my $book = MyBook->new(title => 'New Book')->load(with => 'author');
+
+- `update`
+
+    Updates an object.
+
+        $book->set_column(title => 'Old Title');
+        $book->update;
+
+- `delete`
+
+    Deletes an object. Related objects are NOT deleted.
+
+        $book->delete;
 
 ## Actions on tables
 
@@ -71,6 +142,48 @@ The only exception is `find`, it is available in a row object for convenience.
     MyBook->table->delete; # deletes ALL records from MyBook
 
 ## Actions on related objects
+
+### Methods
+
+- `related`
+
+    Returns preloaded related objects or loads them on demand.
+
+        # same as find_related but with caching
+        my $description = $book->related('book_description');
+
+        # returns from cache
+        my $description = $book->related('book_description');
+
+- `create_related`
+
+    Creates related object, setting appropriate foreign keys. Accepts a list, a hash
+    reference, an object.
+
+        $author->create_related('books', title => 'New Book');
+        $author->create_related('books', MyBook->new(title => 'New Book'));
+
+- `find_related`
+
+    Finds related object.
+
+        my $books = $author->find_related('books', where => [title => 'New Book']);
+
+- `update_related`
+
+    Updates related object.
+
+        $author->update_related(
+            'books',
+            set   => {title => 'Old Book'},
+            where => [title => 'New Book']
+        );
+
+- `delete_related`
+
+    Deletes related object.
+
+        $author->delete_related('books', where => [title => 'New Book']);
 
 ## Transactions
 
@@ -111,6 +224,10 @@ when you want to do custom exception handling.
 
 ### Methods
 
+- `meta`
+
+    Returns meta object. See `ObjectDB::Meta`.
+
 - `init_db`
 
     Returns current `DBI` instance.
@@ -126,6 +243,10 @@ when you want to do custom exception handling.
 - `is_related_loaded`
 
     Checks if related objects are loaded.
+
+- `clone`
+
+    Clones object preserving all columns except primary or unique keys.
 
 - `to_hash`
 

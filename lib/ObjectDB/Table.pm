@@ -101,7 +101,8 @@ sub update {
     my $sql = SQL::Composer->build(
         'update',
         table => $self->meta->table,
-        %params
+        set   => $params{set},
+        where => $params{where},
     );
 
     return $self->dbh->do($sql->to_sql, undef, $sql->to_bind);
@@ -109,13 +110,14 @@ sub update {
 
 sub delete : method {
     my $class = shift;
+    my (%params) = @_;
 
     my $dbh = $class->dbh;
 
     my $sql = SQL::Composer->build(
         'delete',
-        from => $class->meta->table,
-        @_
+        from  => $class->meta->table,
+        where => $params{where},
     );
 
     my $sth = $dbh->prepare($sql->to_sql);
