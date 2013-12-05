@@ -179,3 +179,103 @@ sub _execute {
 }
 
 1;
+__END__
+
+=pod
+
+=head1 NAME
+
+ObjectDB::Table - actions on tables
+
+=head1 SYNOPSIS
+
+    package MyDB;
+    use base 'ObjectDB';
+
+    sub init_db {
+        ...
+        return $dbh;
+    }
+
+    package MyAuthor;
+    use base 'MyDB';
+
+    __PACKAGE__->meta(
+        table          => 'author',
+        columns        => [qw/id name/],
+        primary_key    => 'id',
+        auto_increment => 'id',
+        relationships  => {
+            books => {
+                type = 'one to many',
+                class => 'MyBook',
+                map   => {id => 'author_id'}
+            }
+        }
+    );
+
+    package MyBook;
+    use base 'MyDB';
+
+    __PACKAGE__->meta(
+        table          => 'book',
+        columns        => [qw/id author_id title/],
+        primary_key    => 'id',
+        auto_increment => 'id',
+        relationships  => {
+            author => {
+                type = 'many to one',
+                class => 'MyAuthor',
+                map   => {author_id => 'id'}
+            }
+        }
+    );
+
+    my @books = MyBook->table->find(
+        with     => 'author',
+        order_by => [title => 'ASC'],
+        page     => 1,
+        per_page => 10
+    );
+
+=head1 DESCRIPTION
+
+ObjectDB::Table allows to perform actions on table: find, update, delete many
+rows at a time.
+
+=head3 Methods
+
+=over
+
+=item C<find>
+
+Finds specific rows.
+
+    my @books = MyBook->table->find;
+    my @books = MyBook->table->find(where => [...]);
+    my @books = MyBook->table->find(where => [...], order_by => [...]);
+    my @books =
+      MyBook->table->find(where => [...], order_by => [...], group_by => [...]);
+
+=item C<count>
+
+A convenient method for counting.
+
+    my $total_books = MyBook->table->count;
+
+=item C<update>
+
+Updates many rows at a time.
+
+    MyBook->table->update(set => {author_id => 1}, where => [author_id => 2]);
+
+=item C<delete>
+
+Deletes many rows at a time.
+
+    MyBook->table->delete;
+    MyBook->table->delete(where => [...]);
+
+=back
+
+=cut
