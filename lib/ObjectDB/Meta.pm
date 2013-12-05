@@ -353,3 +353,81 @@ sub _is_inheriting {
 }
 
 1;
+__END__
+
+=pod
+
+=head1 NAME
+
+ObjectDB::Meta - meta object
+
+=head1 SYNOPSIS
+
+    ObjectDB::Meta->new(
+        table          => 'book',
+        columns        => [qw/id author_id title/],
+        primary_key    => 'id',
+        auto_increment => 'id',
+        relationships  => {
+            author => {
+                type = 'many to one',
+                class => 'MyAuthor',
+                map   => {author_id => 'id'}
+            }
+        }
+    );
+
+=head1 DESCRIPTION
+
+Meta object is used internally for describing the table schema.
+
+=head2 Inheritance
+
+The key feature is inheritance. You can inherit schema, add or remove columns,
+specify new relationships and so on.
+
+    package Parent;
+    use base 'MyDB';
+
+    __PACKAGE__->schema(
+        table       => 'parent',
+        columns     => [qw/id title/],
+        primary_key => 'id'
+    );
+
+    package Child;
+    use base 'Parent';
+
+    __PACKAGE__->schema->add_column('description');
+
+=head2 Schema
+
+=over
+
+=item C<table>
+
+Table name.
+
+=item C<columns>
+
+Column names.
+
+=item C<primary_key>
+
+Primary key.
+
+=item C<auto_increment>
+
+Auto increment field. This field is updated as soon as object is created.
+
+=item C<unique_keys>
+
+Unique keys.
+
+=item C<relationships>
+
+Relationships.
+
+=cut
+
+=cut
