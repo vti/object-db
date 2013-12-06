@@ -25,12 +25,7 @@ sub create_related {
     my @objects;
     foreach my $related (@related) {
         if (Scalar::Util::blessed($related)) {
-            if ($related->is_in_db) {
-                push @objects, $related->set_columns(@params)->update;
-            }
-            else {
-                push @objects, $related->set_columns(@params)->create;
-            }
+            push @objects, $related->set_columns(@params)->save;
         }
         else {
             push @objects,

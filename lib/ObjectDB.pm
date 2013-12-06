@@ -333,7 +333,7 @@ sub create {
     return $self;
 }
 
-sub create_or_update {
+sub save {
     my $self = shift;
 
     if ($self->is_in_db) {

@@ -34,7 +34,7 @@ sub create_related {
         $related = $meta->class->new(%$related);
     }
     $related->set_columns(@where);
-    return $related->create_or_update;
+    return $related->save;
 }
 
 sub update_related {
