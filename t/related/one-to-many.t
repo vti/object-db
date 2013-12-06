@@ -44,6 +44,22 @@ describe 'one to many' => sub {
         is($author->count_related('books'), 2);
     };
 
+    it 'create related from object' => sub {
+        my $author = Author->new(name => 'vti')->create;
+
+        $author->create_related('books', [Book->new(title => 'Crap')]);
+
+        is($author->count_related('books'), 1);
+    };
+
+    it 'create related from already created object' => sub {
+        my $author = Author->new(name => 'vti')->create;
+
+        $author->create_related('books', [Book->new(title => 'Crap')->create]);
+
+        is($author->count_related('books'), 1);
+    };
+
     it 'find_related' => sub {
         my $author = Author->new(name => 'vti')->create;
         $author->create_related('books', title => 'Crap');

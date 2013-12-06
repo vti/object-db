@@ -7,6 +7,8 @@ use base 'ObjectDB::Related';
 
 our $VERSION = '3.00';
 
+use Scalar::Util ();
+
 sub create_related {
     my $self = shift;
     my ($row) = shift;
@@ -22,8 +24,18 @@ sub create_related {
 
     my @objects;
     foreach my $related (@related) {
-        push @objects,
-          $meta->class->new->set_columns(%$related, @params)->create;
+        if (Scalar::Util::blessed($related)) {
+            if ($related->is_in_db) {
+                push @objects, $related->set_columns(@params)->update;
+            }
+            else {
+                push @objects, $related->set_columns(@params)->create;
+            }
+        }
+        else {
+            push @objects,
+              $meta->class->new->set_columns(%$related, @params)->create;
+        }
     }
 
     return @related == 1 ? $objects[0] : @objects;
