@@ -3,7 +3,7 @@ requires 'perl', '5.010';
 requires 'Carp'     => 0;
 requires 'Storable' => 0;
 
-requires 'SQL::Composer' => '0.02';
+requires 'SQL::Composer' => '0.04';
 
 on 'test' => sub {
     requires 'Test::More', '0.98';
