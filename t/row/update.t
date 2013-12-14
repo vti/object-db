@@ -111,10 +111,10 @@ sub _build_object {
 sub _insert {
     my (%params) = @_;
 
-    my $names  = join ',', map { "`$_`" } keys %params;
+    my $names  = join ',', map { "$_" } keys %params;
     my $values = join ',', map { "'$_'" } values %params;
 
-    TestDBH->dbh->do("INSERT INTO `person` ($names) VALUES ($values)");
+    TestDBH->dbh->do("INSERT INTO person ($names) VALUES ($values)");
 }
 
 runtests unless caller;

@@ -17,7 +17,7 @@ describe 'create' => sub {
         my $person = _build_object(name => 'vti');
         $person->create;
 
-        my $result = TestDBH->dbh->selectall_arrayref('SELECT * FROM `person`');
+        my $result = TestDBH->dbh->selectall_arrayref('SELECT * FROM person');
 
         is(@$result, 1);
     };
@@ -27,7 +27,7 @@ describe 'create' => sub {
         $person->create;
 
         my $result =
-          TestDBH->dbh->selectall_arrayref('SELECT id, name FROM `person`');
+          TestDBH->dbh->selectall_arrayref('SELECT id, name FROM person');
 
         is_deeply($result->[0], [1, 'vti']);
     };

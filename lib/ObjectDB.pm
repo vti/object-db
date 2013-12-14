@@ -304,6 +304,7 @@ sub create {
 
     my $sql = SQL::Composer->build(
         'insert',
+        driver => $self->init_db->{Driver}->{Name},
         into   => $self->meta->table,
         values => [map { $_ => $self->{columns}->{$_} } $self->columns]
     );
@@ -369,6 +370,7 @@ sub load {
 
     my $select = SQL::Composer->build(
         'select',
+        driver     => $self->init_db->{Driver}->{Name},
         columns    => [$self->meta->get_columns],
         from       => $self->meta->table,
         where      => $where,
@@ -420,6 +422,7 @@ sub update {
     @columns_set{@columns} = @values;
     my $sql = SQL::Composer->build(
         'update',
+        driver => $self->init_db->{Driver}->{Name},
         table  => $self->meta->table,
         values => [%columns_set],
         where  => [%where]
@@ -456,8 +459,9 @@ sub delete : method {
 
     my $sql = SQL::Composer->build(
         'delete',
-        from  => $self->meta->table,
-        where => [%where]
+        driver => $self->init_db->{Driver}->{Name},
+        from   => $self->meta->table,
+        where  => [%where]
     );
 
     my $rv = execute($self->init_db, $sql, context => $self);

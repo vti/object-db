@@ -12,11 +12,21 @@ sub dbh {
 
     return $DBH if $DBH;
 
-    my $dbh = DBI->connect('dbi:SQLite::memory:', '', '', {RaiseError => 1});
+    my @dsn;
+    if (my $dsn = $ENV{TEST_OBJECTDB_DBH}) {
+        @dsn = split /,/, $dsn;
+    }
+    else {
+        push @dsn, 'dbi:SQLite::memory:', '', '';
+    }
+
+    my $dbh = DBI->connect(@dsn, {RaiseError => 1});
     die $DBI::errorstr unless $dbh;
 
-    $dbh->do("PRAGMA default_synchronous = OFF");
-    $dbh->do("PRAGMA temp_store = MEMORY");
+    if (!$ENV{TEST_OBJECTDB_DBH}) {
+        $dbh->do("PRAGMA default_synchronous = OFF");
+        $dbh->do("PRAGMA temp_store = MEMORY");
+    }
 
     $DBH = $dbh;
     return $dbh;

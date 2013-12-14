@@ -63,7 +63,10 @@ sub find {
         }
     }
 
-    my $quoter = ObjectDB::Quoter->new(meta => $self->meta);
+    my $quoter = ObjectDB::Quoter->new(
+        meta   => $self->meta,
+        driver => $self->dbh->{Driver}->{Name},
+    );
     my $where = SQL::Composer::Expression->new(
         quoter         => $quoter,
         expr           => $params{where},
@@ -76,6 +79,7 @@ sub find {
 
     my $select = SQL::Composer->build(
         'select',
+        driver     => $self->dbh->{Driver}->{Name},
         from       => $self->meta->table,
         columns    => [$self->meta->get_columns],
         join       => $with->to_joins,
@@ -104,9 +108,10 @@ sub update {
 
     my $sql = SQL::Composer->build(
         'update',
-        table => $self->meta->table,
-        set   => $params{set},
-        where => $params{where},
+        driver => $self->dbh->{Driver}->{Name},
+        table  => $self->meta->table,
+        set    => $params{set},
+        where  => $params{where},
     );
 
     my $rv = execute($self->dbh, $sql, context => $self);
@@ -119,8 +124,9 @@ sub delete : method {
 
     my $sql = SQL::Composer->build(
         'delete',
-        from  => $self->meta->table,
-        where => $params{where},
+        driver => $self->dbh->{Driver}->{Name},
+        from   => $self->meta->table,
+        where  => $params{where},
     );
 
     my $rv = execute($self->dbh, $sql, context => $self);
@@ -131,7 +137,10 @@ sub count {
     my $self = shift;
     my (%params) = @_;
 
-    my $quoter = ObjectDB::Quoter->new(meta => $self->meta);
+    my $quoter = ObjectDB::Quoter->new(
+        driver => $self->dbh->{Driver}->{Name},
+        meta   => $self->meta
+    );
     my $where = SQL::Composer::Expression->new(
         quoter         => $quoter,
         expr           => $params{where},
@@ -142,10 +151,12 @@ sub count {
 
     my $select = SQL::Composer->build(
         'select',
-        from    => $self->meta->table,
-        columns => [{-col => \'COUNT(*)', -as => 'count'}],
-        where   => $where,
-        join    => $with->to_joins
+        driver   => $self->dbh->{Driver}->{Name},
+        from     => $self->meta->table,
+        columns  => [{-col => \'COUNT(*)', -as => 'count'}],
+        where    => $where,
+        join     => $with->to_joins,
+        group_by => $params{group_by},
     );
 
     my ($rv, $sth) = execute($self->dbh, $select, context => $self);

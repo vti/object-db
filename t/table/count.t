@@ -52,7 +52,13 @@ describe 'table count' => sub {
 
         my $table = _build_table(class => 'Book');
 
-        is($table->count(where => ['parent_author.name' => 'author']), 2);
+        is(
+            $table->count(
+                where    => ['parent_author.name' => 'author'],
+                group_by => 'parent_author.id'
+            ),
+            2
+        );
     };
 
 };

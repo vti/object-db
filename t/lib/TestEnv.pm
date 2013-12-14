@@ -54,11 +54,22 @@ sub prepare_table {
 
     my $dbh = TestDBH->dbh;
 
-    $dbh->do("DROP TABLE IF EXISTS `$table`");
+    $dbh->do("DROP TABLE IF EXISTS " . $dbh->quote_identifier($table));
 
     die "Unknown table '$table'" unless exists $TABLES{$table};
 
-    $dbh->do($TABLES{$table});
+    my $sql = $TABLES{$table};
+
+    my $driver = $dbh->{Driver}->{Name};
+
+    if ($driver =~ /mysql/i) {
+        $sql =~ s{AUTOINCREMENT}{AUTO_INCREMENT}g;
+    } elsif ($driver =~ /Pg/i) {
+        $sql =~ s{`}{"}g;
+        $sql =~ s{"id" INTEGER PRIMARY KEY AUTOINCREMENT}{"id" SERIAL PRIMARY KEY}g;
+    }
+
+    $dbh->do($sql);
 }
 
 1;

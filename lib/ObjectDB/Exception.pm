@@ -40,8 +40,8 @@ sub to_string {
         my $class = ref($context) ? ref($context) : $context;
         push @context, q{class='} . $class . q{'};
 
-        if ($class->can('meta')) {
-            push @context, q{table='} . $class->meta->table . q{'};
+        if (ref($context) && $class->can('meta')) {
+            push @context, q{table='} . $context->meta->table . q{'};
         }
     }
 
