@@ -13,6 +13,15 @@ describe 'create' => sub {
         TestEnv->prepare_table('person');
     };
 
+    it 'create with default values' => sub {
+        my $person = _build_object();
+        $person->create;
+
+        my $result = TestDBH->dbh->selectall_arrayref('SELECT * FROM person');
+
+        is(@$result, 1);
+    };
+
     it 'create_one_instance' => sub {
         my $person = _build_object(name => 'vti');
         $person->create;
