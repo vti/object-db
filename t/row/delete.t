@@ -43,7 +43,7 @@ describe 'delete' => sub {
     it 'throw_when_delete_didnt_occur' => sub {
         my $person = _build_object(id => 999);
 
-        like(exception { $person->delete }, qr/Object was not deleted/);
+        like(exception { $person->delete }, qr/No rows were affected/);
     };
 
     it 'empty_object_after_deletion' => sub {

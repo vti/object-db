@@ -13,6 +13,7 @@ use ObjectDB::Quoter;
 use ObjectDB::RelatedFactory;
 use ObjectDB::Table;
 use ObjectDB::With;
+use ObjectDB::Util qw(execute);
 
 our $VERSION = '3.00';
 
@@ -30,13 +31,13 @@ $Carp::Internal{"ObjectDB::$_"}++ for qw/
   Meta::Relationship::ManyToMany
   Meta::Relationship::OneToMany
   Meta::RelationshipFactory
-  Base
   Table
   Util
   Quoter
   DBHPool
   Meta
   RelationshipFactory
+  Exception
   /;
 
 sub new {
@@ -58,8 +59,6 @@ sub new {
     $self->{is_in_db}    = 0;
     $self->{is_modified} = 0;
 
-    $self->{related_factory} ||= ObjectDB::RelatedFactory->new;
-
     return $self;
 }
 
@@ -74,6 +73,8 @@ sub is_modified {
 
     return $self->{is_modified};
 }
+
+sub dbh { &init_db }
 
 sub init_db {
     my $self = shift;
@@ -137,10 +138,10 @@ sub txn {
 sub commit {
     my $self = shift;
 
-    my $dbh = $self->init_db();
+    my $dbh = $self->init_db;
 
     if ($dbh->{AutoCommit} == 0) {
-        $dbh->commit();
+        $dbh->commit;
         $dbh->{AutoCommit} = 1;
     }
 
@@ -150,10 +151,10 @@ sub commit {
 sub rollback {
     my $self = shift;
 
-    my $dbh = $self->init_db();
+    my $dbh = $self->init_db;
 
     if ($dbh->{AutoCommit} == 0) {
-        $dbh->rollback();
+        $dbh->rollback;
         $dbh->{AutoCommit} = 1;
     }
 
@@ -267,7 +268,8 @@ sub set_column {
     elsif ($self->meta->is_relationship($name)) {
         if (!$self->_is_empty_hash_ref($value)) {
             if (!Scalar::Util::blessed($value)) {
-                $value = $self->meta->get_relationship($name)->class->new(%$value);
+                $value =
+                  $self->meta->get_relationship($name)->class->new(%$value);
             }
 
             $self->{relationships}->{$name} = $value;
@@ -300,21 +302,17 @@ sub create {
     Carp::croak(q{Calling 'create' on already created object})
       if $self->is_in_db;
 
-    my $dbh = $self->init_db;
-
     my $sql = SQL::Composer->build(
         'insert',
         into   => $self->meta->table,
         values => [map { $_ => $self->{columns}->{$_} } $self->columns]
     );
 
-    my $sth = $dbh->prepare($sql->to_sql);
-    my $rv  = $sth->execute($sql->to_bind);
-    return unless $rv;
+    my $rv = execute($self->init_db, $sql, context => $self);
 
     if (my $auto_increment = $self->meta->auto_increment) {
         $self->set_column(
-            $auto_increment => $dbh->last_insert_id(
+            $auto_increment => $self->init_db->last_insert_id(
                 undef, undef, $self->meta->table, $auto_increment
             )
         );
@@ -379,13 +377,7 @@ sub load {
         for_update => $params{for_update},
     );
 
-    my $sql  = $select->to_sql;
-    my @bind = $select->to_bind;
-
-    my $dbh = $self->init_db;
-
-    my $sth = $dbh->prepare($sql);
-    $sth->execute(@bind);
+    my ($rv, $sth) = execute($self->init_db, $select, context => $self);
 
     my $results = $sth->fetchall_arrayref;
     return unless $results && @$results;
@@ -421,8 +413,6 @@ sub update {
     Carp::croak(ref($self) . ': no primary or unique keys specified')
       unless keys %where;
 
-    my $dbh = $self->init_db;
-
     my @columns = grep { !$self->meta->is_primary_key($_) } $self->columns;
     my @values  = map  { $self->{columns}->{$_} } @columns;
 
@@ -435,14 +425,14 @@ sub update {
         where  => [%where]
     );
 
-    my $sth = $dbh->prepare($sql->to_sql);
-    my $rv  = $sth->execute($sql->to_bind);
-    Carp::croak('Object was not updated') if $rv eq '0E0';
+    my $rv = execute($self->init_db, $sql, context => $self);
+
+    Carp::croak('No rows were affected') if $rv eq '0E0';
 
     $self->{is_modified} = 0;
     $self->{is_in_db}    = 1;
 
-    return $rv;
+    return $self;
 }
 
 sub delete : method {
@@ -464,18 +454,15 @@ sub delete : method {
     Carp::croak(ref($self) . ': no primary or unique keys specified')
       unless keys %where;
 
-    my $dbh = $self->init_db;
-
     my $sql = SQL::Composer->build(
         'delete',
         from  => $self->meta->table,
         where => [%where]
     );
 
-    my $sth = $dbh->prepare($sql->to_sql);
+    my $rv = execute($self->init_db, $sql, context => $self);
 
-    my $rv = $sth->execute($sql->to_bind);
-    Carp::croak('Object was not deleted') if $rv eq '0E0';
+    Carp::croak('No rows were affected') if $rv eq '0E0';
 
     %$self = ();
 
@@ -564,7 +551,7 @@ sub _build_related {
 
     my $meta = $self->meta->get_relationship($name);
 
-    return $self->{related_factory}->build($meta->type, meta => $meta);
+    return ObjectDB::RelatedFactory->new->build($meta->type, meta => $meta);
 }
 
 sub _is_empty_hash_ref {
@@ -573,7 +560,7 @@ sub _is_empty_hash_ref {
 
     foreach my $key (keys %$hash_ref) {
         if (defined $hash_ref->{$key} && $hash_ref->{$key} ne '') {
-            if (ref ($hash_ref->{$key}) eq 'HASH') {
+            if (ref($hash_ref->{$key}) eq 'HASH') {
                 my $is_empty = $self->_is_empty_hash_ref($hash_ref->{$key});
                 return 0 unless $is_empty;
             }

@@ -66,7 +66,7 @@ describe 'update' => sub {
         my $person = _build_object(id => 1);
         $person->set_column(name => 'vti');
 
-        like(exception { $person->update }, qr/Object was not updated/);
+        like(exception { $person->update }, qr/No rows were affected/);
     };
 
     it 'do_nothing_on_second_update' => sub {

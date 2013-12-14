@@ -6,9 +6,10 @@ use warnings;
 use base 'Exporter';
 
 our $VERSION   = '3.00';
-our @EXPORT_OK = qw(load_class);
+our @EXPORT_OK = qw(load_class execute);
 
 require Carp;
+use ObjectDB::Exception;
 
 sub load_class {
     my ($class) = @_;
@@ -48,6 +49,24 @@ sub load_class {
 
         Carp::croak($e);
     };
+}
+
+sub execute {
+    my ($dbh, $stmt, %context) = @_;
+
+    my ($rv, $sth);
+    eval {
+        $sth = $dbh->prepare($stmt->to_sql);
+        $rv  = $sth->execute($stmt->to_bind);
+
+        1;
+    } or do {
+        my $e = $@;
+
+        ObjectDB::Exception->throw($e, %context, sql => $stmt);
+    };
+
+    return wantarray ? ($rv, $sth) : $rv;
 }
 
 1;

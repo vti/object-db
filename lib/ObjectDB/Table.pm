@@ -14,6 +14,8 @@ use ObjectDB;
 use ObjectDB::Quoter;
 use ObjectDB::With;
 use ObjectDB::Meta;
+use ObjectDB::Exception;
+use ObjectDB::Util qw(execute);
 
 sub new {
     my $class = shift;
@@ -85,7 +87,9 @@ sub find {
         for_update => $params{for_update},
     );
 
-    my $rows = $self->_execute($select);
+    my ($rv, $sth) = execute($self->dbh, $select, context => $self);
+
+    my $rows = $sth->fetchall_arrayref;
     return unless $rows && @$rows;
 
     my @objects =
@@ -105,31 +109,27 @@ sub update {
         where => $params{where},
     );
 
-    return $self->dbh->do($sql->to_sql, undef, $sql->to_bind);
+    my $rv = execute($self->dbh, $sql, context => $self);
+    return $rv;
 }
 
 sub delete : method {
-    my $class = shift;
+    my $self = shift;
     my (%params) = @_;
-
-    my $dbh = $class->dbh;
 
     my $sql = SQL::Composer->build(
         'delete',
-        from  => $class->meta->table,
+        from  => $self->meta->table,
         where => $params{where},
     );
 
-    my $sth = $dbh->prepare($sql->to_sql);
-
-    return $sth->execute($sql->to_bind);
+    my $rv = execute($self->dbh, $sql, context => $self);
+    return $rv;
 }
 
 sub count {
     my $self = shift;
     my (%params) = @_;
-
-    my $dbh = $self->dbh;
 
     my $quoter = ObjectDB::Quoter->new(meta => $self->meta);
     my $where = SQL::Composer::Expression->new(
@@ -148,34 +148,12 @@ sub count {
         join    => $with->to_joins
     );
 
-    my $sql  = $select->to_sql;
-    my @bind = $select->to_bind;
-
-    my $sth = $dbh->prepare($sql);
-    $sth->execute(@bind);
+    my ($rv, $sth) = execute($self->dbh, $select, context => $self);
 
     my $results    = $sth->fetchall_arrayref;
     my $row_object = $select->from_rows($results);
 
     return $row_object->[0]->{count};
-}
-
-sub _execute {
-    my $self = shift;
-    my ($stmt) = @_;
-
-    my $sql  = $stmt->to_sql;
-    my @bind = $stmt->to_bind;
-
-    eval {
-        my $sth = $self->dbh->prepare($sql);
-        $sth->execute(@bind);
-        return $sth->fetchall_arrayref;
-    } or do {
-        my $e = $@;
-
-        Carp::croak($e);
-    };
 }
 
 1;
