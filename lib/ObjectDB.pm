@@ -644,6 +644,8 @@ light it stays usable. ObjectDB borrows many things from L<Rose::DB::Object>,
 but unlike in the last one columns are not objects, everything is pretty much
 straightforward and flat.
 
+Supported servers: SQLite, MySQL, PostgreSQL
+
 =head2 Actions on columns
 
 =head3 Methods
