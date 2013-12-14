@@ -60,6 +60,8 @@ light it stays usable. ObjectDB borrows many things from [Rose::DB::Object](http
 but unlike in the last one columns are not objects, everything is pretty much
 straightforward and flat.
 
+Supported servers: SQLite, MySQL, PostgreSQL
+
 ## Actions on columns
 
 ### Methods
