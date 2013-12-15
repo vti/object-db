@@ -5,7 +5,7 @@ use warnings;
 
 use base 'ObjectDB::Related';
 
-our $VERSION = '3.00';
+our $VERSION = '3.01';
 
 sub create_related {
     my $self = shift;

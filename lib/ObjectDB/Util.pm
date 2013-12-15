@@ -5,7 +5,7 @@ use warnings;
 
 use base 'Exporter';
 
-our $VERSION   = '3.00';
+our $VERSION   = '3.01';
 our @EXPORT_OK = qw(load_class execute);
 
 require Carp;
