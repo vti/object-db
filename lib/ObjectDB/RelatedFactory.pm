@@ -3,7 +3,7 @@ package ObjectDB::RelatedFactory;
 use strict;
 use warnings;
 
-our $VERSION = '3.01';
+our $VERSION = '3.02';
 
 use base 'ObjectDB::Factory';
 

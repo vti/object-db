@@ -3,7 +3,7 @@ package ObjectDB::With;
 use strict;
 use warnings;
 
-our $VERSION = '3.01';
+our $VERSION = '3.02';
 
 sub new {
     my $class = shift;

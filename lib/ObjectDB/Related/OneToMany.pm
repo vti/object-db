@@ -5,7 +5,7 @@ use warnings;
 
 use base 'ObjectDB::Related';
 
-our $VERSION = '3.01';
+our $VERSION = '3.02';
 
 use Scalar::Util ();
 
