@@ -1,6 +1,9 @@
 use Test::Spec;
 use Test::Fatal;
 
+use lib 't/lib';
+
+use TestDBH;
 use ObjectDB::DBHPool;
 
 describe 'pool' => sub {
