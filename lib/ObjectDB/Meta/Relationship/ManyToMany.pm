@@ -5,7 +5,7 @@ use warnings;
 
 use base 'ObjectDB::Meta::Relationship';
 
-our $VERSION = '3.02';
+our $VERSION = '3.03';
 
 use ObjectDB::Util qw(load_class);
 
