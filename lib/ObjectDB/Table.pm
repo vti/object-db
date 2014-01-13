@@ -97,6 +97,7 @@ sub find {
     return unless $rows && @$rows;
 
     my @objects =
+      map { $_->is_in_db(1) }
       map { $self->meta->class->new(%{$_}) } @{$select->from_rows($rows)};
 
     return $single ? $objects[0] : @objects;

@@ -65,6 +65,11 @@ sub new {
 sub is_in_db {
     my $self = shift;
 
+    if (@_) {
+        $self->{is_in_db} = $_[0];
+        return $self;
+    }
+
     return $self->{is_in_db};
 }
 

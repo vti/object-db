@@ -24,6 +24,16 @@ describe 'table find' => sub {
         is(@persons, 1);
     };
 
+    it 'have is_in_db flag' => sub {
+        Person->new(name => 'vti')->create;
+
+        my $table = _build_table();
+
+        my @persons = $table->find;
+
+        ok($persons[0]->is_in_db);
+    };
+
     it 'find_objects_with_query' => sub {
         Person->new(name => 'vti')->create;
         Person->new(name => 'foo')->create;
