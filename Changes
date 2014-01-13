@@ -2,6 +2,10 @@ Revision history for Perl extension ObjectDB
 
 {{$NEXT}}
 
+3.04 2014-01-13T12:26:00Z
+
+    - set is_in_db flag when returning found objects
+
 3.03 2013-12-20T08:21:33Z
 
     - require dbh for pool testing

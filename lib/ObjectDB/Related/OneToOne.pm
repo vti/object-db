@@ -5,7 +5,7 @@ use warnings;
 
 use base 'ObjectDB::Related::ManyToOne';
 
-our $VERSION = '3.03';
+our $VERSION = '3.04';
 
 use Scalar::Util ();
 
