@@ -11,7 +11,7 @@ use Scalar::Util ();
 
 sub create_related {
     my $self = shift;
-    my ($row) = shift;
+    my ($row, $related) = @_;
 
     my $meta = $self->{meta};
 
@@ -19,11 +19,8 @@ sub create_related {
 
     my @params = ($to => $row->column($from));
 
-    my @related =
-      @_ == 1 ? ref $_[0] eq 'ARRAY' ? @{$_[0]} : ($_[0]) : ({@_});
-
     my @objects;
-    foreach my $related (@related) {
+    foreach my $related (@$related) {
         if (Scalar::Util::blessed($related)) {
             push @objects, $related->set_columns(@params)->save;
         }
@@ -33,7 +30,7 @@ sub create_related {
         }
     }
 
-    return @related == 1 ? $objects[0] : @objects;
+    return @objects;
 }
 
 sub find_related {

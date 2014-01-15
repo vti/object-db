@@ -536,10 +536,19 @@ sub related {
 }
 
 sub find_related   { shift->_do_related('find',   @_) }
-sub create_related { shift->_do_related('create', @_) }
 sub update_related { shift->_do_related('update', @_) }
 sub count_related  { shift->_do_related('count',  @_) }
 sub delete_related { shift->_do_related('delete', @_) }
+
+sub create_related {
+    my $self = shift;
+    my $name = shift;
+
+    my @related = @_ == 1 ? ref $_[0] eq 'ARRAY' ? @{$_[0]} : ($_[0]) : ({@_});
+
+    my @rv = $self->_do_related('create', $name, \@related);
+    return @rv == 1 ? $rv[0] : @rv;
+}
 
 sub _do_related {
     my $self   = shift;

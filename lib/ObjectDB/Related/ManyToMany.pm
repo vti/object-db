@@ -9,12 +9,10 @@ our $VERSION = '3.04';
 
 sub create_related {
     my $self = shift;
-    my ($row) = shift;
-
-    my @related = @_ == 1 ? ref $_[0] eq 'ARRAY' ? @{$_[0]} : ($_[0]) : ({@_});
+    my ($row, $related) = @_;
 
     my @row_objects;
-    foreach my $related (@related) {
+    foreach my $related (@$related) {
         my %params = %$related;
 
         my $meta = $self->meta;
@@ -43,7 +41,7 @@ sub create_related {
         push @row_objects, $row_object;
     }
 
-    return @related == 1 ? $row_objects[0] : @row_objects;
+    return @row_objects;
 }
 
 sub find_related {

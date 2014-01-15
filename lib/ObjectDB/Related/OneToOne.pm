@@ -11,11 +11,9 @@ use Scalar::Util ();
 
 sub create_related {
     my $self = shift;
-    my ($row) = shift;
-    my @related =
-      @_ == 1 ? ref $_[0] eq 'ARRAY' ? @{$_[0]} : ($_[0]) : ({@_});
+    my ($row, $related) = @_;
 
-    if (@related > 1) {
+    if (@$related > 1) {
         Carp::croak('cannot create multiple related objects in one to one');
     }
 
@@ -29,7 +27,7 @@ sub create_related {
         Carp::croak('Related object is already created');
     }
 
-    my $related = $related[0];
+    $related = $related->[0];
     if (!Scalar::Util::blessed($related)) {
         $related = $meta->class->new(%$related);
     }
