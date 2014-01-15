@@ -61,10 +61,11 @@ sub find_related {
 
     my $table     = $meta->class->meta->table;
     my $map_table = $meta->map_class->meta->table;
-    $params{where} =
-      ["$map_table.$map_table_to" => $row->column($map_table_from)];
 
-    return $meta->class->table->find(%params);
+    my @where = @{$params{where} || []};
+    unshift @where, "$map_table.$map_table_to" => $row->column($map_table_from);
+
+    return $meta->class->table->find(%params, where => \@where);
 }
 
 sub count_related {
@@ -82,33 +83,32 @@ sub count_related {
 
     my $table     = $meta->class->meta->table;
     my $map_table = $meta->map_class->meta->table;
-    $params{where} =
-      ["$map_table.$map_table_to" => $row->column($map_table_from)];
 
-    return $meta->class->table->count(%params);
+    my @where = @{$params{where} || []};
+    unshift @where, "$map_table.$map_table_to" => $row->column($map_table_from);
+
+    return $meta->class->table->count(%params, where => \@where);
 }
 
 sub delete_related {
     my $self = shift;
     my ($row, %params) = @_;
 
-    $params{where} ||= [];
-
     my $meta = $self->meta;
 
     my $map_from = $meta->map_from;
     my $map_to   = $meta->map_to;
 
-    my ($to, $from) =
+    my ($map_table_to, $map_table_from) =
       %{$meta->map_class->meta->get_relationship($map_from)->map};
 
-    push @{$params{where}}, ($to => $row->get_column($from));
+    my $table     = $meta->class->meta->table;
+    my $map_table = $meta->map_class->meta->table;
 
-    if ($meta->where) {
-        push @{$params{where}}, %{$meta->where};
-    }
+    my @where = @{$params{where} || []};
+    unshift @where, "$map_table.$map_table_to" => $row->column($map_table_from);
 
-    return $meta->map_class->table->delete(%params);
+    return $meta->map_class->table->delete(%params, where => \@where);
 }
 
 1;
