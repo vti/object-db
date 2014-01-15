@@ -71,6 +71,56 @@ describe 'many to many' => sub {
         ok(Tag->new(name => 'horror')->load);
     };
 
+    it 'create related from instance' => sub {
+        my $self = shift;
+
+        my $book = Book->new(title => 'Crap')->create;
+        my $tag = $book->create_related('tags', Tag->new(name => 'hi there'));
+
+        ok(
+            BookTagMap->new(
+                book_id => $book->get_column('id'),
+                tag_id  => $tag->get_column('id')
+            )->load
+        );
+        ok(Tag->new(name => 'hi there')->load);
+    };
+
+    it 'create related from instance from db' => sub {
+        my $self = shift;
+
+        my $book = Book->new(title => 'Crap')->create;
+        my $tag = Tag->new(name => 'hi there')->create;
+
+        $book->create_related('tags', $tag);
+
+        ok(
+            BookTagMap->new(
+                book_id => $book->get_column('id'),
+                tag_id  => $tag->get_column('id')
+            )->load
+        );
+        ok(Tag->new(name => 'hi there')->load);
+    };
+
+    it 'create related when map already exists' => sub {
+        my $self = shift;
+
+        my $book = Book->new(title => 'Crap')->create;
+        my $tag = Tag->new(name => 'hi there')->create;
+        $book->create_related('tags', $tag);
+
+        $book->create_related('tags', $tag);
+
+        ok(
+            BookTagMap->new(
+                book_id => $book->get_column('id'),
+                tag_id  => $tag->get_column('id')
+            )->load
+        );
+        ok(Tag->new(name => 'hi there')->load);
+    };
+
     it 'when tag exists, create only map row' => sub {
         my $self = shift;
 

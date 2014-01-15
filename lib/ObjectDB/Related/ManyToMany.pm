@@ -13,16 +13,14 @@ sub create_related {
 
     my @row_objects;
     foreach my $related (@$related) {
-        my %params = %$related;
-
         my $meta = $self->meta;
 
-        my $row_object;
-
-        $row_object = $meta->class->new(%params)->load;
-        if (!$row_object) {
-            $row_object = $meta->class->new(%params)->create;
+        if (!Scalar::Util::blessed($related)) {
+            $related = $meta->class->new(%$related);
         }
+
+        my $row_object = $related->is_in_db ? $related : $related->load;
+        $row_object = $related->create unless $row_object;
 
         my $map_from = $meta->map_from;
         my $map_to   = $meta->map_to;
@@ -33,10 +31,11 @@ sub create_related {
         my ($to_foreign_pk, $to_pk) =
           %{$meta->map_class->meta->get_relationship($map_to)->map};
 
-        $meta->map_class->new(
+        my $map_object = $meta->map_class->new(
             $from_foreign_pk => $row->get_column($from_pk),
             $to_foreign_pk   => $row_object->get_column($to_pk)
-        )->create;
+        );
+        $map_object->create unless $map_object->load;
 
         push @row_objects, $row_object;
     }
