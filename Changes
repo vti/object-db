@@ -2,6 +2,11 @@ Revision history for Perl extension ObjectDB
 
 {{$NEXT}}
 
+3.05 2014-01-15T15:56:27Z
+
+    - simplify related objects creation
+    - merge where clause in many to many
+
 3.04 2014-01-13T12:26:00Z
 
     - set is_in_db flag when returning found objects
