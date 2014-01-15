@@ -2,6 +2,12 @@ Revision history for Perl extension ObjectDB
 
 {{$NEXT}}
 
+3.06 2014-01-15T21:00:04Z
+
+    - correct initialization of related objects
+    - use Hash::Merge and remove lots of duplication
+    - small many to many improvements
+
 3.05 2014-01-15T15:56:27Z
 
     - simplify related objects creation

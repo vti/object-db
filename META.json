@@ -45,6 +45,7 @@
          "requires" : {
             "Carp" : "0",
             "DBI" : "0",
+            "Hash::Merge" : "0",
             "SQL::Composer" : "0.04",
             "Storable" : "0",
             "perl" : "5.010"
@@ -70,7 +71,7 @@
          "web" : "https://github.com/vti/object-db3"
       }
    },
-   "version" : "3.05",
+   "version" : "3.06",
    "x_contributors" : [
       "vti <viacheslav.t@gmail.com>"
    ]
