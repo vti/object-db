@@ -271,14 +271,43 @@ sub set_column {
         }
     }
     elsif ($self->meta->is_relationship($name)) {
-        if (!$self->_is_empty_hash_ref($value)) {
-            if (!Scalar::Util::blessed($value)) {
-                $value =
-                  $self->meta->get_relationship($name)->class->new(%$value);
+        my $related_value;
+        if (Scalar::Util::blessed($value)) {
+            $related_value = $value;
+        }
+        elsif (ref $value eq 'ARRAY') {
+            $related_value = [];
+            foreach my $sub_value (@$value) {
+                next unless defined $sub_value && ref $sub_value;
+
+                Carp::croak(
+                    qq{Value of related object(s) '$name' has to be a reference}
+                ) unless ref $sub_value;
+
+                if (Scalar::Util::blessed($sub_value)) {
+                    push @$related_value, $sub_value;
+                }
+                elsif (ref($sub_value) eq 'HASH') {
+                    if (!$self->_is_empty_hash_ref($sub_value)) {
+                        push @$related_value,
+                          $self->meta->get_relationship($name)
+                          ->class->new(%$sub_value);
+                    }
+                }
+                else {
+                    Carp::croak(qq{Unexpected reference found }
+                          . qq{when setting '$name' related object});
+                }
             }
 
-            $self->{relationships}->{$name} = $value;
+            undef $related_value unless @$related_value;
         }
+        elsif (!$self->_is_empty_hash_ref($value)) {
+            $related_value =
+              $self->meta->get_relationship($name)->class->new(%$value);
+        }
+
+        $self->{relationships}->{$name} = $related_value if $related_value;
     }
     else {
         $self->{virtual_columns}->{$name} = $value;
@@ -575,6 +604,8 @@ sub _build_related {
 sub _is_empty_hash_ref {
     my $self = shift;
     my ($hash_ref) = @_;
+
+    return 1 unless defined $hash_ref && ref $hash_ref eq 'HASH';
 
     foreach my $key (keys %$hash_ref) {
         if (defined $hash_ref->{$key} && $hash_ref->{$key} ne '') {
