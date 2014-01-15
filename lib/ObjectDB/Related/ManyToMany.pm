@@ -7,6 +7,8 @@ use base 'ObjectDB::Related';
 
 our $VERSION = '3.05';
 
+use ObjectDB::Util qw(merge);
+
 sub create_related {
     my $self = shift;
     my ($row, $related) = @_;
@@ -44,52 +46,32 @@ sub create_related {
 }
 
 sub find_related {
-    my $self   = shift;
-    my ($row)  = shift;
-    my %params = @_;
+    my $self = shift;
+    my ($row) = shift;
 
-    my $meta = $self->meta;
-
-    my $map_from = $meta->map_from;
-    my $map_to   = $meta->map_to;
-
-    my ($map_table_to, $map_table_from) =
-      %{$meta->map_class->meta->get_relationship($map_from)->map};
-
-    my $table     = $meta->class->meta->table;
-    my $map_table = $meta->map_class->meta->table;
-
-    my @where = @{$params{where} || []};
-    unshift @where, "$map_table.$map_table_to" => $row->column($map_table_from);
-
-    return $meta->class->table->find(%params, where => \@where);
+    return $self->_related_table->find($self->_build_params($row, @_));
 }
 
 sub count_related {
-    my $self   = shift;
-    my ($row)  = shift;
-    my %params = @_;
+    my $self = shift;
+    my ($row) = shift;
 
-    my $meta = $self->meta;
-
-    my $map_from = $meta->{map_from};
-    my $map_to   = $meta->{map_to};
-
-    my ($map_table_to, $map_table_from) =
-      %{$meta->map_class->meta->get_relationship($map_from)->map};
-
-    my $table     = $meta->class->meta->table;
-    my $map_table = $meta->map_class->meta->table;
-
-    my @where = @{$params{where} || []};
-    unshift @where, "$map_table.$map_table_to" => $row->column($map_table_from);
-
-    return $meta->class->table->count(%params, where => \@where);
+    return $self->_related_table->count($self->_build_params($row, @_));
 }
 
 sub delete_related {
     my $self = shift;
-    my ($row, %params) = @_;
+    my ($row) = shift;
+
+    return $self->_related_map_table->delete($self->_build_params($row, @_));
+}
+
+sub _related_table     { shift->meta->class->table }
+sub _related_map_table { shift->meta->map_class->table }
+
+sub _build_params {
+    my $self = shift;
+    my ($row) = shift;
 
     my $meta = $self->meta;
 
@@ -102,10 +84,9 @@ sub delete_related {
     my $table     = $meta->class->meta->table;
     my $map_table = $meta->map_class->meta->table;
 
-    my @where = @{$params{where} || []};
-    unshift @where, "$map_table.$map_table_to" => $row->column($map_table_from);
-
-    return $meta->map_class->table->delete(%params, where => \@where);
+    my $params = merge { @_ },
+      {where => ["$map_table.$map_table_to" => $row->column($map_table_from)]};
+    return %$params;
 }
 
 1;

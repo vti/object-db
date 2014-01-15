@@ -6,9 +6,10 @@ use warnings;
 use base 'Exporter';
 
 our $VERSION   = '3.05';
-our @EXPORT_OK = qw(load_class execute);
+our @EXPORT_OK = qw(load_class execute merge);
 
 require Carp;
+use Hash::Merge ();
 use ObjectDB::Exception;
 
 sub load_class {
@@ -67,6 +68,18 @@ sub execute {
     };
 
     return wantarray ? ($rv, $sth) : $rv;
+}
+
+my $merge;
+
+sub merge {
+    $merge ||= do {
+        my $merge = Hash::Merge->new();
+        $merge->set_behavior('STORAGE_PRECEDENT');
+        $merge->set_clone_behavior(1);
+        $merge;
+    };
+    $merge->merge(@_);
 }
 
 1;

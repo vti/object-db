@@ -15,7 +15,7 @@ use ObjectDB::Quoter;
 use ObjectDB::With;
 use ObjectDB::Meta;
 use ObjectDB::Exception;
-use ObjectDB::Util qw(execute);
+use ObjectDB::Util qw(execute merge);
 
 sub new {
     my $class = shift;
@@ -45,21 +45,19 @@ sub dbh {
 
 sub find {
     my $self = shift;
-    my (%params) = @_;
 
-    $params{with} ||= [];
-    $params{with} = [$params{with}] unless ref $params{with} eq 'ARRAY';
+    my $params = merge { @_ }, {where => [], with => []};
 
-    my $single = delete $params{single} || delete $params{first};
+    my $single = $params->{single} || $params->{first};
 
     unless ($single) {
-        my $page = delete $params{page};
-        my $page_size = delete $params{page_size} || DEFAULT_PAGE_SIZE;
+        my $page = delete $params->{page};
+        my $page_size = delete $params->{page_size} || DEFAULT_PAGE_SIZE;
 
         if (defined $page) {
             $page = 1 unless $page && $page =~ m/^\d+$/smx;
-            $params{offset} = ($page - 1) * $page_size;
-            $params{limit}  = $page_size;
+            $params->{offset} = ($page - 1) * $page_size;
+            $params->{limit}  = $page_size;
         }
     }
 
@@ -69,12 +67,12 @@ sub find {
     );
     my $where = SQL::Composer::Expression->new(
         quoter         => $quoter,
-        expr           => $params{where},
+        expr           => $params->{where},
         default_prefix => $self->meta->table
     );
     my $with = ObjectDB::With->new(
         meta => $self->meta,
-        with => [@{$params{with}}, $quoter->with]
+        with => [@{$params->{with}}, $quoter->with]
     );
 
     my $select = SQL::Composer->build(
@@ -84,11 +82,11 @@ sub find {
         columns    => [$self->meta->get_columns],
         join       => $with->to_joins,
         where      => $where,
-        limit      => $params{limit},
-        offset     => $params{offset},
-        order_by   => $params{order_by},
-        group_by   => $params{group_by},
-        for_update => $params{for_update},
+        limit      => $params->{limit},
+        offset     => $params->{offset},
+        order_by   => $params->{order_by},
+        group_by   => $params->{group_by},
+        for_update => $params->{for_update},
     );
 
     my ($rv, $sth) = execute($self->dbh, $select, context => $self);
