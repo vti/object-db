@@ -5,7 +5,7 @@ requires 'Storable' => 0;
 
 requires 'DBI';
 requires 'Hash::Merge';
-requires 'SQL::Composer' => '0.04';
+requires 'SQL::Composer' => '0.05';
 
 on 'test' => sub {
     requires 'Test::More', '0.98';
