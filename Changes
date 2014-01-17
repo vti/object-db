@@ -2,6 +2,10 @@ Revision history for Perl extension ObjectDB
 
 {{$NEXT}}
 
+3.07 2014-01-17T12:59:51Z
+
+    - require latest version of SQL::Composer
+
 3.06 2014-01-15T21:00:04Z
 
     - correct initialization of related objects
