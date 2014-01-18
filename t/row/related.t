@@ -28,6 +28,18 @@ describe 'related' => sub {
         is($book->related('parent_author')->get_column('name'), 'vti');
     };
 
+    it 'related reverse' => sub {
+        my $author = Author->new(name => 'vti')->create;
+        my $book =
+          Book->new(title => 'Crap', author_id => $author->get_column('id'))
+          ->create;
+
+        $author = Author->new(name => 'vti')->load(with => 'books');
+
+        ok($author->is_related_loaded('books'));
+        is($author->related('books')->[0]->get_column('title'), 'Crap');
+    };
+
     it 'does not load empty related objects' => sub {
         my $book = Book->new(title => 'Crap')->create;
 
