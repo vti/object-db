@@ -52,6 +52,22 @@ describe 'to hash' => sub {
         );
     };
 
+    it 'with_related multi' => sub {
+        my $author = Author->new(name => 'vti')->create;
+        $author->create_related('books', title => 'Crap');
+
+        $author->load(with => 'books');
+
+        is_deeply(
+            $author->to_hash,
+            {
+                id    => 1,
+                name  => 'vti',
+                books => [{id => 1, author_id => 1, title => 'Crap'}]
+            }
+        );
+    };
+
 };
 
 runtests unless caller;

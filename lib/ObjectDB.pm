@@ -537,7 +537,12 @@ sub to_hash {
 
         Carp::croak("unknown '$name' relationship") unless $rel;
 
-        $hash->{$name} = $rel->to_hash;
+        if (ref $rel eq 'ARRAY') {
+            $hash->{$name} = [map { $_->to_hash } @$rel];
+        }
+        else {
+            $hash->{$name} = $rel->to_hash;
+        }
     }
 
     return $hash;
