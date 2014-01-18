@@ -82,29 +82,30 @@ describe 'merge rows' => sub {
         );
     };
 
+    it 'merge rows that do not follow each other' => sub {
+        my $merged = merge_rows(
+            [
+                {foo => 'bar', join => {hi => 'here'}},
+                {foo => 'baz', join => {hi => 'there'}},
+                {foo => 'bar', join => {hi => 'everywhere'}}
+            ]
+        );
+
+        is_deeply(
+            $merged,
+            [
+                {
+                    foo  => 'bar',
+                    join => [{hi => 'here'}, {hi => 'everywhere'}]
+                },
+                {
+                    foo  => 'baz',
+                    join => {hi => 'there'}
+                }
+            ]
+        );
+    };
+
 };
-
-#my $rows = [
-#{
-#'name'  => 'vti',
-#'id'    => 1,
-#'books' => {
-#'author_id' => 1,
-#'title'     => 'Book1',
-#'id'        => 1
-#}
-#},
-#{
-#'name'  => 'vti',
-#'id'    => 1,
-#'books' => {
-#'author_id' => 1,
-#'title'     => 'Book2',
-#'id'        => 2
-#}
-#}
-#];
-
-#merge_rows($rows);
 
 runtests unless caller;

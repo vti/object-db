@@ -90,41 +90,27 @@ sub merge_rows {
 
     my $merged = [];
 
+    my %order;
   NEXT_MERGE: while (@$rows) {
-        push @$merged, shift @$rows;
-        last unless @$rows;
+        my $row = shift @$rows;
 
-        my $prev = $merged->[-1];
-        my $row  = $rows->[0];
+        my $row_sign = '';
+        foreach my $key (sort keys %$row) {
+            my $value = $row->{$key};
+            $value = \'join' if ref $value eq 'HASH' || ref $value eq 'ARRAY';
 
-        foreach my $key (keys %$row) {
-            if (   defined($row->{$key})
-                && ref($row->{$key})
-                && (ref $row->{$key} eq 'HASH' || $row->{$key} eq 'ARRAY'))
-            {
-                next NEXT_MERGE unless exists $prev->{$key};
-                next;
-            }
-
-            if (exists $prev->{$key}) {
-                if (!defined $prev->{$key} && !defined $row->{$key}) {
-                    next;
-                }
-                elsif (defined($prev->{$key})
-                    && defined($row->{$key})
-                    && $prev->{$key} eq $row->{$key})
-                {
-                    next;
-                }
-
-                next NEXT_MERGE;
-            }
-            else {
-                next NEXT_MERGE;
-            }
+            $value = \undef unless defined $value;
+            $row_sign .= "$key=$value";
         }
 
-        pop @$merged;
+        if (!exists $order{$row_sign}) {
+            $order{$row_sign} = $row;
+
+            push @$merged, $row;
+            next NEXT_MERGE;
+        }
+
+        my $prev = $order{$row_sign};
 
         foreach my $key (keys %$row) {
             next
@@ -143,7 +129,7 @@ sub merge_rows {
                   ? $prev->{$key}
                   : [$prev->{$key}];
                 pop @$prev_rows;
-                $row->{$key} = [@$prev_rows, @$merged];
+                $prev->{$key} = [@$prev_rows, @$merged];
             }
         }
     }

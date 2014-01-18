@@ -72,6 +72,30 @@ describe 'table find with related' => sub {
             'Crap2'
         );
     };
+
+    it 'finds related objects ordered' => sub {
+        Author->new(
+            name  => 'vti',
+            books => [{title => 'Book1'}, {title => 'Book2'}]
+        )->create;
+        Author->new(
+            name  => 'bill',
+            books => [{title => 'Book2'}, {title => 'Book1'}]
+        )->create;
+
+        my @authors = Author->new->table->find(
+            with     => [qw/books/],
+            order_by => 'books.title'
+        );
+        is(@authors, 2);
+        ok $authors[0]->is_related_loaded('books');
+        is($authors[0]->related('books')->[0]->get_column('title'), 'Book1');
+        is($authors[0]->related('books')->[1]->get_column('title'), 'Book2');
+        ok $authors[1]->is_related_loaded('books');
+        is($authors[1]->related('books')->[0]->get_column('title'), 'Book1');
+        is($authors[1]->related('books')->[1]->get_column('title'), 'Book2');
+    };
+
 };
 
 runtests unless caller;
