@@ -15,7 +15,7 @@ use ObjectDB::Quoter;
 use ObjectDB::With;
 use ObjectDB::Meta;
 use ObjectDB::Exception;
-use ObjectDB::Util qw(execute merge);
+use ObjectDB::Util qw(execute merge merge_rows);
 
 sub new {
     my $class = shift;
@@ -94,9 +94,11 @@ sub find {
     my $rows = $sth->fetchall_arrayref;
     return unless $rows && @$rows;
 
+    $rows = merge_rows $select->from_rows($rows);
+
     my @objects =
       map { $_->is_in_db(1) }
-      map { $self->meta->class->new(%{$_}) } @{$select->from_rows($rows)};
+      map { $self->meta->class->new(%{$_}) } @$rows;
 
     return $single ? $objects[0] : @objects;
 }

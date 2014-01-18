@@ -6,7 +6,7 @@ use warnings;
 use base 'Exporter';
 
 our $VERSION   = '3.07';
-our @EXPORT_OK = qw(load_class execute merge);
+our @EXPORT_OK = qw(load_class execute merge merge_rows);
 
 require Carp;
 use Hash::Merge ();
@@ -55,10 +55,13 @@ sub load_class {
 sub execute {
     my ($dbh, $stmt, %context) = @_;
 
+    my $sql  = $stmt->to_sql;
+    my @bind = $stmt->to_bind;
+
     my ($rv, $sth);
     eval {
-        $sth = $dbh->prepare($stmt->to_sql);
-        $rv  = $sth->execute($stmt->to_bind);
+        $sth = $dbh->prepare($sql);
+        $rv  = $sth->execute(@bind);
 
         1;
     } or do {
@@ -80,6 +83,72 @@ sub merge {
         $merge;
     };
     $merge->merge(@_);
+}
+
+sub merge_rows {
+    my $rows = shift;
+
+    my $merged = [];
+
+  NEXT_MERGE: while (@$rows) {
+        push @$merged, shift @$rows;
+        last unless @$rows;
+
+        my $prev = $merged->[-1];
+        my $row  = $rows->[0];
+
+        foreach my $key (keys %$row) {
+            if (   defined($row->{$key})
+                && ref($row->{$key})
+                && (ref $row->{$key} eq 'HASH' || $row->{$key} eq 'ARRAY'))
+            {
+                next NEXT_MERGE unless exists $prev->{$key};
+                next;
+            }
+
+            if (exists $prev->{$key}) {
+                if (!defined $prev->{$key} && !defined $row->{$key}) {
+                    next;
+                }
+                elsif (defined($prev->{$key})
+                    && defined($row->{$key})
+                    && $prev->{$key} eq $row->{$key})
+                {
+                    next;
+                }
+
+                next NEXT_MERGE;
+            }
+            else {
+                next NEXT_MERGE;
+            }
+        }
+
+        pop @$merged;
+
+        foreach my $key (keys %$row) {
+            next
+              unless ref $prev->{$key} eq 'HASH'
+              || ref $prev->{$key} eq 'ARRAY';
+
+            my $prev_row =
+              ref $prev->{$key} eq 'ARRAY'
+              ? $prev->{$key}->[-1]
+              : $prev->{$key};
+
+            my $merged = merge_rows([$prev_row, $row->{$key}]);
+            if (@$merged > 1) {
+                my $prev_rows =
+                  ref $prev->{$key} eq 'ARRAY'
+                  ? $prev->{$key}
+                  : [$prev->{$key}];
+                pop @$prev_rows;
+                $row->{$key} = [@$prev_rows, @$merged];
+            }
+        }
+    }
+
+    return $merged;
 }
 
 1;

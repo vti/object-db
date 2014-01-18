@@ -307,7 +307,14 @@ sub set_column {
               $self->meta->get_relationship($name)->class->new(%$value);
         }
 
-        $self->{relationships}->{$name} = $related_value if $related_value;
+        if ($related_value) {
+            if ($self->meta->get_relationship($name)->type eq 'one to many'
+                && ref($related_value) ne 'ARRAY')
+            {
+                $related_value = [$related_value];
+            }
+            $self->{relationships}->{$name} = $related_value;
+        }
     }
     else {
         $self->{virtual_columns}->{$name} = $value;
