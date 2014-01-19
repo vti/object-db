@@ -1,0 +1,369 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>ObjectDB by vti</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>ObjectDB</h1>
+        <p></p>
+
+        <p class="view"><a href="https://github.com/vti/object-db">View the Project on GitHub <small>vti/object-db</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/vti/object-db/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/vti/object-db/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/vti/object-db">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="name" class="anchor" href="#name"><span class="octicon octicon-link"></span></a>NAME</h1>
+
+<p>ObjectDB - usable ORM</p>
+
+<h1>
+<a name="synopsis" class="anchor" href="#synopsis"><span class="octicon octicon-link"></span></a>SYNOPSIS</h1>
+
+<pre><code>package MyDB;
+use base 'ObjectDB';
+
+sub init_db {
+    ...
+    return $dbh;
+}
+
+package MyAuthor;
+use base 'MyDB';
+
+__PACKAGE__-&gt;meta(
+    table          =&gt; 'author',
+    columns        =&gt; [qw/id name/],
+    primary_key    =&gt; 'id',
+    auto_increment =&gt; 'id',
+    relationships  =&gt; {
+        books =&gt; {
+            type = 'one to many',
+            class =&gt; 'MyBook',
+            map   =&gt; {id =&gt; 'author_id'}
+        }
+    }
+);
+
+package MyBook;
+use base 'MyDB';
+
+__PACKAGE__-&gt;meta(
+    table          =&gt; 'book',
+    columns        =&gt; [qw/id author_id title/],
+    primary_key    =&gt; 'id',
+    auto_increment =&gt; 'id',
+    relationships  =&gt; {
+        author =&gt; {
+            type = 'many to one',
+            class =&gt; 'MyAuthor',
+            map   =&gt; {author_id =&gt; 'id'}
+        }
+    }
+);
+
+my $book_by_id = MyBook-&gt;new(id =&gt; 1)-&gt;load(with =&gt; 'author');
+
+my @books_authored_by_Pushkin =
+  MyBook-&gt;table-&gt;find(where =&gt; ['author.name' =&gt; 'Pushkin']);
+
+$author-&gt;create_related('books', title =&gt; 'New Book');
+</code></pre>
+
+<h1>
+<a name="description" class="anchor" href="#description"><span class="octicon octicon-link"></span></a>DESCRIPTION</h1>
+
+<p>ObjectDB is a lightweight and flexible object-relational mapper. While being
+light it stays usable. ObjectDB borrows many things from <a href="http://search.cpan.org/perldoc?Rose::DB::Object">Rose::DB::Object</a>,
+but unlike in the last one columns are not objects, everything is pretty much
+straightforward and flat.</p>
+
+<p>Supported servers: SQLite, MySQL, PostgreSQL</p>
+
+<h2>
+<a name="actions-on-columns" class="anchor" href="#actions-on-columns"><span class="octicon octicon-link"></span></a>Actions on columns</h2>
+
+<h3>
+<a name="methods" class="anchor" href="#methods"><span class="octicon octicon-link"></span></a>Methods</h3>
+
+<ul>
+<li>
+<p><code>set_columns</code></p>
+
+<p>Set columns.</p>
+
+<pre><code>$book-&gt;set_columns(title =&gt; 'New Book', pages =&gt; 140);
+</code></pre>
+</li>
+<li>
+<p><code>set_column</code></p>
+
+<p>Set column.</p>
+
+<pre><code>$book-&gt;set_column(title =&gt; 'New Book');
+</code></pre>
+</li>
+<li>
+<p><code>get_column</code></p>
+
+<pre><code>my $title = $book-&gt;get_column('title');
+</code></pre>
+</li>
+<li>
+<p><code>column</code></p>
+
+<p>A shortcut for <code>set_column</code>/<code>get_column</code>.</p>
+
+<pre><code>$book-&gt;column(title =&gt; 'New Book');
+my $title = $book-&gt;column('title');
+</code></pre>
+</li>
+</ul><h2>
+<a name="actions-on-rows" class="anchor" href="#actions-on-rows"><span class="octicon octicon-link"></span></a>Actions on rows</h2>
+
+<p>Main ObjectDB instance represents a row object. All actions performed on this
+instance are performed on one row. For performing actions on several rows see
+<a href="http://search.cpan.org/perldoc?ObjectDB::Table">ObjectDB::Table</a>.</p>
+
+<h3>
+<a name="methods-1" class="anchor" href="#methods-1"><span class="octicon octicon-link"></span></a>Methods</h3>
+
+<ul>
+<li>
+<p><code>create</code></p>
+
+<p>Creates a new row. If <code>meta</code> has an <code>auto_increment</code> column then it is
+properly set.</p>
+
+<pre><code>my $author = MyAuthor-&gt;new(name =&gt; 'Me')-&gt;create;
+</code></pre>
+
+<p>It is possible to create related objects automatically:</p>
+
+<pre><code>my $author = MyAuthor-&gt;new(
+    name  =&gt; 'Me',
+    books =&gt; [{title =&gt; 'Book1'}, {title =&gt; 'Book2'}]
+)-&gt;create;
+</code></pre>
+
+<p>Which is a convenient way of calling C  manually .</p>
+</li>
+<li>
+<p><code>load</code></p>
+
+<p>Loads an object by primary or unique key.</p>
+
+<pre><code>my $author = MyAuthor-&gt;new(id =&gt; 1)-&gt;load;
+</code></pre>
+
+<p>It is possible to load an object with related objects.</p>
+
+<pre><code>my $book = MyBook-&gt;new(title =&gt; 'New Book')-&gt;load(with =&gt; 'author');
+</code></pre>
+</li>
+<li>
+<p><code>update</code></p>
+
+<p>Updates an object.</p>
+
+<pre><code>$book-&gt;set_column(title =&gt; 'Old Title');
+$book-&gt;update;
+</code></pre>
+</li>
+<li>
+<p><code>delete</code></p>
+
+<p>Deletes an object. Related objects are NOT deleted.</p>
+
+<pre><code>$book-&gt;delete;
+</code></pre>
+</li>
+</ul><h2>
+<a name="actions-on-tables" class="anchor" href="#actions-on-tables"><span class="octicon octicon-link"></span></a>Actions on tables</h2>
+
+<p>In order to perform an action on table a <a href="http://search.cpan.org/perldoc?ObjectDB::Table">ObjectDB::Table</a> object must be
+obtained via <code>table</code> method (see <a href="http://search.cpan.org/perldoc?ObjectDB::Table">ObjectDB::Table</a> for all available actions).
+The only exception is <code>find</code>, it is available in a row object for convenience.</p>
+
+<pre><code>MyBook-&gt;table-&gt;delete; # deletes ALL records from MyBook
+</code></pre>
+
+<h2>
+<a name="actions-on-related-objects" class="anchor" href="#actions-on-related-objects"><span class="octicon octicon-link"></span></a>Actions on related objects</h2>
+
+<h3>
+<a name="methods-2" class="anchor" href="#methods-2"><span class="octicon octicon-link"></span></a>Methods</h3>
+
+<ul>
+<li>
+<p><code>related</code></p>
+
+<p>Returns preloaded related objects or loads them on demand.</p>
+
+<pre><code># same as find_related but with caching
+my $description = $book-&gt;related('book_description');
+
+# returns from cache
+my $description = $book-&gt;related('book_description');
+</code></pre>
+</li>
+<li>
+<p><code>create_related</code></p>
+
+<p>Creates related object, setting appropriate foreign keys. Accepts a list, a hash
+reference, an object.</p>
+
+<pre><code>$author-&gt;create_related('books', title =&gt; 'New Book');
+$author-&gt;create_related('books', MyBook-&gt;new(title =&gt; 'New Book'));
+</code></pre>
+</li>
+<li>
+<p><code>find_related</code></p>
+
+<p>Finds related object.</p>
+
+<pre><code>my $books = $author-&gt;find_related('books', where =&gt; [title =&gt; 'New Book']);
+</code></pre>
+</li>
+<li>
+<p><code>update_related</code></p>
+
+<p>Updates related object.</p>
+
+<pre><code>$author-&gt;update_related(
+    'books',
+    set   =&gt; {title =&gt; 'Old Book'},
+    where =&gt; [title =&gt; 'New Book']
+);
+</code></pre>
+</li>
+<li>
+<p><code>delete_related</code></p>
+
+<p>Deletes related object.</p>
+
+<pre><code>$author-&gt;delete_related('books', where =&gt; [title =&gt; 'New Book']);
+</code></pre>
+</li>
+</ul><h2>
+<a name="transactions" class="anchor" href="#transactions"><span class="octicon octicon-link"></span></a>Transactions</h2>
+
+<p>All the exceptions will be catched, a rollback will be run and exceptions will
+be rethrown. It is safe to use <code>rollback</code> or <code>commit</code> inside of a transaction
+when you want to do custom exception handling.</p>
+
+<pre><code>MyDB-&gt;txn(
+    sub {
+        ... do smth that can throw ...
+    }
+);
+</code></pre>
+
+<p><code>txn</code>'s return value is preserved, so it is safe to do something like:</p>
+
+<pre><code>my $result = MyDB-&gt;txn(
+    sub {
+        return 'my result';
+    }
+);
+</code></pre>
+
+<h3>
+<a name="methods-3" class="anchor" href="#methods-3"><span class="octicon octicon-link"></span></a>Methods</h3>
+
+<ul>
+<li>
+<p><code>txn</code></p>
+
+<p>Accepts a subroutine reference, wraps code into eval and runs it rethrowing all
+exceptions.</p>
+</li>
+<li>
+<p><code>commit</code></p>
+
+<p>Commit transaction.</p>
+</li>
+<li>
+<p><code>rollback</code></p>
+
+<p>Rollback transaction.</p>
+</li>
+</ul><h2>
+<a name="utility-methods" class="anchor" href="#utility-methods"><span class="octicon octicon-link"></span></a>Utility methods</h2>
+
+<h3>
+<a name="methods-4" class="anchor" href="#methods-4"><span class="octicon octicon-link"></span></a>Methods</h3>
+
+<ul>
+<li>
+<p><code>meta</code></p>
+
+<p>Returns meta object. See <code>ObjectDB::Meta</code>.</p>
+</li>
+<li>
+<p><code>init_db</code></p>
+
+<p>Returns current <code>DBI</code> instance.</p>
+</li>
+<li>
+<p><code>is_modified</code></p>
+
+<p>Returns 1 if object is modified.</p>
+</li>
+<li>
+<p><code>is_in_db</code></p>
+
+<p>Returns 1 if object is in database.</p>
+</li>
+<li>
+<p><code>is_related_loaded</code></p>
+
+<p>Checks if related objects are loaded.</p>
+</li>
+<li>
+<p><code>clone</code></p>
+
+<p>Clones object preserving all columns except primary or unique keys.</p>
+</li>
+<li>
+<p><code>to_hash</code></p>
+
+<p>Converts object into a hash reference, including all preloaded objects.</p>
+</li>
+</ul><h1>
+<a name="author" class="anchor" href="#author"><span class="octicon octicon-link"></span></a>AUTHOR</h1>
+
+<p>Viacheslav Tykhanovskyi</p>
+
+<h1>
+<a name="copyright-and-license" class="anchor" href="#copyright-and-license"><span class="octicon octicon-link"></span></a>COPYRIGHT AND LICENSE</h1>
+
+<p>Copyright 2013, Viacheslav Tykhanovskyi.</p>
+
+<p>This module is free software, you may distribute it under the same terms as Perl.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/vti">vti</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
