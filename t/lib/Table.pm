@@ -11,7 +11,7 @@ __PACKAGE__->meta(
         qw/foo bar baz/,
         'nullable'   => {is_null => 1},
         with_default => {default => '123'}
-    ]
+    ],
 );
 
 1;

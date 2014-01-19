@@ -109,10 +109,8 @@ describe 'meta' => sub {
 
         $meta->set_columns(qw/foo bar baz/);
 
-        like(
-            exception { $meta->set_primary_key('unknown') },
-            qr/Unknown column 'unknown'/
-        );
+        like(exception { $meta->set_primary_key('unknown') },
+            qr/Unknown column 'unknown'/);
     };
 
     it 'has_auto_increment_key' => sub {
@@ -173,63 +171,39 @@ describe 'meta' => sub {
         ok($meta->is_relationship('foo'));
     };
 
-    #sub add_relationships' => sub {
-    #    my $self = shift;
-    #
-    #    my $meta = _build_meta();
-    #
-    #    $meta->set_columns(qw/foo bar baz/);
-    #
-    #    $meta->belongs_to('foo');
-    #
-    #    $meta->add_relationships(bar => {type => 'many to one'});
-    #
-    #    is_deeply([sort $meta->parent_relationships], [qw/bar foo/]);
-    #}
-    #
-    #sub has_child_relationships' => sub {
-    #    my $self = shift;
-    #
-    #    my $meta = _build_meta();
-    #
-    #    $meta->set_columns(qw/foo bar baz/);
-    #
-    #    $meta->has_many('foo');
-    #
-    #    is_deeply([$meta->child_relationships], ['foo']);
-    #}
-    #
-    #sub has_parent_relationships' => sub {
-    #    my $self = shift;
-    #
-    #    my $meta = _build_meta();
-    #
-    #    $meta->set_columns(qw/foo bar baz/);
-    #
-    #    $meta->belongs_to('foo');
-    #
-    #    is_deeply([$meta->parent_relationships], ['foo']);
-    #}
-    #
-    #sub check_is_relationship' => sub(2) {
-    #    my $self = shift;
-    #
-    #    my $meta = _build_meta();
-    #
-    #    $meta->belongs_to('foo');
-    #
-    #    ok($meta->is_relationship('foo'));
-    #    ok(!$meta->is_relationship('unknown'));
-    #}
+    it 'add_relationships' => sub {
+        my $self = shift;
+
+        my $meta = _build_meta();
+
+        $meta->set_columns(qw/foo bar baz/);
+
+        $meta->add_relationships(bar => {type => 'many to one'});
+
+        ok($meta->is_relationship('bar'));
+    };
+
+    it 'check_is_relationship' => sub {
+        my $self = shift;
+
+        my $meta = _build_meta();
+
+        $meta->add_relationships(foo => {type => 'many to one'});
+
+        ok($meta->is_relationship('foo'));
+        ok(!$meta->is_relationship('unknown'));
+    };
 
     it 'inherit_table' => sub {
         {
+
             package Parent;
             use base 'ObjectDB';
             __PACKAGE__->meta(table => 'parent');
         }
 
         {
+
             package Child;
             use base 'Parent';
             __PACKAGE__->meta;
@@ -242,15 +216,17 @@ describe 'meta' => sub {
 
     it 'inherit_columns' => sub {
         {
+
             package ParentWithColumns;
             use base 'ObjectDB';
             __PACKAGE__->meta(
-                table => 'parent',
+                table   => 'parent',
                 columns => [qw/foo/]
             );
         }
 
         {
+
             package ChildInheritingColumns;
             use base 'ParentWithColumns';
             __PACKAGE__->meta->add_column(qw/bar/);
@@ -259,6 +235,41 @@ describe 'meta' => sub {
         my $meta = ChildInheritingColumns->meta;
 
         is_deeply([$meta->get_columns], [qw/foo bar/]);
+    };
+
+    it 'generates columns methods' => sub {
+        {
+
+            package MyClassWithGeneratedColumnsMethods;
+            use base 'ObjectDB';
+            __PACKAGE__->meta(
+                table                    => 'parent',
+                columns                  => [qw/foo/],
+                generate_columns_methods => 1
+            );
+        }
+
+        ok(MyClassWithGeneratedColumnsMethods->can('foo'));
+    };
+
+    it 'generates related methods' => sub {
+        {
+
+            package MyClassWithGeneratedRelatedMethods;
+            use base 'ObjectDB';
+            __PACKAGE__->meta(
+                table         => 'parent',
+                columns       => [qw/foo/],
+                relationships => {
+                    children => {
+                        type => 'one to many'
+                    }
+                },
+                generate_related_methods => 1,
+            );
+        }
+
+        ok(MyClassWithGeneratedRelatedMethods->can('children'));
     };
 
 };

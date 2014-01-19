@@ -17,7 +17,7 @@ __PACKAGE__->meta(
             class => 'Book',
             map   => {id => 'author_id'}
         }
-    }
+    },
 );
 
 1;

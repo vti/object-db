@@ -48,6 +48,14 @@ sub new {
 
     $self->_build_relationships($params{relationships});
 
+    if ($params{generate_columns_methods}) {
+        $self->generate_columns_methods;
+    }
+
+    if ($params{generate_related_methods}) {
+        $self->generate_related_methods;
+    }
+
     return $self;
 }
 
@@ -316,6 +324,32 @@ sub add_relationships {
 
         $count += 2;
     }
+}
+
+sub generate_columns_methods {
+    my $self = shift;
+
+    no strict 'refs';
+    no warnings 'redefine';
+    foreach my $column ($self->get_columns) {
+        *{$self->class . '::' . $column} =
+          sub { shift->column($column, @_) };
+    }
+
+    return $self;
+}
+
+sub generate_related_methods {
+    my $self = shift;
+
+    no strict 'refs';
+    no warnings 'redefine';
+    foreach my $rel_name (keys %{$self->relationships}) {
+        *{$self->class . '::' . $rel_name} =
+          sub { shift->related($rel_name, @_) };
+    }
+
+    return $self;
 }
 
 sub _build_relationships {
