@@ -17,16 +17,61 @@ describe 'many to many' => sub {
         TestEnv->prepare_table('book_tag_map');
     };
 
-    it 'find related' => sub {
-        my $book = Book->new(title => 'Crap')->create;
-        my $tag = Tag->new(name => 'fiction')->create;
-        Tag->new(name => 'else')->create;
-        my $map = BookTagMap->new(
-            book_id => $book->get_column('id'),
-            tag_id  => $tag->get_column('id')
+    it 'sets correct values on new' => sub {
+        my $book = Book->new(
+            title => 'Crap',
+            tags  => [{name => 'fiction'}, {name => 'crap'}]
+        );
+
+        my @tags = $book->related('tags');
+
+        is(@tags, 2);
+
+        is($tags[0]->get_column('name'), 'fiction');
+    };
+
+    it 'sets correct values on create' => sub {
+        my $book = Book->new(
+            title => 'Crap',
+            tags  => [{name => 'fiction'}, {name => 'crap'}]
         )->create;
 
-        $book = Book->new(title => 'Crap')->load;
+        my @tags = $book->related('tags');
+
+        is(@tags, 2);
+
+        is($tags[0]->get_column('name'), 'fiction');
+    };
+
+    it 'load with related' => sub {
+        my $book = Book->new(
+            title => 'Book',
+            tags  => [{name => 'fiction'}, {name => 'crap'}]
+        )->create;
+
+        $book = Book->new(id => $book->get_column('id'))->load(with => ['book_tag_map', 'tags']);
+        ok $book->is_related_loaded('tags');
+        is($book->related('tags')->[0]->get_column('name'), 'fiction');
+        is($book->related('tags')->[1]->get_column('name'), 'crap');
+    };
+
+    it 'find with related' => sub {
+        Book->new(
+            title => 'Book',
+            tags  => [{name => 'fiction'}, {name => 'crap'}]
+        )->create;
+
+        my $book = Book->new->table->find(first => 1, with => ['book_tag_map', 'tags']);
+        ok $book->is_related_loaded('tags');
+        is($book->related('tags')->[0]->get_column('name'), 'fiction');
+        is($book->related('tags')->[1]->get_column('name'), 'crap');
+    };
+
+    it 'find related' => sub {
+        Book->new(title => 'Crap', tags => {name => 'fiction'})->create;
+        Tag->new(name => 'else')->create;
+
+        my $book = Book->new(title => 'Crap')->load;
 
         my @tags = $book->find_related('tags');
 
@@ -36,23 +81,17 @@ describe 'many to many' => sub {
     };
 
     it 'find related with where' => sub {
-        my $book = Book->new(title => 'Crap')->create;
-        my $tag1 = Tag->new(name => 'fiction1')->create;
-        my $tag2 = Tag->new(name => 'fiction2')->create;
-        BookTagMap->new(
-            book_id => $book->get_column('id'),
-            tag_id  => $tag1->get_column('id')
-        )->create;
-        BookTagMap->new(
-            book_id => $book->get_column('id'),
-            tag_id  => $tag2->get_column('id')
+        Book->new(
+            title => 'Crap',
+            tags  => [{name => 'fiction1'}, {name => 'fiction2'}]
         )->create;
 
-        $book = Book->new(title => 'Crap')->load;
+        my $book = Book->new(title => 'Crap')->load;
 
         my @tags = $book->find_related('tags', where => [name => 'fiction1']);
 
-        is(@tags,                        1);
+        is(@tags, 1);
+
         is($tags[0]->get_column('name'), 'fiction1');
     };
 
@@ -109,7 +148,6 @@ describe 'many to many' => sub {
         my $book = Book->new(title => 'Crap')->create;
         my $tag = Tag->new(name => 'hi there')->create;
         $book->create_related('tags', $tag);
-
         $book->create_related('tags', $tag);
 
         ok(
@@ -138,15 +176,11 @@ describe 'many to many' => sub {
     it 'count related' => sub {
         my $self = shift;
 
-        my $book = Book->new(title => 'Crap')->create;
-        my $tag = Tag->new(name => 'fiction')->create;
-        Tag->new(name => 'else')->create;
-        my $map = BookTagMap->new(
-            book_id => $book->get_column('id'),
-            tag_id  => $tag->get_column('id')
-        )->create;
+        Book->new(title => 'Crap', tags => {name => 'fiction'})->create;
 
-        $book = Book->new(title => 'Crap')->load;
+        Tag->new(name => 'else')->create;
+
+        my $book = Book->new(title => 'Crap')->load;
 
         is($book->count_related('tags'), 1);
     };
@@ -154,19 +188,12 @@ describe 'many to many' => sub {
     it 'count related with where' => sub {
         my $self = shift;
 
-        my $book = Book->new(title => 'Crap')->create;
-        my $tag1 = Tag->new(name => 'fiction1')->create;
-        my $tag2 = Tag->new(name => 'fiction2')->create;
-        BookTagMap->new(
-            book_id => $book->get_column('id'),
-            tag_id  => $tag1->get_column('id')
-        )->create;
-        BookTagMap->new(
-            book_id => $book->get_column('id'),
-            tag_id  => $tag2->get_column('id')
+        Book->new(
+            title => 'Crap',
+            tags  => [{name => 'fiction1'}, {name => 'fiction2'}]
         )->create;
 
-        $book = Book->new(title => 'Crap')->load;
+        my $book = Book->new(title => 'Crap')->load;
 
         is($book->count_related('tags', where => [name => 'fiction1']), 1);
     };
@@ -174,36 +201,27 @@ describe 'many to many' => sub {
     it 'delete_map_entry_on_delete_related' => sub {
         my $self = shift;
 
-        my $book = Book->new(title => 'Crap')->create;
-        my $tag = Tag->new(name => 'fiction')->create;
-        my $map = BookTagMap->new(
-            book_id => $book->get_column('id'),
-            tag_id  => $tag->get_column('id')
-        )->create;
+        Book->new(title => 'Crap', tags => {name => 'fiction'})->create;
 
-        $book = Book->new(title => 'Crap')->load;
+        my $book = Book->new(title => 'Crap')->load;
 
         $book->delete_related('tags');
 
-        ok(!$map->load);
+        ok(!BookTagMap->table->count);
     };
 
     it 'delete_only_map_entry_on_delete_related' => sub {
         my $self = shift;
 
-        my $book = Book->new(title => 'Crap')->create;
-        my $tag = Tag->new(name => 'fiction')->create;
-        my $map = BookTagMap->new(
-            book_id => $book->get_column('id'),
-            tag_id  => $tag->get_column('id')
-        )->create;
+        Book->new(title => 'Crap', tags => {name => 'fiction'})->create;
 
-        $book = Book->new(title => 'Crap')->load;
+        my $book = Book->new(title => 'Crap')->load;
 
         $book->delete_related('tags');
 
-        ok($tag->load);
+        ok(Tag->table->count);
     };
+
 };
 
 runtests unless caller;

@@ -20,7 +20,8 @@ sub new {
     return $self;
 }
 
-sub type { 'many to many' }
+sub type     { 'many to many' }
+sub is_multi { 1 }
 
 sub map_to   { $_[0]->{map_to} }
 sub map_from { $_[0]->{map_from} }
@@ -70,6 +71,8 @@ sub to_source {
         @columns = $self->class->meta->get_columns;
     }
 
+    my $name = $self->name;
+
     return {
         table => $map_table,
         join  => 'left',
@@ -77,11 +80,11 @@ sub to_source {
           ["$orig_table.$map_to" => {-col => "$map_table.$map_from"}]
       },
       {
-        table => $rel_table,
-        join  => 'left',
-        constraint =>
-          ["$map_table.$rel_from" => {-col => "$rel_table.$rel_to"}],
-        columns => [@columns]
+        table      => $rel_table,
+        as         => $name,
+        join       => 'left',
+        constraint => ["$map_table.$rel_from" => {-col => "$name.$rel_to"}],
+        columns    => [@columns]
       };
 }
 

@@ -9,7 +9,8 @@ our $VERSION = '3.07';
 
 require Carp;
 
-sub type { 'one to many' }
+sub type     { 'one to many' }
+sub is_multi { 1 }
 
 sub to_source {
     my $self = shift;

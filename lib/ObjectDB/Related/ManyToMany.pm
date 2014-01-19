@@ -21,8 +21,9 @@ sub create_related {
             $related = $meta->class->new(%$related);
         }
 
-        my $row_object = $related->is_in_db ? $related : $related->load;
-        $row_object = $related->create unless $row_object;
+        my $row_object;
+        $row_object = $related if $related->is_in_db;
+        $row_object ||= $related->load_or_create;
 
         my $map_from = $meta->map_from;
         my $map_to   = $meta->map_to;

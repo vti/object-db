@@ -9,7 +9,7 @@ describe 'many to many' => sub {
 
     it 'build_to_source' => sub {
         my $rel = _build_relationship(
-            name       => 'map',
+            name       => 'tags',
             orig_class => 'Book',
             type       => 'many to many',
             map_class  => 'BookTagMap',
@@ -27,9 +27,11 @@ describe 'many to many' => sub {
                       ['book.id' => {-col => 'book_tag_map.book_id'}]
                 },
                 {
-                    table      => 'tag',
-                    join       => 'left',
-                    constraint => ['book_tag_map.tag_id' => {-col => 'tag.id'}],
+                    table => 'tag',
+                    as    => 'tags',
+                    join  => 'left',
+                    constraint =>
+                      ['book_tag_map.tag_id' => {-col => 'tags.id'}],
                     columns => ['id', 'name']
                 }
             ]

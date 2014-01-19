@@ -13,7 +13,7 @@ use ObjectDB::Quoter;
 use ObjectDB::RelatedFactory;
 use ObjectDB::Table;
 use ObjectDB::With;
-use ObjectDB::Util qw(execute);
+use ObjectDB::Util qw(execute merge_rows);
 
 our $VERSION = '3.07';
 
@@ -308,11 +308,12 @@ sub set_column {
         }
 
         if ($related_value) {
-            if ($self->meta->get_relationship($name)->type eq 'one to many'
+            if ($self->meta->get_relationship($name)->is_multi
                 && ref($related_value) ne 'ARRAY')
             {
                 $related_value = [$related_value];
             }
+
             $self->{relationships}->{$name} = $related_value;
         }
     }
@@ -363,10 +364,13 @@ sub create {
     $self->{is_in_db}    = 1;
     $self->{is_modified} = 0;
 
-    foreach my $rel (keys %{$self->meta->relationships}) {
-        if (my $rel_values = $self->{relationships}->{$rel}) {
-            $self->{relationships}->{$rel} =
-              $self->create_related($rel, $rel_values);
+    foreach my $rel_name (keys %{$self->meta->relationships}) {
+        if (my $rel_values = $self->{relationships}->{$rel_name}) {
+            my $rel = $self->meta->get_relationship($rel_name);
+            my @related = $self->create_related($rel_name, $rel_values);
+
+            $self->{relationships}->{$rel_name} =
+              $rel->is_multi ? \@related : $related[0];
         }
     }
 
@@ -416,23 +420,44 @@ sub load {
         from       => $self->meta->table,
         where      => $where,
         join       => $with->to_joins,
-        limit      => 1,
         for_update => $params{for_update},
     );
 
     my ($rv, $sth) = execute($self->init_db, $select, context => $self);
 
-    my $results = $sth->fetchall_arrayref;
-    return unless $results && @$results;
+    my $rows = $sth->fetchall_arrayref;
+    return unless $rows && @$rows;
 
-    my $row_object = $select->from_rows($results);
+    my $row_object = merge_rows($select->from_rows($rows))->[0];
 
-    $self->set_columns(%{$row_object->[0]});
+    $self->set_columns(%$row_object);
 
     $self->{is_modified} = 0;
     $self->{is_in_db}    = 1;
 
     return $self;
+}
+
+sub load_or_create
+{
+    my $self = shift;
+
+    my @columns;
+    foreach my $name ($self->columns) {
+        push @columns, $name if $self->meta->is_primary_key($name);
+    }
+
+    if (!@columns) {
+        foreach my $name ($self->columns) {
+            push @columns, $name if $self->meta->is_unique_key($name);
+        }
+    }
+
+    my $object;
+    $object = $self->load if @columns;
+    $object ||= $self->create;
+
+    return $object;
 }
 
 sub update {
