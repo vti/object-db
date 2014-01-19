@@ -18,40 +18,30 @@ describe 'many to one' => sub {
     };
 
     it 'find with related' => sub {
-        my $author = Author->new(name => 'vti')->create;
-        my $book =
-          Book->new(title => 'Crap', author_id => $author->get_column('id'))
-          ->create;
+        Author->new(name => 'vti', books => {title => 'Crap'})->create;
 
-        $book = Book->new(title => 'Crap')->load;
+        my $book = Book->new(title => 'Crap')->load;
 
-        $author = $book->find_related('parent_author');
+        my $author = $book->find_related('parent_author');
 
         is($author->get_column('name'), 'vti');
     };
 
     it 'find related' => sub {
-        my $author = Author->new(name => 'vti')->create;
-        my $book =
-          Book->new(title => 'Crap', author_id => $author->get_column('id'))
-          ->create;
+        Author->new(name => 'vti', books => {title => 'Crap'})->create;
 
-        $book = Book->new->table->find(first => 1, with => 'parent_author');
+        my $book = Book->new->table->find(first => 1, with => 'parent_author');
         ok $book->is_related_loaded('parent_author');
         is($book->related('parent_author')->get_column('name'), 'vti');
     };
 
     it 'find related deeply' => sub {
-        my $author = Author->new(name => 'vti')->create;
-        my $book =
-          Book->new(title => 'Crap', author_id => $author->get_column('id'))
-          ->create;
-        my $description = BookDescription->new(
-            description => 'Very',
-            book_id     => $book->get_column('id')
+        Author->new(
+            name  => 'vti',
+            books => {title => 'Crap', description => {description => 'Very'}}
         )->create;
 
-        $description = BookDescription->new->table->find(
+        my $description = BookDescription->new->table->find(
             first => 1,
             with  => 'parent_book.parent_author'
         );
@@ -67,18 +57,23 @@ describe 'many to one' => sub {
     };
 
     it 'find related with query' => sub {
-        my $author = Author->new(name => 'vti')->create;
-        my $book =
-          Book->new(title => 'Crap', author_id => $author->get_column('id'))
-          ->create;
+        Author->new(name => 'vti', books => {title => 'Crap'})->create;
         Author->new(name => 'foo')->create;
 
-        $book = Book->new->table->find(
+        my $book = Book->new->table->find(
             first => 1,
             where => ['parent_author.name' => 'vti']
         );
         ok $book->is_related_loaded('parent_author');
         is($book->related('parent_author')->get_column('name'), 'vti');
+    };
+
+    it 'find related when no related' => sub {
+        Book->new(title => 'Crap')->create;
+
+        my $book = Book->new->table->find(first => 1, with => 'parent_author');
+        ok(!$book->is_related_loaded('parent_author'));
+        ok(!$book->related('parent_author'));
     };
 
 };
