@@ -21,8 +21,7 @@ describe 'one to one' => sub {
         like exception {
             $book->create_related('description',
                 [{description => 'Crap'}, {description => 'Nice'}]);
-        },
-          qr/cannot create multiple related objects in one to one/;
+        }, qr/cannot create multiple related objects in one to one/;
     };
 
     it 'throws when there is already a related object' => sub {
@@ -31,8 +30,29 @@ describe 'one to one' => sub {
 
         like exception {
             $book->create_related('description', description => 'Crap');
-        },
-          qr/Related object is already created/;
+        }, qr/Related object is already created/;
+    };
+
+    it 'sets correct values on new' => sub {
+        my $book = Book->new(
+            title       => 'Crap',
+            description => {description => 'Crap'}
+        );
+
+        my $description = $book->related('description');
+
+        is($description->get_column('description'), 'Crap');
+    };
+
+    it 'sets correct values on create' => sub {
+        my $book = Book->new(
+            title       => 'Crap',
+            description => {description => 'Crap'}
+        )->create;
+
+        my $description = $book->related('description');
+
+        is($description->get_column('description'), 'Crap');
     };
 
     it 'create_related' => sub {
