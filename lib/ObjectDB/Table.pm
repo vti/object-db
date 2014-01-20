@@ -103,6 +103,47 @@ sub find {
     return $single ? $objects[0] : @objects;
 }
 
+sub find_by_sql
+{
+    my $self = shift;
+    my ($sql, @bind) = @_;
+
+    {
+        package ObjectDB::Stmt;
+        sub new { bless {@_[1 .. $#_]}, $_[0] }
+        sub to_sql  { shift->{sql} }
+        sub to_bind { @{shift->{bind}} }
+    }
+
+    if (@bind == 1 && ref($bind[0]) eq 'HASH') {
+        my $bind = $bind[0];
+        @bind = ();
+        while ($sql =~ s{:([[:alnum:]]+)}{?}) {
+            push @bind, $bind->{$1};
+        }
+    }
+
+    my $stmt = ObjectDB::Stmt->new(sql => $sql, bind => \@bind);
+
+    my ($rv, $sth) = execute($self->dbh, $stmt, context => $self);
+
+    my $rows = $sth->fetchall_arrayref;
+    return () unless $rows && @$rows;
+
+    my @column_names = @{$sth->{NAME_lc}};
+
+    my @objects;
+    foreach my $row (@$rows) {
+        my %values;
+        foreach my $column (@column_names) {
+            $values{$column} = shift @$row;
+        }
+        push @objects, $self->meta->class->new(%values)->is_in_db(1);
+    }
+
+    return @objects;
+}
+
 sub update {
     my $self = shift;
     my (%params) = @_;
