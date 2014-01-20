@@ -91,57 +91,93 @@ sub find {
 
     my ($rv, $sth) = execute($self->dbh, $select, context => $self);
 
-    my $rows = $sth->fetchall_arrayref;
-    return unless $rows && @$rows;
+    if (my $cb = $params->{each}) {
+        while (my $row = $sth->fetchrow_arrayref) {
+            my $rows = [[@$row]];
+            $rows = merge_rows $select->from_rows($rows);
 
-    $rows = merge_rows $select->from_rows($rows);
+            my $object =
+              $self->meta->class->new(%{$rows->[0]});
+            $object->is_in_db(1);
 
-    my @objects =
-      map { $_->is_in_db(1) }
-      map { $self->meta->class->new(%{$_}) } @$rows;
+            $cb->($object);
+        }
 
-    return $single ? $objects[0] : @objects;
+        return $self;
+    }
+    else {
+        my $rows = $sth->fetchall_arrayref;
+        return unless $rows && @$rows;
+
+        $rows = merge_rows $select->from_rows($rows);
+
+        my @objects =
+          map { $_->is_in_db(1) }
+          map { $self->meta->class->new(%{$_}) } @$rows;
+
+        return $single ? $objects[0] : @objects;
+    }
 }
 
-sub find_by_sql
-{
+sub find_by_sql {
     my $self = shift;
-    my ($sql, @bind) = @_;
+    my ($sql, $bind, %params) = @_;
 
     {
+
         package ObjectDB::Stmt;
         sub new { bless {@_[1 .. $#_]}, $_[0] }
         sub to_sql  { shift->{sql} }
         sub to_bind { @{shift->{bind}} }
     }
 
-    if (@bind == 1 && ref($bind[0]) eq 'HASH') {
-        my $bind = $bind[0];
-        @bind = ();
+    my @bind;
+    if (ref $bind eq 'HASH') {
         while ($sql =~ s{:([[:alnum:]]+)}{?}) {
             push @bind, $bind->{$1};
         }
+    }
+    else {
+        @bind = @$bind;
     }
 
     my $stmt = ObjectDB::Stmt->new(sql => $sql, bind => \@bind);
 
     my ($rv, $sth) = execute($self->dbh, $stmt, context => $self);
 
-    my $rows = $sth->fetchall_arrayref;
-    return () unless $rows && @$rows;
-
     my @column_names = @{$sth->{NAME_lc}};
 
-    my @objects;
-    foreach my $row (@$rows) {
-        my %values;
-        foreach my $column (@column_names) {
-            $values{$column} = shift @$row;
-        }
-        push @objects, $self->meta->class->new(%values)->is_in_db(1);
-    }
+    if (my $cb = $params{each}) {
+        while (my $row = $sth->fetchrow_arrayref) {
+            my $row_copy = [@$row];
+            my %values;
+            foreach my $column (@column_names) {
+                $values{$column} = shift @$row_copy;
+            }
 
-    return @objects;
+            my $object = $self->meta->class->new(%values);
+            $object->is_in_db(1);
+
+            $cb->($object);
+        }
+
+        return $self;
+    }
+    else {
+        my $rows = $sth->fetchall_arrayref;
+        return () unless $rows && @$rows;
+
+        my @objects;
+        foreach my $row (@$rows) {
+            my %values;
+            foreach my $column (@column_names) {
+                $values{$column} = shift @$row;
+            }
+            push @objects, $self->meta->class->new(%values)->is_in_db(1);
+        }
+
+        return @objects;
+    }
 }
 
 sub update {

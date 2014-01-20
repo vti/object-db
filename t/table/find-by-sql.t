@@ -19,7 +19,7 @@ describe 'table find by sql' => sub {
 
         my @persons =
           Person->table->find_by_sql('SELECT * FROM person WHERE name = ?',
-            'foo');
+            ['foo']);
 
         is(@persons, 1);
 
@@ -36,6 +36,24 @@ describe 'table find by sql' => sub {
         is(@persons, 1);
 
         is($persons[0]->get_column('name'), 'bar');
+    };
+
+    it 'finds by sql with iterator' => sub {
+        Person->new(name => 'vti')->create;
+        Person->new(name => 'foo')->create;
+
+        my @persons;
+        Person->table->find_by_sql(
+            'SELECT * FROM person WHERE name = ?',
+            ['vti'],
+            each => sub {
+                my ($person) = @_;
+
+                push @persons, $person;
+            }
+        );
+
+        is($persons[0]->get_column('name'), 'vti');
     };
 
 };

@@ -55,6 +55,26 @@ describe 'table find' => sub {
 
         is($person->get_column('name'), 'vti');
     };
+
+    it 'finds objects with iterator' => sub {
+        Person->new(name => 'vti')->create;
+        Person->new(name => 'foo')->create;
+
+        my $table = _build_table();
+
+        my @persons;
+        $table->find(
+            where => [name => 'vti'],
+            each  => sub {
+                my ($person) = @_;
+
+                push @persons, $person;
+            }
+        );
+
+        is($persons[0]->get_column('name'), 'vti');
+    };
+
 };
 
 sub _build_table {
