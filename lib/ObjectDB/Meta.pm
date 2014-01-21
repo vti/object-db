@@ -48,6 +48,10 @@ sub new {
 
     $self->_build_relationships($params{relationships});
 
+    if ($params{discover_schema}) {
+        $self->discover_schema;
+    }
+
     if ($params{generate_columns_methods}) {
         $self->generate_columns_methods;
     }
@@ -324,6 +328,31 @@ sub add_relationships {
 
         $count += 2;
     }
+}
+
+sub discover_schema {
+    my $self = shift;
+
+    eval { require DBIx::Inspector; 1 } or do {
+        Carp::croak('DBIx::Inspector is required for auto discover');
+    };
+
+    my $dbh = $self->class->init_db;
+
+    my $inspector = DBIx::Inspector->new(dbh => $dbh);
+
+    my $table = $inspector->table($self->table);
+
+    $self->set_columns(
+        map {
+            $_->name => defined $_->column_def
+              ? ({default => $_->column_def})
+              : ()
+        } $table->columns
+    );
+    $self->set_primary_key(map { $_->name } $table->primary_key);
+
+    return $self;
 }
 
 sub generate_columns_methods {
