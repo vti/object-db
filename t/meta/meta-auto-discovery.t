@@ -1,6 +1,8 @@
 use Test::Spec;
 use Test::Fatal;
 
+use lib 't/lib';
+
 use ObjectDB::Meta;
 use TestDBH;
 use TestEnv;
