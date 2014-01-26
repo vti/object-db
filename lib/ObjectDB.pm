@@ -559,6 +559,7 @@ sub to_hash {
 
     foreach my $name (keys %{$self->{relationships}}) {
         my $rel = $self->{relationships}->{$name};
+        next unless defined $rel;
 
         Carp::croak("unknown '$name' relationship") unless $rel;
 
