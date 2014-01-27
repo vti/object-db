@@ -17,6 +17,22 @@ describe 'one to many' => sub {
         TestEnv->prepare_table('book_description');
     };
 
+    it 'related in different contexts' => sub {
+        my $author = Author->new(
+            name  => 'vti',
+            books => [{title => 'Book1'}, {title => 'Book2'}]
+        );
+
+        my $books = $author->related('books');
+        is(@$books, 2);
+
+        my @books = $author->related('books');
+
+        is(@books, 2);
+
+        is($books[0]->get_column('title'), 'Book1');
+    };
+
     it 'sets correct values on new' => sub {
         my $author = Author->new(
             name  => 'vti',

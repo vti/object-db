@@ -585,9 +585,11 @@ sub related {
     my $self = shift;
     my ($name) = shift;
 
+    my $rel = $self->meta->get_relationship($name);
+
     if (!$self->{relationships}->{$name}) {
         $self->{relationships}->{$name} =
-          wantarray
+          $rel->is_multi
           ? [$self->find_related($name, @_)]
           : $self->find_related($name, @_);
     }
