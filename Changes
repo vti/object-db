@@ -2,6 +2,26 @@ Revision history for Perl extension ObjectDB
 
 {{$NEXT}}
 
+3.08 2014-02-14T14:33:18Z
+
+    [FEATURES]
+    - auto discovery
+    - each iterator
+    - find_by_sql method
+    - generate columns and related methods
+    - it is possible to preload one to many relationships
+
+    [FIXES]
+    - fix related context
+    - fix inc in tests
+    - fix empty relationships
+    - reorganize and improve related tests
+    - reorganize and improve related tests
+    - fix loading many to many as related
+    - better row merging when rows are sorted
+    - make sure to_hash works on one to many
+    - testing loading one to many
+
 3.07 2014-01-17T12:59:51Z
 
     - require latest version of SQL::Composer

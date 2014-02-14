@@ -62,16 +62,16 @@
    "release_status" : "unstable",
    "resources" : {
       "bugtracker" : {
-         "web" : "https://github.com/vti/object-db3/issues"
+         "web" : "https://github.com/vti/object-db/issues"
       },
-      "homepage" : "https://github.com/vti/object-db3",
+      "homepage" : "https://github.com/vti/object-db",
       "repository" : {
          "type" : "git",
-         "url" : "git://github.com/vti/object-db3.git",
-         "web" : "https://github.com/vti/object-db3"
+         "url" : "git://github.com/vti/object-db.git",
+         "web" : "https://github.com/vti/object-db"
       }
    },
-   "version" : "3.07",
+   "version" : "3.08",
    "x_contributors" : [
       "vti <viacheslav.t@gmail.com>"
    ]
