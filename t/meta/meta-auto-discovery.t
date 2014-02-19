@@ -7,6 +7,11 @@ use ObjectDB::Meta;
 use TestDBH;
 use TestEnv;
 
+eval { require DBIx::Inspector; 1 } or do {
+    require Test::More;
+    Test::More->import(skip_all => 'DBIx::Inspector required for this test');
+};
+
 describe 'meta auto discovery' => sub {
 
     before each => sub {
