@@ -2,6 +2,15 @@ Revision history for Perl extension ObjectDB
 
 {{$NEXT}}
 
+3.09 2014-02-19T13:37:27Z
+
+    [FEATURES]
+    - load and find with columns
+    - require latest SQL::Composer
+
+    [FIXES]
+    - skip auto discovery test when DBIx::Inspector not available
+
 3.08 2014-02-14T14:33:18Z
 
     [FEATURES]

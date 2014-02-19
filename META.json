@@ -46,7 +46,7 @@
             "Carp" : "0",
             "DBI" : "0",
             "Hash::Merge" : "0",
-            "SQL::Composer" : "0.05",
+            "SQL::Composer" : "0.06",
             "Storable" : "0",
             "perl" : "5.010"
          }
@@ -71,7 +71,7 @@
          "web" : "https://github.com/vti/object-db"
       }
    },
-   "version" : "3.08",
+   "version" : "3.09",
    "x_contributors" : [
       "vti <viacheslav.t@gmail.com>"
    ]
