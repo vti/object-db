@@ -45,6 +45,54 @@ describe 'table find' => sub {
         is($persons[0]->get_column('name'), 'vti');
     };
 
+    it 'find objects with specified columns' => sub {
+        Person->new(name => 'vti')->create;
+
+        my $table = _build_table();
+
+        my $person = $table->find(first => 1, where => [name => 'vti'], columns => ['id']);
+
+        ok($person->get_column('id'));
+        ok(!$person->get_column('name'));
+    };
+
+    it 'find objects with specified +columns' => sub {
+        Person->new(name => 'vti')->create;
+
+        my $table = _build_table();
+
+        my $person = $table->find(first => 1, where => [name => 'vti'], '+columns' => [{-col => \'1', -as => 'one'}]);
+
+        ok($person->get_column('id'));
+        is($person->get_column('name'), 'vti');
+        is($person->get_column('one'), '1');
+    };
+
+    it 'find objects with specified -columns' => sub {
+        Person->new(name => 'vti')->create;
+
+        my $table = _build_table();
+
+        my $person = $table->find(first => 1, where => [name => 'vti'], '-columns' => ['name']);
+
+        ok($person->get_column('id'));
+        ok(!$person->get_column('name'));
+    };
+
+    it 'find objects with specified columns with aliases' => sub {
+        Person->new(name => 'vti')->create;
+
+        my $table = _build_table();
+
+        my $person = $table->find(
+            first   => 1,
+            where   => [name => 'vti'],
+            columns => [{-col => 'id', -as => 'alias'}]
+        );
+
+        ok($person->get_column('alias'));
+    };
+
     it 'find_single_object' => sub {
         Person->new(name => 'vti')->create;
         Person->new(name => 'foo')->create;

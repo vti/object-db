@@ -15,7 +15,7 @@ use ObjectDB::Quoter;
 use ObjectDB::With;
 use ObjectDB::Meta;
 use ObjectDB::Exception;
-use ObjectDB::Util qw(execute merge merge_rows);
+use ObjectDB::Util qw(execute merge merge_rows filter_columns);
 
 sub new {
     my $class = shift;
@@ -75,11 +75,13 @@ sub find {
         with => [@{$params->{with}}, $quoter->with]
     );
 
+    my $columns = filter_columns([$self->meta->columns], $params);
+
     my $select = SQL::Composer->build(
         'select',
         driver     => $self->dbh->{Driver}->{Name},
         from       => $self->meta->table,
-        columns    => [$self->meta->get_columns],
+        columns    => $columns,
         join       => $with->to_joins,
         where      => $where,
         limit      => $params->{limit},
@@ -113,7 +115,7 @@ sub find {
 
         my @objects =
           map { $_->is_in_db(1) }
-          map { $self->meta->class->new(%{$_}) } @$rows;
+          map { $self->meta->class->new->set_columns(%{$_}) } @$rows;
 
         return $single ? $objects[0] : @objects;
     }

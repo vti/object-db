@@ -13,7 +13,7 @@ use ObjectDB::Quoter;
 use ObjectDB::RelatedFactory;
 use ObjectDB::Table;
 use ObjectDB::With;
-use ObjectDB::Util qw(execute merge_rows);
+use ObjectDB::Util qw(execute merge_rows filter_columns);
 
 our $VERSION = '3.08';
 
@@ -413,10 +413,12 @@ sub load {
 
     my $with = ObjectDB::With->new(meta => $self->meta, with => $params{with});
 
+    my $columns = filter_columns([$self->meta->get_columns], \%params);
+
     my $select = SQL::Composer->build(
         'select',
         driver     => $self->init_db->{Driver}->{Name},
-        columns    => [$self->meta->get_columns],
+        columns    => $columns,
         from       => $self->meta->table,
         where      => $where,
         join       => $with->to_joins,
@@ -429,6 +431,8 @@ sub load {
     return unless $rows && @$rows;
 
     my $row_object = merge_rows($select->from_rows($rows))->[0];
+
+    $self->{columns} = {};
 
     $self->set_columns(%$row_object);
 

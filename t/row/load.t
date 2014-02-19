@@ -61,6 +61,16 @@ describe 'load' => sub {
         is($person->column('name'), 'foo');
     };
 
+    it 'load with columns' => sub {
+        _insert(id => 1, name => 'vti');
+
+        my $person = _build_object(name => 'vti');
+        $person->load(columns => ['id']);
+
+        ok($person->get_column('id'));
+        ok(!$person->get_column('name'));
+    };
+
     it 'throw_when_loading_not_by_primary_or_unique_key' => sub {
         my $person = _build_object(profession => 'hacker');
 

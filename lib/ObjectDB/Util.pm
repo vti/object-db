@@ -6,7 +6,7 @@ use warnings;
 use base 'Exporter';
 
 our $VERSION   = '3.08';
-our @EXPORT_OK = qw(load_class execute merge merge_rows);
+our @EXPORT_OK = qw(load_class execute merge merge_rows filter_columns);
 
 require Carp;
 use Hash::Merge ();
@@ -135,6 +135,23 @@ sub merge_rows {
     }
 
     return $merged;
+}
+
+sub filter_columns {
+    my ($meta_columns, $params) = @_;
+
+    my $columns = $params->{columns} || $meta_columns;
+    $columns = [$columns] unless ref $columns eq 'ARRAY';
+
+    push @$columns, @{$params->{'+columns'}} if $params->{'+columns'};
+    if ($params->{'-columns'}) {
+        my $minus_columns = {map { $_ => 1 } @{$params->{'-columns'}}};
+        $columns =
+          [grep { !exists $minus_columns->{ref($_) ? $_->{'-col'} : $_} }
+              @$columns];
+    }
+
+    return $columns;
 }
 
 1;
