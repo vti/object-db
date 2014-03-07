@@ -96,7 +96,7 @@ sub find {
     if (my $cb = $params->{each}) {
         while (my $row = $sth->fetchrow_arrayref) {
             my $rows = [[@$row]];
-            $rows = merge_rows $select->from_rows($rows);
+            $rows = $select->from_rows($rows);
 
             my $object =
               $self->meta->class->new(%{$rows->[0]});
@@ -111,7 +111,7 @@ sub find {
         my $rows = $sth->fetchall_arrayref;
         return unless $rows && @$rows;
 
-        $rows = merge_rows $select->from_rows($rows);
+        $rows = $select->from_rows($rows);
 
         my @objects =
           map { $_->is_in_db(1) }

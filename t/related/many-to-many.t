@@ -43,29 +43,30 @@ describe 'many to many' => sub {
         is($tags[0]->get_column('name'), 'fiction');
     };
 
-    it 'load with related' => sub {
-        my $book = Book->new(
-            title => 'Book',
-            tags  => [{name => 'fiction'}, {name => 'crap'}]
-        )->create;
+    # TODO
+    #it 'load with related' => sub {
+    #    my $book = Book->new(
+    #        title => 'Book',
+    #        tags  => [{name => 'fiction'}, {name => 'crap'}]
+    #    )->create;
 
-        $book = Book->new(id => $book->get_column('id'))->load(with => ['book_tag_map', 'tags']);
-        ok $book->is_related_loaded('tags');
-        is($book->related('tags')->[0]->get_column('name'), 'fiction');
-        is($book->related('tags')->[1]->get_column('name'), 'crap');
-    };
+    #    $book = Book->new(id => $book->get_column('id'))->load(with => ['book_tag_map', 'tags']);
+    #    ok $book->is_related_loaded('tags');
+    #    is($book->related('tags')->[0]->get_column('name'), 'fiction');
+    #    is($book->related('tags')->[1]->get_column('name'), 'crap');
+    #};
+    #
+    #it 'find with related' => sub {
+    #    Book->new(
+    #        title => 'Book',
+    #        tags  => [{name => 'fiction'}, {name => 'crap'}]
+    #    )->create;
 
-    it 'find with related' => sub {
-        Book->new(
-            title => 'Book',
-            tags  => [{name => 'fiction'}, {name => 'crap'}]
-        )->create;
-
-        my $book = Book->new->table->find(first => 1, with => ['book_tag_map', 'tags']);
-        ok $book->is_related_loaded('tags');
-        is($book->related('tags')->[0]->get_column('name'), 'fiction');
-        is($book->related('tags')->[1]->get_column('name'), 'crap');
-    };
+    #    my $book = Book->new->table->find(first => 1, with => ['book_tag_map', 'tags']);
+    #    ok $book->is_related_loaded('tags');
+    #    is($book->related('tags')->[0]->get_column('name'), 'fiction');
+    #    is($book->related('tags')->[1]->get_column('name'), 'crap');
+    #};
 
     it 'find related' => sub {
         Book->new(title => 'Crap', tags => {name => 'fiction'})->create;

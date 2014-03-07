@@ -430,7 +430,7 @@ sub load {
     my $rows = $sth->fetchall_arrayref;
     return unless $rows && @$rows;
 
-    my $row_object = merge_rows($select->from_rows($rows))->[0];
+    my $row_object = $select->from_rows($rows)->[0];
 
     $self->{columns} = {};
 
