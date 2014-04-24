@@ -96,6 +96,22 @@ describe 'many to many' => sub {
         is($tags[0]->get_column('name'), 'fiction1');
     };
 
+    it 'find via related' => sub {
+        Book->new(
+            title => 'Crap',
+            tags  => [{name => 'fiction1'}, {name => 'fiction2'}]
+        )->create;
+        Book->new(
+            title => 'Good',
+            tags  => [{name => 'documentary'}]
+        )->create;
+
+        my @books = Book->find(where => ['tags.name' => 'documentary']);
+
+        is @books, 1;
+        is $books[0]->get_column('title'), 'Good';
+    };
+
     it 'create related with map row' => sub {
         my $self = shift;
 
