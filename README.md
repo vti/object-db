@@ -56,7 +56,7 @@ ObjectDB - usable ORM
 # DESCRIPTION
 
 ObjectDB is a lightweight and flexible object-relational mapper. While being
-light it stays usable. ObjectDB borrows many things from [Rose::DB::Object](http://search.cpan.org/perldoc?Rose::DB::Object),
+light it stays usable. ObjectDB borrows many things from [Rose::DB::Object](https://metacpan.org/pod/Rose::DB::Object),
 but unlike in the last one columns are not objects, everything is pretty much
 straightforward and flat.
 
@@ -81,6 +81,7 @@ Supported servers: SQLite, MySQL, PostgreSQL
 - `get_column`
 
         my $title = $book->get_column('title');
+
 - `column`
 
     A shortcut for `set_column`/`get_column`.
@@ -92,7 +93,7 @@ Supported servers: SQLite, MySQL, PostgreSQL
 
 Main ObjectDB instance represents a row object. All actions performed on this
 instance are performed on one row. For performing actions on several rows see
-[ObjectDB::Table](http://search.cpan.org/perldoc?ObjectDB::Table).
+[ObjectDB::Table](https://metacpan.org/pod/ObjectDB::Table).
 
 ### Methods
 
@@ -137,8 +138,8 @@ instance are performed on one row. For performing actions on several rows see
 
 ## Actions on tables
 
-In order to perform an action on table a [ObjectDB::Table](http://search.cpan.org/perldoc?ObjectDB::Table) object must be
-obtained via `table` method (see [ObjectDB::Table](http://search.cpan.org/perldoc?ObjectDB::Table) for all available actions).
+In order to perform an action on table a [ObjectDB::Table](https://metacpan.org/pod/ObjectDB::Table) object must be
+obtained via `table` method (see [ObjectDB::Table](https://metacpan.org/pod/ObjectDB::Table) for all available actions).
 The only exception is `find`, it is available in a row object for convenience.
 
     MyBook->table->delete; # deletes ALL records from MyBook

@@ -5,7 +5,7 @@ use warnings;
 
 use base 'ObjectDB::Meta::Relationship';
 
-our $VERSION = '3.09';
+our $VERSION = '3.10';
 
 require Carp;
 

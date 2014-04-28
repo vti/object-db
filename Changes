@@ -2,6 +2,15 @@ Revision history for Perl extension ObjectDB
 
 {{$NEXT}}
 
+3.10 2014-04-28T09:59:37Z
+
+    [FEATURES]
+    - do not merge rows for now
+
+    [FIXES]
+    - fix finding via many to many
+    - fix undefined warning
+
 3.09 2014-02-19T13:37:27Z
 
     [FEATURES]

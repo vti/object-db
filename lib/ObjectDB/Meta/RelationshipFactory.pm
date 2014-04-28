@@ -5,7 +5,7 @@ use warnings;
 
 use base 'ObjectDB::Factory';
 
-our $VERSION = '3.09';
+our $VERSION = '3.10';
 
 sub namespace { 'ObjectDB::Meta::Relationship::' }
 

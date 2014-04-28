@@ -5,7 +5,7 @@ use warnings;
 
 use base 'Exporter';
 
-our $VERSION   = '3.09';
+our $VERSION   = '3.10';
 our @EXPORT_OK = qw(load_class execute merge merge_rows filter_columns);
 
 require Carp;
