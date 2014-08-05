@@ -366,6 +366,14 @@ sub create {
 
     foreach my $rel_name (keys %{$self->meta->relationships}) {
         if (my $rel_values = $self->{relationships}->{$rel_name}) {
+            if (ref $rel_values eq 'ARRAY') {
+                @$rel_values = grep { !$_->is_in_db } @$rel_values;
+                next unless @$rel_values;
+            }
+            else {
+                next if $rel_values->is_in_db;
+            }
+
             my $rel = $self->meta->get_relationship($rel_name);
             my @related = $self->create_related($rel_name, $rel_values);
 

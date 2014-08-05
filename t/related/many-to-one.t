@@ -76,6 +76,14 @@ describe 'many to one' => sub {
         ok(!$book->related('parent_author'));
     };
 
+    it 'not create already created related objects' => sub {
+        my $author = Author->new->create;
+        my $book = Book->new(title => 'Crap', author_id => $author->get_column('id'));
+        $book->related('parent_author');
+
+        ok $book->create;
+    };
+
 };
 
 runtests unless caller;
