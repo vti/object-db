@@ -219,7 +219,7 @@ sub get_column {
                 return ref $default eq 'CODE' ? $default->() : $default;
             }
             else {
-                return;
+                return undef;
             }
         }
 
