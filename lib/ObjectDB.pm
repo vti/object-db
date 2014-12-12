@@ -123,14 +123,13 @@ sub txn {
 
     my $dbh = $self->init_db;
 
-    return eval {
+    my $retval;
+    eval {
         $dbh->{AutoCommit} = 0;
 
-        my $retval = $cb->($self);
+        $retval = $cb->($self);
 
         $self->commit;
-
-        return $retval;
     } || do {
         my $e = $@;
 
@@ -138,6 +137,8 @@ sub txn {
 
         Carp::croak($e);
     };
+
+    return $retval;
 }
 
 sub commit {
