@@ -2,6 +2,12 @@ Revision history for Perl extension ObjectDB
 
 {{$NEXT}}
 
+3.11 2014-12-12T22:44:08Z
+
+    [FIXES]
+    - explicitly return undef on get_column
+    - fix transaction error handling
+
 3.10 2014-04-28T09:59:37Z
 
     [FEATURES]

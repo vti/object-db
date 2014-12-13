@@ -4,7 +4,7 @@
       "Viacheslav Tykhanovskyi"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v0.14.1, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Minilla/v2.1.1, CPAN::Meta::Converter version 2.142690",
    "license" : [
       "perl_5"
    ],
@@ -28,8 +28,6 @@
    "prereqs" : {
       "configure" : {
          "requires" : {
-            "CPAN::Meta" : "0",
-            "CPAN::Meta::Prereqs" : "0",
             "Module::Build" : "0.38"
          }
       },
@@ -72,7 +70,7 @@
          "web" : "https://github.com/vti/object-db"
       }
    },
-   "version" : "3.10",
+   "version" : "3.11",
    "x_contributors" : [
       "vti <viacheslav.t@gmail.com>"
    ]
