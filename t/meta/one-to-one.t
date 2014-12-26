@@ -13,7 +13,8 @@ describe 'one to one' => sub {
             type       => 'one to one',
             orig_class => 'Author',
             class      => 'Book',
-            map        => {id => 'book_author_id'}
+            map        => {id => 'book_author_id'},
+            constraint => [foo => 'bar']
         );
 
         is_deeply(
@@ -22,8 +23,11 @@ describe 'one to one' => sub {
                 table      => 'book',
                 as         => 'books',
                 join       => 'left',
-                constraint => ['author.id' => {-col => 'books.book_author_id'}],
-                columns    => ['id', 'author_id', 'title']
+                constraint => [
+                    'author.id' => {-col => 'books.book_author_id'},
+                    foo         => 'bar'
+                ],
+                columns => ['id', 'author_id', 'title']
             }
         );
     };

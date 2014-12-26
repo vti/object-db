@@ -20,7 +20,8 @@ sub to_source {
 
     my ($from, $to) = %{$self->{map}};
 
-    my $constraint = ["$table.$from" => {-col => "$name.$to"}];
+    my $constraint =
+      ["$table.$from" => {-col => "$name.$to"}, @{$self->{constraint} || []}];
 
     my @columns;
     if ($options{columns}) {

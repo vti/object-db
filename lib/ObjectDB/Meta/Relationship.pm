@@ -19,9 +19,10 @@ sub new {
     $self->{type} = $params{type} || Carp::croak('type required');
     $self->{orig_class} =
       $params{orig_class} || Carp::croak('orig_class required');
-    $self->{class} = $params{class};
-    $self->{map}   = $params{map};
-    $self->{join}  = $params{join} || 'left';
+    $self->{class}      = $params{class};
+    $self->{map}        = $params{map};
+    $self->{join}       = $params{join} || 'left';
+    $self->{constraint} = $params{constraint} || [];
 
     return $self;
 }
