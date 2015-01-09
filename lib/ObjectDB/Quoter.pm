@@ -32,7 +32,7 @@ sub quote {
     foreach my $part (@parts) {
         my $relationship = $meta->get_relationship($part);
 
-        $name      = $relationship->name;
+        $name = $name ? $name . '_' . $relationship->name : $relationship->name;
         $rel_table = $relationship->class->meta->table;
         $meta      = $relationship->class->meta;
     }

@@ -39,17 +39,24 @@ sub new {
                     next;
                 }
 
-                my @joins = $rel->to_source(table => $parent_join->{as});
+                my $parent_as = $parent_join->{as};
+
+                my $name_prefix = $parent_as ? $parent_as . '_' : '';
+                my @joins = $rel->to_source(
+                    table       => $parent_join->{as},
+                    name_prefix => $name_prefix
+                );
 
                 foreach my $join (@joins) {
                     push @{$parent_join->{join}},
                       {
-                        source  => $join->{table},
-                        as      => $join->{as},
-                        on      => $join->{constraint},
-                        op      => $join->{join},
-                        columns => $join->{columns},
-                        join    => []
+                        source   => $join->{table},
+                        rel_name => $join->{as},
+                        as       => $name_prefix . $join->{as},
+                        on       => $join->{constraint},
+                        op       => $join->{join},
+                        columns  => $join->{columns},
+                        join     => []
                       };
                 }
 

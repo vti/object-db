@@ -75,6 +75,7 @@ sub to_source {
 
     return {
         table => $map_table,
+        as    => $map_table,
         join  => 'left',
         constraint =>
           ["$orig_table.$map_to" => {-col => "$map_table.$map_from"}]

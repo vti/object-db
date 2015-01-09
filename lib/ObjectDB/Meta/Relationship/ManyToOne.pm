@@ -15,13 +15,16 @@ sub to_source {
     my (%options) = @_;
 
     my $name      = $self->name;
+    my $name_prefix = $options{name_prefix} || '';
     my $table     = $options{table} || $self->orig_class->meta->table;
     my $rel_table = $self->class->meta->table;
 
     my ($from, $to) = %{$self->{map}};
 
-    my $constraint =
-      ["$table.$from" => {-col => "$name.$to"}, @{$self->{constraint} || []}];
+    my $constraint = [
+        "$table.$from" => {-col => "$name_prefix$name.$to"},
+        @{$self->{constraint} || []}
+    ];
 
     my @columns;
     if ($options{columns}) {

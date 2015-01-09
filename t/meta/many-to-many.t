@@ -22,6 +22,7 @@ describe 'many to many' => sub {
             [
                 {
                     table => 'book_tag_map',
+                    as    => 'book_tag_map',
                     join  => 'left',
                     constraint =>
                       ['book.id' => {-col => 'book_tag_map.book_id'}]

@@ -18,12 +18,13 @@ subtest 'convert with to joins' => sub {
     is_deeply $with->to_joins,
       [
         {
-            source  => 'author',
-            as      => 'parent_author',
-            op      => 'left',
-            columns => [qw/id name/],
-            on      => ['book.author_id' => {-col => 'parent_author.id'}],
-            join    => [],
+            source   => 'author',
+            rel_name => 'parent_author',
+            as       => 'parent_author',
+            op       => 'left',
+            columns  => [qw/id name/],
+            on       => ['book.author_id' => {-col => 'parent_author.id'}],
+            join     => [],
         }
       ];
 };
@@ -37,19 +38,23 @@ subtest 'convert with to joins deeply' => sub {
     is_deeply $with->to_joins,
       [
         {
-            source  => 'book',
-            as      => 'parent_book',
-            op      => 'left',
-            columns => [qw/id author_id title/],
+            source   => 'book',
+            as       => 'parent_book',
+            rel_name => 'parent_book',
+            op       => 'left',
+            columns  => [qw/id author_id title/],
             on   => ['book_description.book_id' => {-col => 'parent_book.id'}],
             join => [
                 {
-                    source  => 'author',
-                    as      => 'parent_author',
-                    op      => 'left',
-                    columns => [qw/id name/],
-                    on =>
-                      ['parent_book.author_id' => {-col => 'parent_author.id'}],
+                    source   => 'author',
+                    as       => 'parent_book_parent_author',
+                    rel_name => 'parent_author',
+                    op       => 'left',
+                    columns  => [qw/id name/],
+                    on       => [
+                        'parent_book.author_id' =>
+                          {-col => 'parent_book_parent_author.id'}
+                    ],
                     join => []
                 }
             ]
@@ -66,19 +71,23 @@ subtest 'autoload intermediate joins' => sub {
     is_deeply $with->to_joins,
       [
         {
-            source  => 'book',
-            as      => 'parent_book',
-            op      => 'left',
-            columns => [qw/id author_id title/],
+            source   => 'book',
+            as       => 'parent_book',
+            rel_name => 'parent_book',
+            op       => 'left',
+            columns  => [qw/id author_id title/],
             on   => ['book_description.book_id' => {-col => 'parent_book.id'}],
             join => [
                 {
-                    source  => 'author',
-                    as      => 'parent_author',
-                    op      => 'left',
-                    columns => [qw/id name/],
-                    on =>
-                      ['parent_book.author_id' => {-col => 'parent_author.id'}],
+                    source   => 'author',
+                    as       => 'parent_book_parent_author',
+                    rel_name => 'parent_author',
+                    op       => 'left',
+                    columns  => [qw/id name/],
+                    on       => [
+                        'parent_book.author_id' =>
+                          {-col => 'parent_book_parent_author.id'}
+                    ],
                     join => []
                 }
             ]

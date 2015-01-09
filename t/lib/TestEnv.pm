@@ -46,6 +46,28 @@ my %TABLES = (
      PRIMARY KEY(`book_id`, `tag_id`)
     );
 
+    'thread' => <<'',
+    CREATE TABLE `thread` (
+     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+     `author_id` INTEGER,
+     `title` varchar(40)
+    );
+
+    'reply' => <<'',
+    CREATE TABLE `reply` (
+     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+     `author_id` INTEGER,
+     `thread_id` INTEGER,
+     `parent_id` INTEGER,
+     `content` varchar(40)
+    );
+
+    'notification' => <<'',
+    CREATE TABLE `notification` (
+     `id` INTEGER PRIMARY KEY AUTOINCREMENT,
+     `reply_id` INTEGER
+    );
+
 );
 
 sub prepare_table {
