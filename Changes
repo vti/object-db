@@ -2,6 +2,11 @@ Revision history for Perl extension ObjectDB
 
 {{$NEXT}}
 
+3.12 2015-09-21T09:41:30Z
+
+    [FEATURES]
+    - support HAVING
+
 3.11 2014-12-12T22:44:08Z
 
     [FIXES]
