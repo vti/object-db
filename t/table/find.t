@@ -7,11 +7,14 @@ use TestDBH;
 use TestEnv;
 use ObjectDB::Table;
 use Person;
+use Book;
 
 describe 'table find' => sub {
 
     before each => sub {
         TestEnv->prepare_table('person');
+        TestEnv->prepare_table('book');
+        TestEnv->prepare_table('book_description');
     };
 
     it 'find_objects' => sub {
@@ -121,6 +124,16 @@ describe 'table find' => sub {
         );
 
         is($persons[0]->get_column('name'), 'vti');
+    };
+
+    it 'finds objects with group by and having' => sub {
+        Book->new(title => 'Foo', description => {description => 'foo'})->create;
+        Book->new(title => 'Bar', description => {description => 'bar'})->create;
+
+        my $table = _build_table(class => 'Book');
+
+        my @books = $table->find(group_by => 'title', having => ['description.description' => 'foo']);
+        is($books[0]->get_column('title'), 'Foo');
     };
 
 };

@@ -70,6 +70,11 @@ sub find {
         expr           => $params->{where},
         default_prefix => $self->meta->table
     );
+    my $having = SQL::Composer::Expression->new(
+        quoter         => $quoter,
+        expr           => $params->{having},
+        default_prefix => $self->meta->table
+    );
     my $with = ObjectDB::With->new(
         meta => $self->meta,
         with => [@{$params->{with}}, $quoter->with]
@@ -88,6 +93,7 @@ sub find {
         offset     => $params->{offset},
         order_by   => $params->{order_by},
         group_by   => $params->{group_by},
+        having     => $having,
         for_update => $params->{for_update},
     );
 
