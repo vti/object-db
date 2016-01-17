@@ -7,6 +7,7 @@ use TestDBH;
 use TestEnv;
 use ObjectDB::Table;
 use Person;
+use Author;
 use Book;
 
 describe 'table find' => sub {
@@ -15,6 +16,7 @@ describe 'table find' => sub {
         TestEnv->prepare_table('person');
         TestEnv->prepare_table('book');
         TestEnv->prepare_table('book_description');
+        TestEnv->prepare_table('author');
     };
 
     it 'find_objects' => sub {
@@ -134,6 +136,27 @@ describe 'table find' => sub {
 
         my @books = $table->find(group_by => 'title', having => ['description.description' => 'foo']);
         is($books[0]->get_column('title'), 'Foo');
+    };
+
+    it 'finds objects with custom join' => sub {
+        my $author = Author->new(name => 'me')->create;
+
+        Book->new(author_id => $author->get_column('id'), title => 'vti')->create;
+
+        my $table = _build_table(class => 'Book');
+
+        my @books = $table->find(
+            join => [
+                {
+                    columns => [qw/id name/],
+                    source => 'author',
+                    on     => ['author.id' => {-col => 'book.id'}]
+                }
+            ]
+        );
+
+        is($books[0]->get_column('title'), 'vti');
+        is($books[0]->get_column('author')->{name}, 'me');
     };
 
 };

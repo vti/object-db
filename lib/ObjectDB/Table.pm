@@ -82,12 +82,15 @@ sub find {
 
     my $columns = filter_columns([$self->meta->columns], $params);
 
+    my $join = $with->to_joins;
+    push @$join, @{$params->{join}} if $params->{join};
+
     my $select = SQL::Composer->build(
         'select',
         driver     => $self->dbh->{Driver}->{Name},
         from       => $self->meta->table,
         columns    => $columns,
-        join       => $with->to_joins,
+        join       => $join,
         where      => $where,
         limit      => $params->{limit},
         offset     => $params->{offset},
