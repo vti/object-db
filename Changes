@@ -2,6 +2,9 @@ Revision history for Perl extension ObjectDB
 
 {{$NEXT}}
 
+    [FEATURES]
+    - allow low level joins in find queries
+
 3.12 2015-09-21T09:41:30Z
 
     [FEATURES]
