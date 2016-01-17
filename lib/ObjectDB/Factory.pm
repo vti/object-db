@@ -3,7 +3,7 @@ package ObjectDB::Factory;
 use strict;
 use warnings;
 
-our $VERSION = '3.12';
+our $VERSION = '3.13';
 
 require Carp;
 use ObjectDB::Util qw(load_class);

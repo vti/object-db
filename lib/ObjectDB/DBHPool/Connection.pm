@@ -3,7 +3,7 @@ package ObjectDB::DBHPool::Connection;
 use strict;
 use warnings;
 
-our $VERSION = '3.12';
+our $VERSION = '3.13';
 
 require Carp;
 use DBI;
