@@ -10,7 +10,8 @@ my %TABLES = (
     CREATE TABLE `person` (
      `id` INTEGER PRIMARY KEY AUTOINCREMENT,
      `name` varchar(40),
-     `profession` varchar(40)
+     `profession` varchar(40),
+     `age` INTEGER
     );
 
     'author' => <<'',
