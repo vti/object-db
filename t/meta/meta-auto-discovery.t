@@ -28,7 +28,7 @@ describe 'meta auto discovery' => sub {
             sub init_db { TestDBH->dbh }
         }
 
-        is_deeply([MyTable->meta->columns], [qw/id name profession/]);
+        is_deeply([MyTable->meta->columns], [qw/id name profession age/]);
         is_deeply([MyTable->meta->primary_key], ['id']);
     };
 

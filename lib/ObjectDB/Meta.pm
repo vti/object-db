@@ -40,17 +40,17 @@ sub new {
     };
     bless $self, $class;
 
-    $self->set_columns($params{columns});
+    if ($params{discover_schema}) {
+        $self->discover_schema;
+    }
+
+    $self->set_columns($params{columns}) if $params{columns};
     $self->set_primary_key($params{primary_key}) if $params{primary_key};
     $self->set_unique_keys($params{unique_keys}) if $params{unique_keys};
     $self->set_auto_increment($params{auto_increment})
       if $params{auto_increment};
 
     $self->_build_relationships($params{relationships});
-
-    if ($params{discover_schema}) {
-        $self->discover_schema;
-    }
 
     if ($params{generate_columns_methods}) {
         $self->generate_columns_methods;
@@ -218,7 +218,7 @@ sub set_primary_key {
     my (@columns) = @_ == 1 && ref $_[0] eq 'ARRAY' ? @{$_[0]} : @_;
 
     foreach my $column (@columns) {
-        Carp::croak("Unknown column '$column'")
+        Carp::croak("Unknown column '$column' set as primary key")
           unless $self->is_column($column);
     }
 
@@ -260,7 +260,7 @@ sub add_unique_key {
     my (@columns) = @_ == 1 && ref $_[0] eq 'ARRAY' ? @{$_[0]} : @_;
 
     foreach my $column (@columns) {
-        Carp::croak("Unknown column '$column'")
+        Carp::croak("Unknown column '$column' set as unique key")
           unless $self->is_column($column);
     }
 
@@ -279,7 +279,8 @@ sub set_auto_increment {
     my $self = shift;
     my ($column) = @_;
 
-    Carp::croak("Unknown column '$column'") unless $self->is_column($column);
+    Carp::croak("Unknown column '$column' set as auto increment")
+      unless $self->is_column($column);
 
     $self->{auto_increment} = $column;
 
