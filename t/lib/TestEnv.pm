@@ -9,7 +9,7 @@ my %TABLES = (
     'person' => <<'',
     CREATE TABLE `person` (
      `id` INTEGER PRIMARY KEY AUTOINCREMENT,
-     `name` varchar(40),
+     `name` varchar(40) DEFAULT '',
      `profession` varchar(40),
      `age` INTEGER
     );

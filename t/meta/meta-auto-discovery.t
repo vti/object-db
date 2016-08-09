@@ -30,6 +30,8 @@ describe 'meta auto discovery' => sub {
 
         is_deeply([MyTable->meta->columns], [qw/id name profession age/]);
         is_deeply([MyTable->meta->primary_key], ['id']);
+
+        is(MyTable->new->get_column('name'), '');
     };
 
 };
