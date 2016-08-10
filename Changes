@@ -2,6 +2,11 @@ Revision history for Perl extension ObjectDB
 
 {{$NEXT}}
 
+3.14 2016-08-10T08:26:23Z
+
+    [FIXES]
+    - fix empty default values when using auto discovery
+
 3.13 2016-01-17T10:13:10Z
 
     [FEATURES]

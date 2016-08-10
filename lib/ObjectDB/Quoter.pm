@@ -3,7 +3,7 @@ package ObjectDB::Quoter;
 use strict;
 use warnings;
 
-our $VERSION = '3.13';
+our $VERSION = '3.14';
 
 use base 'SQL::Composer::Quoter';
 

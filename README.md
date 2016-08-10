@@ -111,7 +111,7 @@ instance are performed on one row. For performing actions on several rows see
             books => [{title => 'Book1'}, {title => 'Book2'}]
         )->create;
 
-    Which is a convenient way of calling C &lt;create\_related> manually .
+    Which is a convenient way of calling C <create\_related> manually .
 
 - `load`
 
