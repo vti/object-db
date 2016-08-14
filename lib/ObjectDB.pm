@@ -88,29 +88,29 @@ sub init_db {
 
     my $class = ref($self) ? ref($self) : $self;
 
+    my $dbh;
     if (@_) {
         if (@_ == 1 && ref $_[0]) {
-            ${"$class\::DBH"} = shift;
+            $dbh = ${"$class\::DBH"} = shift;
         }
         else {
-            ${"$class\::DBH"} = ObjectDB::DBHPool->new(@_);
+            $dbh = ${"$class\::DBH"} = ObjectDB::DBHPool->new(@_);
         }
-
-        return $self;
     }
+    else {
+        $dbh = ${"$class\::DBH"};
 
-    my $dbh = ${"$class\::DBH"};
-
-    if (!$dbh) {
-        my $parents = mro::get_linear_isa($class);
-        foreach my $parent (@$parents) {
-            if ($dbh = ${"$parent\::DBH"}) {
-                last;
+        if (!$dbh) {
+            my $parents = mro::get_linear_isa($class);
+            foreach my $parent (@$parents) {
+                if ($dbh = ${"$parent\::DBH"}) {
+                    last;
+                }
             }
         }
-    }
 
-    Carp::croak('Setup a dbh first') unless $dbh;
+        Carp::croak('Setup a dbh first') unless $dbh;
+    }
 
     return $dbh->isa('ObjectDB::DBHPool')
       ? $dbh->dbh

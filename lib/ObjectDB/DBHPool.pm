@@ -20,6 +20,7 @@ sub new {
     $self->{username}      = $params{username};
     $self->{password}      = $params{password};
     $self->{attrs}         = $params{attrs};
+    $self->{do}            = $params{do};
 
     $self->{connections} = {};
 
@@ -40,7 +41,8 @@ sub dbh {
         dsn           => $self->{dsn},
         username      => $self->{username},
         password      => $self->{password},
-        attrs         => $self->{attrs}
+        attrs         => $self->{attrs},
+        do            => $self->{do},
       );
 
     return $connection->dbh;

@@ -20,6 +20,7 @@ sub new {
     $self->{username}      = $params{username};
     $self->{password}      = $params{password};
     $self->{attrs}         = $params{attrs};
+    $self->{do}            = $params{do};
 
     $self->{check_timeout} = 5 unless defined $self->{check_timeout};
     $self->{attrs} ||= {RaiseError => 1};
@@ -101,6 +102,12 @@ sub _get_dbh {
         $self->{attrs});
 
     Carp::croak("Can't connect $DBI::errstr") unless $dbh;
+
+    if ($self->{do}) {
+        foreach my $do (ref $self->{do} eq 'ARRAY' ? @{$self->{do}} : ($self->{do})) {
+            $dbh->do($do);
+        }
+    }
 
     return $dbh;
 }
