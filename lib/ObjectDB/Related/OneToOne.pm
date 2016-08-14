@@ -5,7 +5,7 @@ use warnings;
 
 use base 'ObjectDB::Related::ManyToOne';
 
-our $VERSION = '3.14';
+our $VERSION = '3.15';
 
 use Scalar::Util ();
 use ObjectDB::Util qw(merge);

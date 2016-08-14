@@ -70,10 +70,10 @@
          "web" : "https://github.com/vti/object-db"
       }
    },
-   "version" : "3.14",
+   "version" : "3.15",
    "x_contributors" : [
-      "vti <vti@clarive.com>",
-      "vti <viacheslav.t@gmail.com>"
+      "vti <viacheslav.t@gmail.com>",
+      "vti <vti@clarive.com>"
    ],
    "x_serialization_backend" : "JSON::PP version 2.27300"
 }
