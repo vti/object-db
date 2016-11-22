@@ -2,6 +2,11 @@ Revision history for Perl extension ObjectDB
 
 {{$NEXT}}
 
+3.16 2016-11-22T20:43:03Z
+
+    [FIXES]
+    - work around pg default empty values
+
 3.15 2016-08-14T16:52:04Z
 
     [FEATURES]
