@@ -347,7 +347,7 @@ sub discover_schema {
     $self->set_columns(
         map {
             $_->name => defined $_->column_def
-              ? ({default => $_->column_def eq "''" ? '' : $_->column_def })
+              ? ({default => $_->column_def =~ /^''/ ? '' : $_->column_def })
               : ()
         } $table->columns
     );
