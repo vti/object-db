@@ -2,6 +2,11 @@ Revision history for Perl extension ObjectDB
 
 {{$NEXT}}
 
+3.17 2016-12-26T11:04:38Z
+
+    [FIXES]
+    - correctly auto discover nullable columns
+
 3.16 2016-11-22T20:43:03Z
 
     [FIXES]

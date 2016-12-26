@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use mro;
 
-our $VERSION = '3.16';
+our $VERSION = '3.17';
 
 require Storable;
 require Carp;
