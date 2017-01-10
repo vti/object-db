@@ -92,11 +92,12 @@ sub init_db {
     if (@_) {
         if (@_ == 1 && ref $_[0]) {
             ${"$class\::DBH"} = shift;
-            $dbh = ${"$class\::DBH"};
         }
         else {
-            $dbh = ${"$class\::DBH"} = ObjectDB::DBHPool->new(@_);
+            ${"$class\::DBH"} = ObjectDB::DBHPool->new(@_);
         }
+
+        $dbh = ${"$class\::DBH"};
     }
     else {
         $dbh = ${"$class\::DBH"};
