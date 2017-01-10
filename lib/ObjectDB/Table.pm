@@ -238,13 +238,20 @@ sub count {
     my $with =
       ObjectDB::With->new(meta => $self->meta, with => [$quoter->with]);
 
+    my $joins = $with->to_joins;
+
+    # We have to remove columns, because:
+    # 1) we don't need them
+    # 2) PostgreSQL complains
+    delete $_->{columns} for @$joins;
+
     my $select = SQL::Composer->build(
         'select',
         driver   => $self->dbh->{Driver}->{Name},
         from     => $self->meta->table,
         columns  => [{-col => \'COUNT(*)', -as => 'count'}],
         where    => $where,
-        join     => $with->to_joins,
+        join     => $joins,
         group_by => $params{group_by},
     );
 
