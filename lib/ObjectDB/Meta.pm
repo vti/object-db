@@ -347,10 +347,11 @@ sub discover_schema {
     $self->set_columns(
         map {
             $_->name => defined $_->column_def
-              ? ({default => $_->column_def =~ /^''/ ? '' : $_->column_def})
+              ? ({default => $_->column_def =~ /^'(.*?)'/ ? $1 : $_->column_def})
               : ($_->is_nullable ? {default => undef, is_null => 1} : ())
         } $table->columns
     );
+
     $self->set_primary_key(map { $_->name } $table->primary_key);
 
     return $self;
