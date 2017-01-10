@@ -5,7 +5,7 @@ use warnings;
 
 use base 'ObjectDB::Meta::Relationship';
 
-our $VERSION = '3.17';
+our $VERSION = '3.18';
 
 sub type     { 'many to one' }
 sub is_multi { 0 }

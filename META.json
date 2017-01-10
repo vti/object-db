@@ -70,7 +70,7 @@
          "web" : "https://github.com/vti/object-db"
       }
    },
-   "version" : "3.17",
+   "version" : "3.18",
    "x_contributors" : [
       "vti <vti@clarive.com>",
       "vti <viacheslav.t@gmail.com>"
