@@ -239,6 +239,7 @@ sub count {
       ObjectDB::With->new(meta => $self->meta, with => [$quoter->with]);
 
     my $joins = $with->to_joins;
+    push @$joins, @{$params{join}} if $params{join};
 
     # We have to remove columns, because:
     # 1) we don't need them
