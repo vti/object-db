@@ -91,6 +91,21 @@ describe 'related' => sub {
         ok(!$book->is_related_loaded('parent_author'));
     };
 
+    it 'resets related on load' => sub {
+        my $author = Author->new(name => 'vti')->create;
+        my $book =
+          Book->new(title => 'Crap', author_id => $author->get_column('id'))
+          ->create;
+
+        $book = Book->new(title => 'Crap')->load(with => 'parent_author');
+
+        ok($book->is_related_loaded('parent_author'));
+
+        $book = $book->load;
+
+        ok(!$book->is_related_loaded('parent_author'));
+    };
+
 };
 
 runtests unless caller;

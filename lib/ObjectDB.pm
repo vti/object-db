@@ -444,6 +444,7 @@ sub load {
     my $row_object = $select->from_rows($rows)->[0];
 
     $self->{columns} = {};
+    $self->{relationships} = {};
 
     $self->set_columns(%$row_object);
 
