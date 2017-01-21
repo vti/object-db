@@ -5,7 +5,7 @@ use warnings;
 
 use base 'ObjectDB::Related';
 
-our $VERSION = '3.18';
+our $VERSION = '3.19';
 
 use ObjectDB::Util qw(merge);
 

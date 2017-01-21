@@ -2,6 +2,15 @@ Revision history for Perl extension ObjectDB
 
 {{$NEXT}}
 
+3.19 2017-01-21T16:21:04Z
+
+    [FIXES]
+    - reset related on load
+    - allow custom joins in count
+
+    [FEATURES]
+    - recommend DBIx::Inspector
+
 3.18 2017-01-10T18:16:41Z
 
     [FIXES]

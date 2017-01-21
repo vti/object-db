@@ -41,6 +41,9 @@
          }
       },
       "runtime" : {
+         "recommends" : {
+            "DBIx::Inspector" : "0"
+         },
          "requires" : {
             "Carp" : "0",
             "DBI" : "0",
@@ -70,7 +73,7 @@
          "web" : "https://github.com/vti/object-db"
       }
    },
-   "version" : "3.18",
+   "version" : "3.19",
    "x_contributors" : [
       "vti <vti@clarive.com>",
       "vti <viacheslav.t@gmail.com>"
