@@ -7,6 +7,8 @@ requires 'DBI';
 requires 'Hash::Merge';
 requires 'SQL::Composer' => '0.13';
 
+recommends 'DBIx::Inspector';
+
 on 'test' => sub {
     requires 'Test::More', '0.98';
     requires 'Test::Fatal';
