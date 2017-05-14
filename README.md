@@ -2,7 +2,7 @@
 
 ObjectDB - usable ORM
 
-[![Kritika Status](https://kritika.io/users/vti/repos/tu/heads/master/status.svg)](https://kritika.io/users/vti/repos/tu)
+[![Kritika Status](https://kritika.io/users/vti/repos/25/heads/master/status.svg)](https://kritika.io/users/vti/repos/tu)
 
 # SYNOPSIS
 
