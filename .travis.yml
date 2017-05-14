@@ -11,10 +11,10 @@ before_install:
     - cpanm -n https://github.com/kritikaio/devel-cover-report-kritika-perl/archive/master.tar.gz
 install:
     - cpanm -n -q --with-recommends --skip-satisfied --installdeps .
-    - cpanm DBD::SQLite DBD::Pg DBD::mysql
+    - cpanm -n -q DBD::SQLite DBD::Pg DBD::mysql
 script:
     - perl Build.PL && ./Build build
     - prove -Ilib -r t
     - TEST_OBJECTDB_DBH=dbi:Pg:dbname=objectdb prove -Ilib -r t
-    - TEST_OBJECTDB_DBH=travis prove -Ilib -r t
+    - TEST_OBJECTDB_DBH=dbi:mysql:database=travis prove -Ilib -r t
     - cover -test -report kritika
