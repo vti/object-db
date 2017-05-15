@@ -2,8 +2,6 @@
 
 ObjectDB - usable ORM
 
-[![Kritika Status](https://kritika.io/users/vti/repos/25/heads/master/status.svg)](https://kritika.io/users/vti/repos/tu)
-
 # SYNOPSIS
 
     package MyDB;
