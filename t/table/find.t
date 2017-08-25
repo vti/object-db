@@ -109,7 +109,7 @@ describe 'table find' => sub {
         is($person->get_column('name'), 'vti');
     };
 
-    it 'finds objects with iterator' => sub {
+    it 'finds objects with callback iterator' => sub {
         Person->new(name => 'vti')->create;
         Person->new(name => 'foo')->create;
 
@@ -126,6 +126,20 @@ describe 'table find' => sub {
         );
 
         is($persons[0]->get_column('name'), 'vti');
+    };
+
+    it 'finds objects with object iterator' => sub {
+        Person->new(name => 'vti')->create;
+        Person->new(name => 'foo')->create;
+
+        my $table = _build_table();
+
+        my $iterator = $table->find;
+
+        is($iterator->next->get_column('name'), 'vti');
+        is($iterator->next->get_column('name'), 'foo');
+
+        ok !defined $iterator->next;
     };
 
     it 'finds objects with group by and having' => sub {

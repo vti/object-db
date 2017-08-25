@@ -23,6 +23,19 @@ subtest 'find: returns rows as hashes result' => sub {
     is $result[0]->{name}, 'foo';
 };
 
+subtest 'find: returns rows as hashes result with iterator' => sub {
+    TestEnv->prepare_table('person');
+
+    Person->new(name => 'foo')->create;
+
+    my $iterator = Person->find(rows_as_hashes => 1);
+
+    my $result = $iterator->next;
+
+    ok !blessed $result;
+    is $result->{name}, 'foo';
+};
+
 subtest 'find_by_compose: returns rows as hashes result' => sub {
     TestEnv->prepare_table('person');
 

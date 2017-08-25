@@ -11,6 +11,7 @@ require Carp;
 use SQL::Composer;
 use SQL::Composer::Expression;
 use ObjectDB;
+use ObjectDB::Iterator;
 use ObjectDB::Quoter;
 use ObjectDB::With;
 use ObjectDB::Meta;
@@ -123,7 +124,7 @@ sub find {
 
         return $self;
     }
-    else {
+    elsif ($single || wantarray) {
         my $rows = $sth->fetchall_arrayref;
         return unless $rows && @$rows;
 
@@ -141,6 +142,28 @@ sub find {
         }
 
         return $single ? $results[0] : @results;
+    }
+    else {
+        my $walker = sub {
+            my $row = $sth->fetchrow_arrayref;
+            return unless defined $row;
+
+            my $rows = [ [@$row] ];
+            $rows = $select->from_rows($rows);
+
+            my $result;
+            if ($params->{rows_as_hashes}) {
+                $result = $rows->[0];
+            }
+            else {
+                $result = $self->meta->class->new(%{ $rows->[0] });
+                $result->is_in_db(1);
+            }
+
+            return $result;
+        };
+
+        return ObjectDB::Iterator->new(walker => $walker);
     }
 }
 
@@ -203,7 +226,7 @@ sub find_by_compose {
 
         return $self;
     }
-    else {
+    elsif ($single || wantarray) {
         my $rows = $sth->fetchall_arrayref;
         return unless $rows && @$rows;
 
@@ -225,11 +248,38 @@ sub find_by_compose {
 
         return $single ? $results[0] : @results;
     }
+    else {
+        my $walker = sub {
+            my $row = $sth->fetchrow_arrayref;
+            return unless defined $row;
+
+            my $rows = [ [@$row] ];
+            $rows = $select->from_rows($rows);
+
+            my $result;
+            if ($params->{rows_as_hashes}) {
+                $result = $rows->[0];
+            }
+            else {
+                my $meta = ObjectDB::Meta->find_by_table($table);
+                die qq{Can't find meta for table '$table'} unless $meta;
+
+                $result = $meta->class->new(%{ $rows->[0] });
+                $result->is_in_db(1);
+            }
+
+            return $result;
+        };
+
+        return ObjectDB::Iterator->new(walker => $walker);
+    }
 }
 
 sub find_by_sql {
     my $self = shift;
     my ($sql, $bind, %params) = @_;
+
+    my $single = $params{single} || $params{first};
 
     {
 
@@ -271,7 +321,7 @@ sub find_by_sql {
 
         return $self;
     }
-    else {
+    elsif ($single || wantarray) {
         my $rows = $sth->fetchall_arrayref;
         return () unless $rows && @$rows;
 
@@ -291,6 +341,30 @@ sub find_by_sql {
         }
 
         return @results;
+    }
+    else {
+        my $walker = sub {
+            my $row = $sth->fetchrow_arrayref;
+            return unless defined $row;
+
+            my %values;
+            foreach my $column (@column_names) {
+                $values{$column} = shift @$row;
+            }
+
+            my $result;
+            if ($params{rows_as_hashes}) {
+                $result = \%values;
+            }
+            else {
+                $result = $self->meta->class->new(%values);
+                $result->is_in_db(1);
+            }
+
+            return $result;
+        };
+
+        return ObjectDB::Iterator->new(walker => $walker);
     }
 }
 
