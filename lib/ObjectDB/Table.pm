@@ -11,6 +11,7 @@ require Carp;
 use SQL::Composer;
 use SQL::Composer::Expression;
 use ObjectDB;
+use ObjectDB::Stmt;
 use ObjectDB::Iterator;
 use ObjectDB::Quoter;
 use ObjectDB::With;
@@ -281,14 +282,6 @@ sub find_by_sql {
 
     my $single = $params{single} || $params{first};
 
-    {
-
-        package ObjectDB::Stmt;
-        sub new { bless { @_[ 1 .. $#_ ] }, $_[0] }
-        sub to_sql  { shift->{sql} }
-        sub to_bind { @{ shift->{bind} } }
-    }
-
     my @bind;
     if (ref $bind eq 'HASH') {
         while ($sql =~ s{:([[:alnum:]]+)}{?}) {
@@ -296,7 +289,7 @@ sub find_by_sql {
         }
     }
     else {
-        @bind = @$bind;
+        @bind = @$bind if $bind && ref $bind eq 'ARRAY';
     }
 
     my $stmt = ObjectDB::Stmt->new(sql => $sql, bind => \@bind);
@@ -325,11 +318,12 @@ sub find_by_sql {
         my $rows = $sth->fetchall_arrayref;
         return () unless $rows && @$rows;
 
+        my $i = 0;
         my @results;
         foreach my $row (@$rows) {
             my %values;
             foreach my $column (@column_names) {
-                $values{$column} = shift @$row;
+                $values{$column} = $row->[$i++];
             }
 
             if ($params{rows_as_hashes}) {
@@ -343,13 +337,14 @@ sub find_by_sql {
         return @results;
     }
     else {
+        my $i = 0;
         my $walker = sub {
             my $row = $sth->fetchrow_arrayref;
             return unless defined $row;
 
             my %values;
             foreach my $column (@column_names) {
-                $values{$column} = shift @$row;
+                $values{$column} = $row->[$i++];
             }
 
             my $result;
