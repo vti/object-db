@@ -144,6 +144,89 @@ sub find {
     }
 }
 
+sub find_by_compose {
+    my $self = shift;
+
+    my $params = merge { @_ }, { where => [], with => [] };
+
+    my $single = $params->{single} || $params->{first};
+
+    unless ($single) {
+        my $page = delete $params->{page};
+        my $page_size = delete $params->{page_size} || DEFAULT_PAGE_SIZE;
+
+        if (defined $page) {
+            $page = 1 unless $page && $page =~ m/^\d+$/smx;
+            $params->{offset} = ($page - 1) * $page_size;
+            $params->{limit}  = $page_size;
+        }
+    }
+
+    my $table = $params->{table};
+
+    my $select = SQL::Composer->build(
+        'select',
+        driver     => $self->dbh->{Driver}->{Name},
+        from       => $table,
+        columns    => $params->{columns},
+        join       => $params->{join},
+        where      => $params->{where},
+        limit      => $params->{limit},
+        offset     => $params->{offset},
+        order_by   => $params->{order_by},
+        group_by   => $params->{group_by},
+        having     => $params->{heaving},
+        for_update => $params->{for_update},
+    );
+
+    my ($rv, $sth) = execute($self->dbh, $select, context => $self);
+
+    if (my $cb = $params->{each}) {
+        while (my $row = $sth->fetchrow_arrayref) {
+            my $rows = [ [@$row] ];
+            $rows = $select->from_rows($rows);
+
+            my $result;
+            if ($params->{rows_as_hashes}) {
+                $result = $rows->[0];
+            }
+            else {
+                my $meta = ObjectDB::Meta->find_by_table($table);
+                die qq{Can't find meta for table '$table'} unless $meta;
+
+                $result = $meta->class->new(%{ $rows->[0] });
+                $result = $result->is_in_db(1);
+            }
+
+            $cb->($result);
+        }
+
+        return $self;
+    }
+    else {
+        my $rows = $sth->fetchall_arrayref;
+        return unless $rows && @$rows;
+
+        $rows = $select->from_rows($rows);
+
+        my @results;
+
+        if ($params->{rows_as_hashes}) {
+            @results = @$rows;
+        }
+        else {
+            my $meta = ObjectDB::Meta->find_by_table($table);
+            die qq{Can't find meta for table '$table'} unless $meta;
+
+            @results =
+              map { $_->is_in_db(1) }
+              map { $meta->class->new->set_columns(%{$_}) } @$rows;
+        }
+
+        return $single ? $results[0] : @results;
+    }
+}
+
 sub find_by_sql {
     my $self = shift;
     my ($sql, $bind, %params) = @_;
@@ -361,6 +444,14 @@ Finds specific rows. Query builder is L<SQL::Composer>.
     my @books = MyBook->table->find(where => [...], order_by => [...]);
     my @books =
       MyBook->table->find(where => [...], order_by => [...], group_by => [...]);
+
+When using C<rows_as_hashes> returns array of hashes instead of objects.
+
+=item C<find_by_compose>
+
+Finds by using raw query.
+
+    my @books = MyBook->find_by_compose(table => 'book', columns => ['id', 'title']);
 
 When using C<rows_as_hashes> returns array of hashes instead of objects.
 
