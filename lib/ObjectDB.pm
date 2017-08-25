@@ -701,15 +701,16 @@ ObjectDB - usable ORM
     use base 'MyDB';
 
     __PACKAGE__->meta(
-        table          => 'author',
-        columns        => [qw/id name/],
-        primary_key    => 'id',
-        auto_increment => 'id',
-        relationships  => {
+        table                    => 'author',
+        auto_increment           => 'id',
+        discover_schema          => 1,
+        generate_columns_methods => 1,
+        generate_related_methods => 1,
+        relationships            => {
             books => {
-                type = 'one to many',
+                type  => 'one to many',
                 class => 'MyBook',
-                map   => {id => 'author_id'}
+                map   => { id => 'author_id' }
             }
         }
     );
@@ -718,23 +719,23 @@ ObjectDB - usable ORM
     use base 'MyDB';
 
     __PACKAGE__->meta(
-        table          => 'book',
-        columns        => [qw/id author_id title/],
-        primary_key    => 'id',
-        auto_increment => 'id',
-        relationships  => {
+        table                    => 'book',
+        auto_increment           => 'id',
+        discover_schema          => 1,
+        generate_columns_methods => 1,
+        generate_related_methods => 1,
+        relationships            => {
             author => {
-                type = 'many to one',
+                type  => 'many to one',
                 class => 'MyAuthor',
-                map   => {author_id => 'id'}
+                map   => { author_id => 'id' }
             }
         }
     );
 
     my $book_by_id = MyBook->new(id => 1)->load(with => 'author');
 
-    my @books_authored_by_Pushkin =
-      MyBook->table->find(where => ['author.name' => 'Pushkin']);
+    my @books_authored_by_Pushkin = MyBook->table->find(where => [ 'author.name' => 'Pushkin' ]);
 
     $author->create_related('books', title => 'New Book');
 
@@ -745,7 +746,56 @@ light it stays usable. ObjectDB borrows many things from L<Rose::DB::Object>,
 but unlike in the last one columns are not objects, everything is pretty much
 straightforward and flat.
 
-Supported servers: SQLite, MySQL, PostgreSQL
+Supported servers: SQLite, MySQL, PostgreSQL.
+
+=head1 STABILITY
+
+This module is used in several productions, under heavy load and big volumes.
+
+=head1 PERFORMANCE
+
+When performance is a must but you don't want to switch back to L<DBI> take a look at C<find_by_compose>, C<find_by_sql>
+methods and at C<rows_as_hashes> option in L<ObjectDB::Table>.
+
+Latest benchmarks
+
+    # Create
+
+              Rate create    DBI
+    create 10204/s     --   -73%
+    DBI    37975/s   272%     --
+
+    # Select 1
+
+                       Rate          find find_by_compose  find_by_sql           DBI
+    find             4478/s            --            -36%         -80%          -91%
+    find_by_compose  7042/s           57%              --         -69%          -86%
+    find_by_sql     22556/s          404%            220%           --          -56%
+    DBI             51724/s         1055%            634%         129%            --
+
+    # Select many
+
+                       Rate          find find_by_compose  find_by_sql           DBI
+    find             5618/s            --            -21%         -76%          -89%
+    find_by_compose  7109/s           27%              --         -69%          -86%
+    find_by_sql     23077/s          311%            225%           --          -53%
+    DBI             49180/s          775%            592%         113%            --
+
+    # Select many with iterator
+
+                             Rate find_by_sql find_by_compose  find find_by_compose (hash) find (hash) find_by_sql (hash)  DBI
+    find_by_sql            25.8/s          --            -18%  -19%                   -87%        -87%               -94% -98%
+    find_by_compose        31.5/s         22%              --   -2%                   -84%        -84%               -92% -98%
+    find                   32.1/s         24%              2%    --                   -84%        -84%               -92% -98%
+    find_by_compose (hash)  201/s        677%            537%  526%                     --         -0%               -52% -85%
+    find (hash)             202/s        680%            539%  528%                     0%          --               -51% -85%
+    find_by_sql (hash)      415/s       1505%           1215% 1193%                   107%        106%                 -- -69%
+    DBI                    1351/s       5128%           4184% 4109%                   573%        570%               226%   --
+
+=head2 Meta auto discovery and method generation
+
+When you have L<DBIx::Inspector> installed meta can be automatically discovered without the need to specify columns. And
+special methods for columns and relationships are automatically generated.
 
 =head2 Actions on columns
 
