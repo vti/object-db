@@ -833,7 +833,7 @@ Deletes an object. Related objects are NOT deleted.
 
 In order to perform an action on table a L<ObjectDB::Table> object must be
 obtained via C<table> method (see L<ObjectDB::Table> for all available actions).
-The only exception is C<find>, it is available in a row object for convenience.
+The only exception is C<find>, it is available on a row object for convenience.
 
     MyBook->table->delete; # deletes ALL records from MyBook
 
@@ -966,7 +966,7 @@ Viacheslav Tykhanovskyi
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2013, Viacheslav Tykhanovskyi.
+Copyright 2013-2017, Viacheslav Tykhanovskyi.
 
 This module is free software, you may distribute it under the same terms as Perl.
 

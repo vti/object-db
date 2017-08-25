@@ -22,6 +22,21 @@ sub find_or_register_meta {
       ObjectDB::Meta->new(class => $meta_class, @args);
 }
 
+sub find_by_table {
+    my $class = shift;
+    my ($table) = @_;
+
+    foreach my $meta_class (keys %OBJECTS) {
+        my $meta = $OBJECTS{$meta_class};
+
+        if ($meta->table eq $table) {
+            return $meta;
+        }
+    }
+
+    return;
+}
+
 sub new {
     my $class = shift;
     my (%params) = @_;
