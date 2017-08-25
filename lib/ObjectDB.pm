@@ -783,14 +783,23 @@ Latest benchmarks
 
     # Select many with iterator
 
-                             Rate find_by_sql find_by_compose  find find_by_compose (hash) find (hash) find_by_sql (hash)  DBI
-    find_by_sql            25.8/s          --            -18%  -19%                   -87%        -87%               -94% -98%
-    find_by_compose        31.5/s         22%              --   -2%                   -84%        -84%               -92% -98%
-    find                   32.1/s         24%              2%    --                   -84%        -84%               -92% -98%
-    find_by_compose (hash)  201/s        677%            537%  526%                     --         -0%               -52% -85%
-    find (hash)             202/s        680%            539%  528%                     0%          --               -51% -85%
-    find_by_sql (hash)      415/s       1505%           1215% 1193%                   107%        106%                 -- -69%
-    DBI                    1351/s       5128%           4184% 4109%                   573%        570%               226%   --
+                             Rate find_by_sql find_by_compose  find
+    find_by_sql            25.8/s          --            -18%  -19%
+    find_by_compose        31.5/s         22%              --   -2%
+    find                   32.1/s         24%              2%    --
+    find_by_compose (hash)  201/s        677%            537%  526%
+    find (hash)             202/s        680%            539%  528%
+    find_by_sql (hash)      415/s       1505%           1215% 1193%
+    DBI                    1351/s       5128%           4184% 4109%
+
+                             find_by_compose (hash) find (hash) find_by_sql (hash)  DBI
+    find_by_sql                                -87%        -87%               -94% -98%
+    find_by_compose                            -84%        -84%               -92% -98%
+    find                                       -84%        -84%               -92% -98%
+    find_by_compose (hash)                       --         -0%               -52% -85%
+    find (hash)                                  0%          --               -51% -85%
+    find_by_sql (hash)                         107%        106%                 -- -69%
+    DBI                                        573%        570%               226%   --
 
 =head2 Meta auto discovery and method generation
 
