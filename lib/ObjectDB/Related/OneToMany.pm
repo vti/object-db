@@ -8,7 +8,8 @@ use base 'ObjectDB::Related';
 our $VERSION = '3.20';
 
 use Scalar::Util ();
-use ObjectDB::Util qw(merge);
+use Storable qw(dclone);
+use ObjectDB::Util qw(to_array);
 
 sub create_related {
     my $self = shift;
@@ -70,12 +71,15 @@ sub _related_table { shift->meta->class->table }
 sub _build_params {
     my $self = shift;
     my ($row) = shift;
+    my (%params) = @_;
 
     my $meta = $self->meta;
     my ($from, $to) = %{$meta->map};
 
-    my $params = merge { @_ }, {where => [$to => $row->column($from)]};
-    return %$params;
+    my $merged = dclone(\%params);
+    $merged->{where} = [$to => $row->column($from), to_array $merged->{where} ];
+
+    return %$merged;
 }
 
 1;

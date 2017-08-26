@@ -4,8 +4,7 @@ requires 'Carp'     => 0;
 requires 'Storable' => 0;
 
 requires 'DBI';
-requires 'Hash::Merge';
-requires 'SQL::Composer' => '0.13';
+requires 'SQL::Composer' => '0.19';
 
 recommends 'DBIx::Inspector';
 
