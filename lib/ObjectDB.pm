@@ -13,7 +13,7 @@ use ObjectDB::Quoter;
 use ObjectDB::RelatedFactory;
 use ObjectDB::Table;
 use ObjectDB::With;
-use ObjectDB::Util qw(execute merge_rows filter_columns);
+use ObjectDB::Util qw(execute filter_columns);
 
 our $VERSION = '3.20';
 
