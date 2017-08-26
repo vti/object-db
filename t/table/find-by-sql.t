@@ -4,9 +4,9 @@ use lib 't/lib';
 
 use Test::More;
 use Test::Fatal;
-
 use TestDBH;
 use TestEnv;
+
 use ObjectDB::Table;
 use Person;
 

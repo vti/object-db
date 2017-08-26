@@ -1,13 +1,12 @@
 use strict;
 use warnings;
+use lib 't/lib';
 
 use Test::More;
 
-use ObjectDB::Quoter;
-
-use lib 't/lib';
-
 use Book;
+
+use_ok 'ObjectDB::Quoter';
 
 subtest 'quote' => sub {
     my $quoter = ObjectDB::Quoter->new;

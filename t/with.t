@@ -1,12 +1,11 @@
 use strict;
 use warnings;
+use lib 't/lib';
 
 use Test::More;
 use Test::Fatal;
 
 use ObjectDB::With;
-
-use lib 't/lib';
 
 use Book;
 use BookDescription;

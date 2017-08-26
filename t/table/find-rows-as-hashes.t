@@ -4,10 +4,10 @@ use lib 't/lib';
 
 use Test::More;
 use Test::Fatal;
-
 use TestDBH;
 use TestEnv;
 use TestDB;
+
 use Person;
 
 use Scalar::Util qw(blessed);
