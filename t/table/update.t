@@ -18,7 +18,7 @@ describe 'table update' => sub {
         Person->new(name => 'vti')->create;
 
         my $table = _build_table();
-        $table->update(set => {name => 'foo'});
+        $table->update(set => { name => 'foo' });
 
         my $person = Person->new(id => 1)->load;
 
@@ -30,7 +30,7 @@ describe 'table update' => sub {
         Person->new(name => 'foo')->create;
 
         my $table = _build_table();
-        $table->update(set => {name => 'bar'}, where => [name => 'foo']);
+        $table->update(set => { name => 'bar' }, where => [ name => 'foo' ]);
 
         my $person = Person->new(id => 1)->load;
         is($person->get_column('name'), 'vti');
@@ -44,7 +44,7 @@ describe 'table update' => sub {
         Person->new(name => 'foo')->create;
 
         my $table = _build_table();
-        is $table->update(set => {name => 'bar'}, where => [name => 'foo']), 1;
+        is $table->update(set => { name => 'bar' }, where => [ name => 'foo' ]), 1;
     };
 
 };

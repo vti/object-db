@@ -101,7 +101,8 @@ sub prepare_table {
 
     if ($driver =~ /mysql/i) {
         $sql =~ s{AUTOINCREMENT}{AUTO_INCREMENT}g;
-    } elsif ($driver =~ /Pg/i) {
+    }
+    elsif ($driver =~ /Pg/i) {
         $sql =~ s{`}{"}g;
         $sql =~ s{"id" INTEGER PRIMARY KEY AUTOINCREMENT}{"id" SERIAL PRIMARY KEY}g;
         $sql =~ s{BOOLEAN DEFAULT 0}{BOOLEAN DEFAULT 'f'}g;

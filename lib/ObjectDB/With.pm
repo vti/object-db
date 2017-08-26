@@ -14,13 +14,13 @@ sub new {
 
     $self->{meta} = $params{meta};
     $self->{with} = $params{with};
-    $self->{with} = [$self->{with}]
+    $self->{with} = [ $self->{with} ]
       if $self->{with} && ref $self->{with} ne 'ARRAY';
 
-    my $joins = {join => []};
+    my $joins = { join => [] };
 
     my %seen;
-    if (my @with = sort grep { defined } @{$self->{with} || []}) {
+    if (my @with = sort grep { defined } @{ $self->{with} || [] }) {
         foreach my $with (@with) {
             my $meta = $self->{meta};
 
@@ -48,7 +48,7 @@ sub new {
                 );
 
                 foreach my $join (@joins) {
-                    push @{$parent_join->{join}},
+                    push @{ $parent_join->{join} },
                       {
                         source   => $join->{table},
                         rel_name => $join->{as},

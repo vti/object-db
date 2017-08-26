@@ -19,9 +19,7 @@ describe 'related' => sub {
 
     it 'related' => sub {
         my $author = Author->new(name => 'vti')->create;
-        my $book =
-          Book->new(title => 'Crap', author_id => $author->get_column('id'))
-          ->create;
+        my $book = Book->new(title => 'Crap', author_id => $author->get_column('id'))->create;
 
         $book = Book->new(title => 'Crap')->load(with => 'parent_author');
 
@@ -30,9 +28,7 @@ describe 'related' => sub {
 
     it 'related reverse' => sub {
         my $author = Author->new(name => 'vti')->create;
-        my $book =
-          Book->new(title => 'Crap', author_id => $author->get_column('id'))
-          ->create;
+        my $book = Book->new(title => 'Crap', author_id => $author->get_column('id'))->create;
 
         $author = Author->new(name => 'vti')->load(with => 'books');
 
@@ -53,16 +49,14 @@ describe 'related' => sub {
 
         $book_description =
           BookDescription->new(id => $book_description->get_column('id'))
-          ->load(with => ['parent_book', 'parent_book.parent_author']);
+          ->load(with => [ 'parent_book', 'parent_book.parent_author' ]);
 
         ok(!defined $book_description->related('parent_book'));
     };
 
     it 'is_related_loaded' => sub {
         my $author = Author->new(name => 'vti')->create;
-        my $book =
-          Book->new(title => 'Crap', author_id => $author->get_column('id'))
-          ->create;
+        my $book = Book->new(title => 'Crap', author_id => $author->get_column('id'))->create;
 
         $book = Book->new(title => 'Crap')->load(with => 'parent_author');
 
@@ -71,9 +65,7 @@ describe 'related' => sub {
 
     it 'load_related_on_demand' => sub {
         my $author = Author->new(name => 'vti')->create;
-        my $book =
-          Book->new(title => 'Crap', author_id => $author->get_column('id'))
-          ->create;
+        my $book = Book->new(title => 'Crap', author_id => $author->get_column('id'))->create;
 
         $book = Book->new(title => 'Crap')->load;
 
@@ -82,9 +74,7 @@ describe 'related' => sub {
 
     it 'is_related_loaded_false' => sub {
         my $author = Author->new(name => 'vti')->create;
-        my $book =
-          Book->new(title => 'Crap', author_id => $author->get_column('id'))
-          ->create;
+        my $book = Book->new(title => 'Crap', author_id => $author->get_column('id'))->create;
 
         $book = Book->new(title => 'Crap')->load;
 
@@ -93,9 +83,7 @@ describe 'related' => sub {
 
     it 'resets related on load' => sub {
         my $author = Author->new(name => 'vti')->create;
-        my $book =
-          Book->new(title => 'Crap', author_id => $author->get_column('id'))
-          ->create;
+        my $book = Book->new(title => 'Crap', author_id => $author->get_column('id'))->create;
 
         $book = Book->new(title => 'Crap')->load(with => 'parent_author');
 

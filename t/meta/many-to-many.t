@@ -18,22 +18,20 @@ describe 'many to many' => sub {
         );
 
         is_deeply(
-            [$rel->to_source],
+            [ $rel->to_source ],
             [
                 {
-                    table => 'book_tag_map',
-                    as    => 'book_tag_map',
-                    join  => 'left',
-                    constraint =>
-                      ['book.id' => {-col => 'book_tag_map.book_id'}]
+                    table      => 'book_tag_map',
+                    as         => 'book_tag_map',
+                    join       => 'left',
+                    constraint => [ 'book.id' => { -col => 'book_tag_map.book_id' } ]
                 },
                 {
-                    table => 'tag',
-                    as    => 'tags',
-                    join  => 'left',
-                    constraint =>
-                      ['book_tag_map.tag_id' => {-col => 'tags.id'}],
-                    columns => ['id', 'name']
+                    table      => 'tag',
+                    as         => 'tags',
+                    join       => 'left',
+                    constraint => [ 'book_tag_map.tag_id' => { -col => 'tags.id' } ],
+                    columns => [ 'id', 'name' ]
                 }
             ]
         );

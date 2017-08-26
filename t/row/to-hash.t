@@ -19,20 +19,20 @@ describe 'to hash' => sub {
     it 'to_hash' => sub {
         my $author = Author->new(name => 'vti')->create;
 
-        is_deeply($author->to_hash, {id => 1, name => 'vti'});
+        is_deeply($author->to_hash, { id => 1, name => 'vti' });
     };
 
     it 'with_virtual_columns' => sub {
         my $author = Author->new(name => 'vti')->create;
         $author->set_column(virtual => 'bar');
 
-        is_deeply($author->to_hash, {id => 1, name => 'vti', virtual => 'bar'});
+        is_deeply($author->to_hash, { id => 1, name => 'vti', virtual => 'bar' });
     };
 
     it 'with_default_values' => sub {
         my $person = Person->new();
 
-        is_deeply($person->to_hash, {profession => 'slacker'});
+        is_deeply($person->to_hash, { profession => 'slacker' });
     };
 
     it 'with_related' => sub {
@@ -47,7 +47,7 @@ describe 'to hash' => sub {
                 id            => 1,
                 author_id     => 1,
                 title         => 'Crap',
-                parent_author => {id => 1, name => 'vti'}
+                parent_author => { id => 1, name => 'vti' }
             }
         );
     };
@@ -79,7 +79,7 @@ describe 'to hash' => sub {
             {
                 id    => 1,
                 name  => 'vti',
-                books => [{id => 1, author_id => 1, title => 'Crap'}]
+                books => [ { id => 1, author_id => 1, title => 'Crap' } ]
             }
         );
     };

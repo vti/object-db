@@ -20,7 +20,7 @@ describe 'many to many' => sub {
     it 'sets correct values on new' => sub {
         my $book = Book->new(
             title => 'Crap',
-            tags  => [{name => 'fiction'}, {name => 'crap'}]
+            tags  => [ { name => 'fiction' }, { name => 'crap' } ]
         );
 
         my @tags = $book->related('tags');
@@ -33,7 +33,7 @@ describe 'many to many' => sub {
     it 'sets correct values on create' => sub {
         my $book = Book->new(
             title => 'Crap',
-            tags  => [{name => 'fiction'}, {name => 'crap'}]
+            tags  => [ { name => 'fiction' }, { name => 'crap' } ]
         )->create;
 
         my @tags = $book->related('tags');
@@ -69,7 +69,7 @@ describe 'many to many' => sub {
     #};
 
     it 'find related' => sub {
-        Book->new(title => 'Crap', tags => {name => 'fiction'})->create;
+        Book->new(title => 'Crap', tags => { name => 'fiction' })->create;
         Tag->new(name => 'else')->create;
 
         my $book = Book->new(title => 'Crap')->load;
@@ -84,12 +84,12 @@ describe 'many to many' => sub {
     it 'find related with where' => sub {
         Book->new(
             title => 'Crap',
-            tags  => [{name => 'fiction1'}, {name => 'fiction2'}]
+            tags  => [ { name => 'fiction1' }, { name => 'fiction2' } ]
         )->create;
 
         my $book = Book->new(title => 'Crap')->load;
 
-        my @tags = $book->find_related('tags', where => [name => 'fiction1']);
+        my @tags = $book->find_related('tags', where => [ name => 'fiction1' ]);
 
         is(@tags, 1);
 
@@ -99,14 +99,14 @@ describe 'many to many' => sub {
     it 'find via related' => sub {
         Book->new(
             title => 'Crap',
-            tags  => [{name => 'fiction1'}, {name => 'fiction2'}]
+            tags  => [ { name => 'fiction1' }, { name => 'fiction2' } ]
         )->create;
         Book->new(
             title => 'Good',
-            tags  => [{name => 'documentary'}]
+            tags  => [ { name => 'documentary' } ]
         )->create;
 
-        my @books = Book->find(where => ['tags.name' => 'documentary']);
+        my @books = Book->find(where => [ 'tags.name' => 'documentary' ]);
 
         is @books, 1;
         is $books[0]->get_column('title'), 'Good';
@@ -193,7 +193,7 @@ describe 'many to many' => sub {
     it 'count related' => sub {
         my $self = shift;
 
-        Book->new(title => 'Crap', tags => {name => 'fiction'})->create;
+        Book->new(title => 'Crap', tags => { name => 'fiction' })->create;
 
         Tag->new(name => 'else')->create;
 
@@ -207,18 +207,18 @@ describe 'many to many' => sub {
 
         Book->new(
             title => 'Crap',
-            tags  => [{name => 'fiction1'}, {name => 'fiction2'}]
+            tags  => [ { name => 'fiction1' }, { name => 'fiction2' } ]
         )->create;
 
         my $book = Book->new(title => 'Crap')->load;
 
-        is($book->count_related('tags', where => [name => 'fiction1']), 1);
+        is($book->count_related('tags', where => [ name => 'fiction1' ]), 1);
     };
 
     it 'delete_map_entry_on_delete_related' => sub {
         my $self = shift;
 
-        Book->new(title => 'Crap', tags => {name => 'fiction'})->create;
+        Book->new(title => 'Crap', tags => { name => 'fiction' })->create;
 
         my $book = Book->new(title => 'Crap')->load;
 
@@ -230,7 +230,7 @@ describe 'many to many' => sub {
     it 'delete_only_map_entry_on_delete_related' => sub {
         my $self = shift;
 
-        Book->new(title => 'Crap', tags => {name => 'fiction'})->create;
+        Book->new(title => 'Crap', tags => { name => 'fiction' })->create;
 
         my $book = Book->new(title => 'Crap')->load;
 

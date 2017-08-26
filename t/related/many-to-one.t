@@ -18,7 +18,7 @@ describe 'many to one' => sub {
     };
 
     it 'find with related' => sub {
-        Author->new(name => 'vti', books => {title => 'Crap'})->create;
+        Author->new(name => 'vti', books => { title => 'Crap' })->create;
 
         my $book = Book->new(title => 'Crap')->load;
 
@@ -28,7 +28,7 @@ describe 'many to one' => sub {
     };
 
     it 'find related' => sub {
-        Author->new(name => 'vti', books => {title => 'Crap'})->create;
+        Author->new(name => 'vti', books => { title => 'Crap' })->create;
 
         my $book = Book->new->table->find(first => 1, with => 'parent_author');
         ok $book->is_related_loaded('parent_author');
@@ -38,7 +38,7 @@ describe 'many to one' => sub {
     it 'find related deeply' => sub {
         Author->new(
             name  => 'vti',
-            books => {title => 'Crap', description => {description => 'Very'}}
+            books => { title => 'Crap', description => { description => 'Very' } }
         )->create;
 
         my $description = BookDescription->new->table->find(
@@ -47,22 +47,17 @@ describe 'many to one' => sub {
         );
         ok $description->is_related_loaded('parent_book');
         is($description->related('parent_book')->get_column('title'), 'Crap');
-        ok $description->related('parent_book')
-          ->is_related_loaded('parent_author');
-        is(
-            $description->related('parent_book')->related('parent_author')
-              ->get_column('name'),
-            'vti'
-        );
+        ok $description->related('parent_book')->is_related_loaded('parent_author');
+        is($description->related('parent_book')->related('parent_author')->get_column('name'), 'vti');
     };
 
     it 'find related with query' => sub {
-        Author->new(name => 'vti', books => {title => 'Crap'})->create;
+        Author->new(name => 'vti', books => { title => 'Crap' })->create;
         Author->new(name => 'foo')->create;
 
         my $book = Book->new->table->find(
             first => 1,
-            where => ['parent_author.name' => 'vti']
+            where => [ 'parent_author.name' => 'vti' ]
         );
         ok $book->is_related_loaded('parent_author');
         is($book->related('parent_author')->get_column('name'), 'vti');

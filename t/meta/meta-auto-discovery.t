@@ -45,15 +45,15 @@ describe 'meta auto discovery' => sub {
                   /
             ]
         );
-        is_deeply([MyTable->meta->primary_key], ['id']);
+        is_deeply([ MyTable->meta->primary_key ], ['id']);
 
-        is(MyTable->new->get_column('varchar_no_default'), undef);
+        is(MyTable->new->get_column('varchar_no_default'),    undef);
         is(MyTable->new->get_column('varchar_default_empty'), '');
-        is(MyTable->new->get_column('varchar_default'), 'hello');
+        is(MyTable->new->get_column('varchar_default'),       'hello');
 
-        is(MyTable->new->get_column('int_no_default'), undef);
+        is(MyTable->new->get_column('int_no_default'),    undef);
         is(MyTable->new->get_column('int_default_empty'), 0);
-        is(MyTable->new->get_column('int_default'), 123);
+        is(MyTable->new->get_column('int_default'),       123);
 
         is(MyTable->new->get_column('bool_no_default'), undef);
         ok(!MyTable->new->get_column('bool_default_false'));

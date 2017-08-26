@@ -16,7 +16,7 @@ sub create_related {
     my ($row, $related) = @_;
 
     my $meta = $self->meta;
-    my ($from, $to) = %{$meta->map};
+    my ($from, $to) = %{ $meta->map };
 
     my @params = ($to => $row->column($from));
 
@@ -38,7 +38,7 @@ sub find_related {
     my ($row) = shift;
 
     my $meta = $self->meta;
-    my ($from, $to) = %{$meta->map};
+    my ($from, $to) = %{ $meta->map };
 
     return unless defined $row->column($from) && length $row->column($from);
 
@@ -69,15 +69,15 @@ sub delete_related {
 sub _related_table { shift->meta->class->table }
 
 sub _build_params {
-    my $self = shift;
-    my ($row) = shift;
+    my $self     = shift;
+    my ($row)    = shift;
     my (%params) = @_;
 
     my $meta = $self->meta;
-    my ($from, $to) = %{$meta->map};
+    my ($from, $to) = %{ $meta->map };
 
     my $merged = dclone(\%params);
-    $merged->{where} = [$to => $row->column($from), to_array $merged->{where} ];
+    $merged->{where} = [ $to => $row->column($from), to_array $merged->{where} ];
 
     return %$merged;
 }

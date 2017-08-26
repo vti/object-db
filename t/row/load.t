@@ -74,8 +74,7 @@ describe 'load' => sub {
     it 'throw_when_loading_not_by_primary_or_unique_key' => sub {
         my $person = _build_object(profession => 'hacker');
 
-        like(exception { $person->load },
-            qr/no primary or unique keys specified/);
+        like(exception { $person->load }, qr/no primary or unique keys specified/);
     };
 
     it 'return_undef_when_not_found' => sub {

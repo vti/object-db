@@ -58,8 +58,7 @@ describe 'update' => sub {
         my $person = _build_object(profession => 'hacker');
         $person->set_column(profession => 'slacker');
 
-        like(exception { $person->update },
-            qr/no primary or unique keys specified/);
+        like(exception { $person->update }, qr/no primary or unique keys specified/);
     };
 
     it 'throw_when_update_didnt_occur' => sub {

@@ -20,11 +20,9 @@ describe 'one to many' => sub {
     };
 
     it '123' => sub {
-        my $author1 = Author->new(name => 'vti')->create;
-        my $author2 = Author->new(name => 'bar')->create;
-        my $thread =
-          Thread->new(title => 'foo', author_id => $author1->get_column('id'))
-          ->create;
+        my $author1 = Author->new(name  => 'vti')->create;
+        my $author2 = Author->new(name  => 'bar')->create;
+        my $thread  = Thread->new(title => 'foo', author_id => $author1->get_column('id'))->create;
         my $reply1 = Reply->new(
             content   => 'foo',
             author_id => $author1->get_column('id'),
@@ -53,13 +51,13 @@ describe 'one to many' => sub {
         is @notifications, 2;
 
         is $notifications[0]->related('reply')->get_column('content'), 'foo';
-        is $notifications[0]->related('reply')->related('author')->get_column('name'), 'vti';
+        is $notifications[0]->related('reply')->related('author')->get_column('name'),  'vti';
         is $notifications[0]->related('reply')->related('thread')->get_column('title'), 'foo';
         ok !$notifications[0]->related('reply')->related('parent');
 
         is $notifications[1]->related('reply')->get_column('content'), 'foo2';
-        is $notifications[1]->related('reply')->related('author')->get_column('name'), 'bar';
-        is $notifications[1]->related('reply')->related('thread')->get_column('title'), 'foo';
+        is $notifications[1]->related('reply')->related('author')->get_column('name'),    'bar';
+        is $notifications[1]->related('reply')->related('thread')->get_column('title'),   'foo';
         is $notifications[1]->related('reply')->related('parent')->get_column('content'), 'foo';
         is $notifications[1]->related('reply')->related('parent')->related('author')->get_column('name'), 'vti';
     };

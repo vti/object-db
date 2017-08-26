@@ -38,23 +38,21 @@ describe 'table count' => sub {
 
         my $table = _build_table();
 
-        is($table->count(where => [name => {'>=' => 5}]), 5);
+        is($table->count(where => [ name => { '>=' => 5 } ]), 5);
     };
 
     it 'count_rows_with_query_and_join' => sub {
         my $author = Author->new(name => 'author')->create;
-        Book->new(title => $_, author_id => $author->column('id'))->create
-          for 1 .. 2;
+        Book->new(title => $_, author_id => $author->column('id'))->create for 1 .. 2;
 
         my $author2 = Author->new(name => 'author2')->create;
-        Book->new(title => $_, author_id => $author2->column('id'))->create
-          for 1 .. 3;
+        Book->new(title => $_, author_id => $author2->column('id'))->create for 1 .. 3;
 
         my $table = _build_table(class => 'Book');
 
         is(
             $table->count(
-                where    => ['parent_author.name' => 'author'],
+                where    => [ 'parent_author.name' => 'author' ],
                 group_by => 'parent_author.id'
             ),
             2

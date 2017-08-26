@@ -19,8 +19,7 @@ describe 'one to one' => sub {
         my $book = Book->new(title => 'fiction')->create;
 
         like exception {
-            $book->create_related('description',
-                [{description => 'Crap'}, {description => 'Nice'}]);
+            $book->create_related('description', [ { description => 'Crap' }, { description => 'Nice' } ]);
         }, qr/cannot create multiple related objects in one to one/;
     };
 
@@ -36,7 +35,7 @@ describe 'one to one' => sub {
     it 'sets correct values on new' => sub {
         my $book = Book->new(
             title       => 'Crap',
-            description => {description => 'Crap'}
+            description => { description => 'Crap' }
         );
 
         my $description = $book->related('description');
@@ -47,7 +46,7 @@ describe 'one to one' => sub {
     it 'sets correct values on create' => sub {
         my $book = Book->new(
             title       => 'Crap',
-            description => {description => 'Crap'}
+            description => { description => 'Crap' }
         )->create;
 
         my $description = $book->related('description');
@@ -73,12 +72,11 @@ describe 'one to one' => sub {
 
     it 'create_related_from_object' => sub {
         my $book = Book->new(title => 'fiction')->create;
-        $book->create_related('description',
-            BookDescription->new(description => 'Crap'));
+        $book->create_related('description', BookDescription->new(description => 'Crap'));
 
         my $description = BookDescription->table->find(
             first => 1,
-            where => [book_id => $book->get_column('id')]
+            where => [ book_id => $book->get_column('id') ]
         );
         is($description->get_column('description'), 'Crap');
     };
@@ -106,7 +104,7 @@ describe 'one to one' => sub {
 
         $book = Book->new(id => $book->get_column('id'))->load;
 
-        $book->update_related('description', set => {description => 'Good'});
+        $book->update_related('description', set => { description => 'Good' });
 
         $book =
           Book->new(id => $book->get_column('id'))->load(with => 'description');

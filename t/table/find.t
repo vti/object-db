@@ -45,7 +45,7 @@ describe 'table find' => sub {
 
         my $table = _build_table();
 
-        my @persons = $table->find(where => [name => 'vti']);
+        my @persons = $table->find(where => [ name => 'vti' ]);
 
         is($persons[0]->get_column('name'), 'vti');
     };
@@ -55,7 +55,7 @@ describe 'table find' => sub {
 
         my $table = _build_table();
 
-        my $person = $table->find(first => 1, where => [name => 'vti'], columns => ['id']);
+        my $person = $table->find(first => 1, where => [ name => 'vti' ], columns => ['id']);
 
         ok($person->get_column('id'));
         ok(!$person->get_column('name'));
@@ -66,11 +66,12 @@ describe 'table find' => sub {
 
         my $table = _build_table();
 
-        my $person = $table->find(first => 1, where => [name => 'vti'], '+columns' => [{-col => \'1', -as => 'one'}]);
+        my $person =
+          $table->find(first => 1, where => [ name => 'vti' ], '+columns' => [ { -col => \'1', -as => 'one' } ]);
 
         ok($person->get_column('id'));
         is($person->get_column('name'), 'vti');
-        is($person->get_column('one'), '1');
+        is($person->get_column('one'),  '1');
     };
 
     it 'find objects with specified -columns' => sub {
@@ -78,7 +79,7 @@ describe 'table find' => sub {
 
         my $table = _build_table();
 
-        my $person = $table->find(first => 1, where => [name => 'vti'], '-columns' => ['name']);
+        my $person = $table->find(first => 1, where => [ name => 'vti' ], '-columns' => ['name']);
 
         ok($person->get_column('id'));
         ok(!$person->get_column('name'));
@@ -91,8 +92,8 @@ describe 'table find' => sub {
 
         my $person = $table->find(
             first   => 1,
-            where   => [name => 'vti'],
-            columns => [{-col => 'id', -as => 'alias'}]
+            where   => [ name => 'vti' ],
+            columns => [ { -col => 'id', -as => 'alias' } ]
         );
 
         ok($person->get_column('alias'));
@@ -104,7 +105,7 @@ describe 'table find' => sub {
 
         my $table = _build_table();
 
-        my $person = $table->find(where => [name => 'vti'], single => 1);
+        my $person = $table->find(where => [ name => 'vti' ], single => 1);
 
         is($person->get_column('name'), 'vti');
     };
@@ -117,7 +118,7 @@ describe 'table find' => sub {
 
         my @persons;
         $table->find(
-            where => [name => 'vti'],
+            where => [ name => 'vti' ],
             each  => sub {
                 my ($person) = @_;
 
@@ -143,12 +144,15 @@ describe 'table find' => sub {
     };
 
     it 'finds objects with group by and having' => sub {
-        Book->new(title => 'Foo', description => {description => 'foo'})->create;
-        Book->new(title => 'Bar', description => {description => 'bar'})->create;
+        Book->new(title => 'Foo', description => { description => 'foo' })->create;
+        Book->new(title => 'Bar', description => { description => 'bar' })->create;
 
         my $table = _build_table(class => 'Book');
 
-        my @books = $table->find(group_by => ['id', 'title', 'description.id'], having => ['description.description' => 'foo']);
+        my @books = $table->find(
+            group_by => [ 'id', 'title', 'description.id' ],
+            having => [ 'description.description' => 'foo' ]
+        );
         is($books[0]->get_column('title'), 'Foo');
     };
 
@@ -163,13 +167,13 @@ describe 'table find' => sub {
             join => [
                 {
                     columns => [qw/id name/],
-                    source => 'author',
-                    on     => ['author.id' => {-col => 'book.id'}]
+                    source  => 'author',
+                    on      => [ 'author.id' => { -col => 'book.id' } ]
                 }
             ]
         );
 
-        is($books[0]->get_column('title'), 'vti');
+        is($books[0]->get_column('title'),          'vti');
         is($books[0]->get_column('author')->{name}, 'me');
     };
 

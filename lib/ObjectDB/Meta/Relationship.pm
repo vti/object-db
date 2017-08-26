@@ -30,7 +30,7 @@ sub new {
 sub name { $_[0]->{name} }
 sub map  { $_[0]->{map} }
 
-sub is_multi  { 0 }
+sub is_multi { 0 }
 
 sub orig_class {
     my $self = shift;

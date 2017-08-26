@@ -28,7 +28,7 @@ describe 'table delete' => sub {
         Person->new(name => 'foo')->create;
 
         my $table = _build_table();
-        $table->delete(where => [name => 'foo']);
+        $table->delete(where => [ name => 'foo' ]);
 
         is($table->count, 1);
     };

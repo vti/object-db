@@ -16,8 +16,8 @@ describe 'many to one' => sub {
             type       => 'many to one',
             class      => 'Author',
             orig_class => 'Book',
-            map        => {book_author_id => 'id'},
-            constraint => [foo => 'bar']
+            map        => { book_author_id => 'id' },
+            constraint => [ foo => 'bar' ]
         );
 
         is_deeply(
@@ -27,10 +27,10 @@ describe 'many to one' => sub {
                 as         => 'author',
                 join       => 'left',
                 constraint => [
-                    'book.book_author_id' => {-col => 'author.id'},
+                    'book.book_author_id' => { -col => 'author.id' },
                     foo                   => 'bar'
                 ],
-                columns => ['id', 'name']
+                columns => [ 'id', 'name' ]
             }
         );
     };
@@ -41,7 +41,7 @@ describe 'many to one' => sub {
             type       => 'many to one',
             class      => 'Author',
             orig_class => 'Book',
-            map        => {book_author_id => 'id'}
+            map        => { book_author_id => 'id' }
         );
 
         is_deeply(
@@ -50,7 +50,7 @@ describe 'many to one' => sub {
                 table      => 'author',
                 as         => 'author',
                 join       => 'left',
-                constraint => ['book.book_author_id' => {-col => 'author.id'}],
+                constraint => [ 'book.book_author_id' => { -col => 'author.id' } ],
                 columns    => ['id']
             }
         );
@@ -62,19 +62,18 @@ describe 'many to one' => sub {
             type       => 'many to one',
             orig_class => 'Book',
             class      => 'Author',
-            map        => {author_id => 'id'},
+            map        => { author_id => 'id' },
             join       => 'inner'
         );
 
         is_deeply(
             $rel->to_source,
             {
-                table => 'author',
-                as    => 'parent_author',
-                join  => 'inner',
-                constraint =>
-                  ['book.author_id' => {-col => 'parent_author.id'}],
-                columns => ['id', 'name']
+                table      => 'author',
+                as         => 'parent_author',
+                join       => 'inner',
+                constraint => [ 'book.author_id' => { -col => 'parent_author.id' } ],
+                columns => [ 'id', 'name' ]
             }
         );
     };

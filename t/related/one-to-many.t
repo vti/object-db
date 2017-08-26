@@ -20,7 +20,7 @@ describe 'one to many' => sub {
     it 'related in different contexts' => sub {
         my $author = Author->new(
             name  => 'vti',
-            books => [{title => 'Book1'}, {title => 'Book2'}]
+            books => [ { title => 'Book1' }, { title => 'Book2' } ]
         );
 
         my $books = $author->related('books');
@@ -36,7 +36,7 @@ describe 'one to many' => sub {
     it 'sets correct values on new' => sub {
         my $author = Author->new(
             name  => 'vti',
-            books => [{title => 'Book1'}, {title => 'Book2'}]
+            books => [ { title => 'Book1' }, { title => 'Book2' } ]
         );
 
         my @books = $author->related('books');
@@ -49,7 +49,7 @@ describe 'one to many' => sub {
     it 'sets correct values on create' => sub {
         my $author = Author->new(
             name  => 'vti',
-            books => [{title => 'Book1'}, {title => 'Book2'}]
+            books => [ { title => 'Book1' }, { title => 'Book2' } ]
         )->create;
 
         my @books = $author->related('books');
@@ -92,8 +92,8 @@ describe 'one to many' => sub {
         my $author = Author->new(
             name  => 'vti',
             books => [
-                {title => 'Book1', description => {description => 'Crap1'}},
-                {title => 'Book2', description => {description => 'Crap2'}}
+                { title => 'Book1', description => { description => 'Crap1' } },
+                { title => 'Book2', description => { description => 'Crap2' } }
             ]
         )->create;
 
@@ -104,34 +104,26 @@ describe 'one to many' => sub {
 
         ok $author->is_related_loaded('books');
         ok $author->related('books')->[0]->is_related_loaded('description');
-        is(
-            $author->related('books')->[0]->related('description')
-              ->get_column('description'),
-            'Crap1'
-        );
+        is($author->related('books')->[0]->related('description')->get_column('description'), 'Crap1');
     };
 
     it 'find_many_to_one_with_query' => sub {
         my $author = Author->new(
             name  => 'vti',
             books => [
-                {title => 'Book1', description => {description => 'Crap1'}},
-                {title => 'Book2', description => {description => 'Crap2'}}
+                { title => 'Book1', description => { description => 'Crap1' } },
+                { title => 'Book2', description => { description => 'Crap2' } }
             ]
         )->create;
 
         $author = Author->new->table->find(
             first => 1,
             with  => [qw/books books.description/],
-            where => ['books.description.description' => 'Crap2']
+            where => [ 'books.description.description' => 'Crap2' ]
         );
         ok $author->is_related_loaded('books');
         ok $author->related('books')->[0]->is_related_loaded('description');
-        is(
-            $author->related('books')->[0]->related('description')
-              ->get_column('description'),
-            'Crap2'
-        );
+        is($author->related('books')->[0]->related('description')->get_column('description'), 'Crap2');
     };
 
     # TODO
@@ -171,7 +163,7 @@ describe 'one to many' => sub {
     it 'create_related_hashref' => sub {
         my $author = Author->new(name => 'vti')->create;
 
-        $author->create_related('books', {title => 'Crap'});
+        $author->create_related('books', { title => 'Crap' });
 
         my $book = Book->new(title => 'Crap')->load;
 
@@ -181,8 +173,7 @@ describe 'one to many' => sub {
     it 'create_related_multi' => sub {
         my $author = Author->new(name => 'vti')->create;
 
-        $author->create_related('books',
-            [{title => 'Crap'}, {title => 'Good'}]);
+        $author->create_related('books', [ { title => 'Crap' }, { title => 'Good' } ]);
 
         is($author->count_related('books'), 2);
     };
@@ -190,7 +181,7 @@ describe 'one to many' => sub {
     it 'create related from object' => sub {
         my $author = Author->new(name => 'vti')->create;
 
-        $author->create_related('books', [Book->new(title => 'Crap')]);
+        $author->create_related('books', [ Book->new(title => 'Crap') ]);
 
         is($author->count_related('books'), 1);
     };
@@ -198,7 +189,7 @@ describe 'one to many' => sub {
     it 'create related from already created object' => sub {
         my $author = Author->new(name => 'vti')->create;
 
-        $author->create_related('books', [Book->new(title => 'Crap')->create]);
+        $author->create_related('books', [ Book->new(title => 'Crap')->create ]);
 
         is($author->count_related('books'), 1);
     };
@@ -241,7 +232,7 @@ describe 'one to many' => sub {
         $author->create_related('books', title => 'Crap');
 
         $author = Author->new(name => 'vti')->load;
-        $author->update_related('books', set => {title => 'Good'});
+        $author->update_related('books', set => { title => 'Good' });
 
         my $book = Book->new(title => 'Good')->load;
         ok($book);

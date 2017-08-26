@@ -36,8 +36,7 @@ describe 'delete' => sub {
     it 'throw_when_deleting_not_by_primary_or_unique_key' => sub {
         my $person = _build_object(profession => 'hacker');
 
-        like(exception { $person->delete },
-            qr/no primary or unique keys specified/);
+        like(exception { $person->delete }, qr/no primary or unique keys specified/);
     };
 
     it 'throw_when_delete_didnt_occur' => sub {

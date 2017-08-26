@@ -11,7 +11,7 @@ use Book;
 describe 'create' => sub {
 
     it 'accepts related values as hash ref' => sub {
-        my $author = Author->new(books => {title => 'foo'});
+        my $author = Author->new(books => { title => 'foo' });
 
         my @books = $author->related('books');
         is(@books,                         1);
@@ -27,7 +27,7 @@ describe 'create' => sub {
 
     it 'accepts related values as array of objects' => sub {
         my $author =
-          Author->new(books => [Book->new(title => 'foo'), {title => 'bar'}]);
+          Author->new(books => [ Book->new(title => 'foo'), { title => 'bar' } ]);
 
         my @books = $author->related('books');
         is(@books,                         2);
@@ -43,7 +43,7 @@ describe 'create' => sub {
     };
 
     it 'not set related when array of empty values' => sub {
-        my $author = Author->new(books => [{}, undef]);
+        my $author = Author->new(books => [ {}, undef ]);
 
         my @books = $author->related('books');
         is(@books, 0);

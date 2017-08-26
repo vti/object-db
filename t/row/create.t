@@ -35,18 +35,16 @@ describe 'create' => sub {
         my $person = _build_object(name => 'vti');
         $person->create;
 
-        my $result =
-          TestDBH->dbh->selectall_arrayref('SELECT id, name FROM person');
+        my $result = TestDBH->dbh->selectall_arrayref('SELECT id, name FROM person');
 
-        is_deeply($result->[0], [1, 'vti']);
+        is_deeply($result->[0], [ 1, 'vti' ]);
     };
 
     it 'throws on double created' => sub {
         my $person = _build_object(name => 'vti');
         $person->create;
 
-        like exception { $person->create },
-          qr/Calling 'create' on already created object/;
+        like exception { $person->create }, qr/Calling 'create' on already created object/;
     };
 
     it 'autoincrement_field_is_set' => sub {

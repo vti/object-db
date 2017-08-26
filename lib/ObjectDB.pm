@@ -17,7 +17,7 @@ use ObjectDB::Util qw(execute filter_columns);
 
 our $VERSION = '3.20';
 
-$Carp::Internal{(__PACKAGE__)}++;
+$Carp::Internal{ (__PACKAGE__) }++;
 $Carp::Internal{"ObjectDB::$_"}++ for qw/
   With
   Related
@@ -229,8 +229,7 @@ sub get_column {
         return $self->{columns}->{$name};
     }
     elsif ($self->meta->is_relationship($name)) {
-        return
-          exists $self->{relationships}->{$name}
+        return exists $self->{relationships}->{$name}
           ? $self->{relationships}->{$name}
           : undef;
     }
@@ -241,7 +240,7 @@ sub get_column {
 
 sub set_columns {
     my $self = shift;
-    my %values = ref $_[0] ? %{$_[0]} : @_;
+    my %values = ref $_[0] ? %{ $_[0] } : @_;
 
     while (my ($key, $value) = each %values) {
         $self->set_column($key => $value);
@@ -261,13 +260,8 @@ sub set_column {
             $value = q{};
         }
 
-        if (
-            !exists $self->{columns}->{$name}
-            || !(
-                   (defined $self->{columns}->{$name} && defined $value)
-                && ($self->{columns}->{$name} eq $value)
-            )
-          )
+        if (   !exists $self->{columns}->{$name}
+            || !((defined $self->{columns}->{$name} && defined $value) && ($self->{columns}->{$name} eq $value)))
         {
             $self->{columns}->{$name} = $value;
             $self->{is_modified} = 1;
@@ -283,31 +277,25 @@ sub set_column {
             foreach my $sub_value (@$value) {
                 next unless defined $sub_value && ref $sub_value;
 
-                Carp::croak(
-                    qq{Value of related object(s) '$name' has to be a reference}
-                ) unless ref $sub_value;
+                Carp::croak(qq{Value of related object(s) '$name' has to be a reference}) unless ref $sub_value;
 
                 if (Scalar::Util::blessed($sub_value)) {
                     push @$related_value, $sub_value;
                 }
                 elsif (ref($sub_value) eq 'HASH') {
                     if (!$self->_is_empty_hash_ref($sub_value)) {
-                        push @$related_value,
-                          $self->meta->get_relationship($name)
-                          ->class->new(%$sub_value);
+                        push @$related_value, $self->meta->get_relationship($name)->class->new(%$sub_value);
                     }
                 }
                 else {
-                    Carp::croak(qq{Unexpected reference found }
-                          . qq{when setting '$name' related object});
+                    Carp::croak(qq{Unexpected reference found } . qq{when setting '$name' related object});
                 }
             }
 
             undef $related_value unless @$related_value;
         }
         elsif (!$self->_is_empty_hash_ref($value)) {
-            $related_value =
-              $self->meta->get_relationship($name)->class->new(%$value);
+            $related_value = $self->meta->get_relationship($name)->class->new(%$value);
         }
 
         if ($related_value) {
@@ -351,23 +339,20 @@ sub create {
         'insert',
         driver => $self->init_db->{Driver}->{Name},
         into   => $self->meta->table,
-        values => [map { $_ => $self->{columns}->{$_} } $self->columns]
+        values => [ map { $_ => $self->{columns}->{$_} } $self->columns ]
     );
 
     my $rv = execute($self->init_db, $sql, context => $self);
 
     if (my $auto_increment = $self->meta->auto_increment) {
         $self->set_column(
-            $auto_increment => $self->init_db->last_insert_id(
-                undef, undef, $self->meta->table, $auto_increment
-            )
-        );
+            $auto_increment => $self->init_db->last_insert_id(undef, undef, $self->meta->table, $auto_increment));
     }
 
     $self->{is_in_db}    = 1;
     $self->{is_modified} = 0;
 
-    foreach my $rel_name (keys %{$self->meta->relationships}) {
+    foreach my $rel_name (keys %{ $self->meta->relationships }) {
         if (my $rel_values = $self->{relationships}->{$rel_name}) {
             if (ref $rel_values eq 'ARRAY') {
                 @$rel_values = grep { !$_->is_in_db } @$rel_values;
@@ -420,11 +405,11 @@ sub load {
     Carp::croak(ref($self) . ': no primary or unique keys specified')
       unless @columns;
 
-    my $where = [map { $_ => $self->{columns}->{$_} } @columns];
+    my $where = [ map { $_ => $self->{columns}->{$_} } @columns ];
 
     my $with = ObjectDB::With->new(meta => $self->meta, with => $params{with});
 
-    my $columns = filter_columns([$self->meta->get_columns], \%params);
+    my $columns = filter_columns([ $self->meta->get_columns ], \%params);
 
     my $select = SQL::Composer->build(
         'select',
@@ -443,7 +428,7 @@ sub load {
 
     my $row_object = $select->from_rows($rows)->[0];
 
-    $self->{columns} = {};
+    $self->{columns}       = {};
     $self->{relationships} = {};
 
     $self->set_columns(%$row_object);
@@ -454,8 +439,7 @@ sub load {
     return $self;
 }
 
-sub load_or_create
-{
+sub load_or_create {
     my $self = shift;
 
     my @columns;
@@ -569,18 +553,18 @@ sub to_hash {
         }
     }
 
-    foreach my $key (keys %{$self->{virtual_columns}}) {
+    foreach my $key (keys %{ $self->{virtual_columns} }) {
         $hash->{$key} = $self->get_column($key);
     }
 
-    foreach my $name (keys %{$self->{relationships}}) {
+    foreach my $name (keys %{ $self->{relationships} }) {
         my $rel = $self->{relationships}->{$name};
         next unless defined $rel;
 
         Carp::croak("unknown '$name' relationship") unless $rel;
 
         if (ref $rel eq 'ARRAY') {
-            $hash->{$name} = [map { $_->to_hash } @$rel];
+            $hash->{$name} = [ map { $_->to_hash } @$rel ];
         }
         else {
             $hash->{$name} = $rel->to_hash;
@@ -606,7 +590,7 @@ sub related {
     if (!$self->{relationships}->{$name}) {
         $self->{relationships}->{$name} =
           $rel->is_multi
-          ? [$self->find_related($name, @_)]
+          ? [ $self->find_related($name, @_) ]
           : $self->find_related($name, @_);
     }
 
@@ -629,7 +613,7 @@ sub create_related {
     my $self = shift;
     my $name = shift;
 
-    my @related = @_ == 1 ? ref $_[0] eq 'ARRAY' ? @{$_[0]} : ($_[0]) : ({@_});
+    my @related = @_ == 1 ? ref $_[0] eq 'ARRAY' ? @{ $_[0] } : ($_[0]) : ({@_});
 
     my @rv = $self->_do_related('create', $name, \@related);
     return @rv == 1 ? $rv[0] : @rv;

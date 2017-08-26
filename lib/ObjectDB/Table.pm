@@ -52,7 +52,7 @@ sub find {
     my $single = $params{single} || $params{first};
 
     my $offset = $params{offset};
-    my $limit = $params{limit};
+    my $limit  = $params{limit};
 
     if ($single) {
         $limit = 1;
@@ -88,7 +88,7 @@ sub find {
         with => [ to_array($params{with}), $quoter->with ]
     );
 
-    my $columns = filter_columns([ $self->meta->columns ], { %params });
+    my $columns = filter_columns([ $self->meta->columns ], {%params});
 
     my $join = $with->to_joins;
     push @$join, to_array($params{join}) if $params{join};
@@ -120,7 +120,7 @@ sub find_by_compose {
     my $single = $params{single} || $params{first};
 
     my $offset = $params{offset};
-    my $limit = $params{limit};
+    my $limit  = $params{limit};
 
     if ($single) {
         $limit = 1;
@@ -134,7 +134,6 @@ sub find_by_compose {
         $offset = ($page - 1) * $page_size;
         $limit  = $page_size;
     }
-
 
     my $table = $params{table};
 
@@ -211,7 +210,7 @@ sub find_by_sql {
         foreach my $row (@$rows) {
             my %values;
             foreach my $column (@column_names) {
-                $values{$column} = $row->[$i++];
+                $values{$column} = $row->[ $i++ ];
             }
 
             if ($params{rows_as_hashes}) {
@@ -225,14 +224,14 @@ sub find_by_sql {
         return @results;
     }
     else {
-        my $i = 0;
+        my $i      = 0;
         my $walker = sub {
             my $row = $sth->fetchrow_arrayref;
             return unless defined $row;
 
             my %values;
             foreach my $column (@column_names) {
-                $values{$column} = $row->[$i++];
+                $values{$column} = $row->[ $i++ ];
             }
 
             my $result;

@@ -38,8 +38,8 @@ describe 'connection' => sub {
         my $self = shift;
 
         SetterConnection->init_db(
-            dsn   => $ENV{TEST_OBJECTDB_DBH} || 'dbi:SQLite::memory:',
-            attrs => {RaiseError => 1}
+            dsn => $ENV{TEST_OBJECTDB_DBH} || 'dbi:SQLite::memory:',
+            attrs => { RaiseError => 1 }
         );
         my $dbh = SetterConnection->init_db;
 

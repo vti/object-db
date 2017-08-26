@@ -30,7 +30,7 @@ describe 'exception' => sub {
                     'select',
                     columns => ['a'],
                     from    => 'table',
-                    where   => [a => 'b']
+                    where   => [ a => 'b' ]
                 )
             );
         }, qr/SELECT/;

@@ -12,8 +12,7 @@ use Book;
 use BookDescription;
 
 subtest 'convert with to joins' => sub {
-    my $with =
-      ObjectDB::With->new(meta => Book->meta, with => ['parent_author']);
+    my $with = ObjectDB::With->new(meta => Book->meta, with => ['parent_author']);
 
     is_deeply $with->to_joins,
       [
@@ -23,7 +22,7 @@ subtest 'convert with to joins' => sub {
             as       => 'parent_author',
             op       => 'left',
             columns  => [qw/id name/],
-            on       => ['book.author_id' => {-col => 'parent_author.id'}],
+            on       => [ 'book.author_id' => { -col => 'parent_author.id' } ],
             join     => [],
         }
       ];
@@ -32,7 +31,7 @@ subtest 'convert with to joins' => sub {
 subtest 'convert with to joins deeply' => sub {
     my $with = ObjectDB::With->new(
         meta => BookDescription->meta,
-        with => ['parent_book', 'parent_book.parent_author']
+        with => [ 'parent_book', 'parent_book.parent_author' ]
     );
 
     is_deeply $with->to_joins,
@@ -43,8 +42,8 @@ subtest 'convert with to joins deeply' => sub {
             rel_name => 'parent_book',
             op       => 'left',
             columns  => [qw/id author_id title/],
-            on   => ['book_description.book_id' => {-col => 'parent_book.id'}],
-            join => [
+            on       => [ 'book_description.book_id' => { -col => 'parent_book.id' } ],
+            join     => [
                 {
                     source   => 'author',
                     as       => 'parent_book_parent_author',
@@ -52,8 +51,7 @@ subtest 'convert with to joins deeply' => sub {
                     op       => 'left',
                     columns  => [qw/id name/],
                     on       => [
-                        'parent_book.author_id' =>
-                          {-col => 'parent_book_parent_author.id'}
+                        'parent_book.author_id' => { -col => 'parent_book_parent_author.id' }
                     ],
                     join => []
                 }
@@ -76,8 +74,8 @@ subtest 'autoload intermediate joins' => sub {
             rel_name => 'parent_book',
             op       => 'left',
             columns  => [qw/id author_id title/],
-            on   => ['book_description.book_id' => {-col => 'parent_book.id'}],
-            join => [
+            on       => [ 'book_description.book_id' => { -col => 'parent_book.id' } ],
+            join     => [
                 {
                     source   => 'author',
                     as       => 'parent_book_parent_author',
@@ -85,8 +83,7 @@ subtest 'autoload intermediate joins' => sub {
                     op       => 'left',
                     columns  => [qw/id name/],
                     on       => [
-                        'parent_book.author_id' =>
-                          {-col => 'parent_book_parent_author.id'}
+                        'parent_book.author_id' => { -col => 'parent_book_parent_author.id' }
                     ],
                     join => []
                 }
@@ -96,9 +93,7 @@ subtest 'autoload intermediate joins' => sub {
 };
 
 subtest 'throw when unknown relationship' => sub {
-    like
-      exception { ObjectDB::With->new(meta => Book->meta, with => ['unknown']) }
-    , qr/Unknown relationship 'unknown'/;
+    like exception { ObjectDB::With->new(meta => Book->meta, with => ['unknown']) }, qr/Unknown relationship 'unknown'/;
 };
 
 done_testing;

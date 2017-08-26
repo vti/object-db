@@ -6,17 +6,11 @@ use ObjectDB::Meta;
 describe 'meta' => sub {
 
     it 'require_table' => sub {
-        like(
-            exception { ObjectDB::Meta->new(class => 'Foo') },
-            qr/Table is required when building meta/
-        );
+        like(exception { ObjectDB::Meta->new(class => 'Foo') }, qr/Table is required when building meta/);
     };
 
     it 'require_class' => sub {
-        like(
-            exception { ObjectDB::Meta->new(table => 'foo') },
-            qr/Class is required when building meta/
-        );
+        like(exception { ObjectDB::Meta->new(table => 'foo') }, qr/Class is required when building meta/);
     };
 
     it 'has_class' => sub {
@@ -36,7 +30,7 @@ describe 'meta' => sub {
 
         $meta->set_columns(qw/foo bar baz/);
 
-        is_deeply([$meta->get_columns], [qw/foo bar baz/]);
+        is_deeply([ $meta->get_columns ], [qw/foo bar baz/]);
     };
 
     it 'add_columns' => sub {
@@ -45,7 +39,7 @@ describe 'meta' => sub {
         $meta->set_columns(qw/foo bar baz/);
         $meta->add_column('bbb');
 
-        is_deeply([$meta->get_columns], [qw/foo bar baz bbb/]);
+        is_deeply([ $meta->get_columns ], [qw/foo bar baz bbb/]);
     };
 
     it 'throw_when_adding_existing_column' => sub {
@@ -53,10 +47,7 @@ describe 'meta' => sub {
 
         $meta->set_columns(qw/foo bar baz/);
 
-        like(
-            exception { $meta->add_column('foo') },
-            qr/Column 'foo' already exists/
-        );
+        like(exception { $meta->add_column('foo') }, qr/Column 'foo' already exists/);
     };
 
     it 'has_primary_key' => sub {
@@ -65,7 +56,7 @@ describe 'meta' => sub {
         $meta->set_columns(qw/foo bar baz/);
         $meta->set_primary_key('foo');
 
-        is_deeply([$meta->get_primary_key], [qw/foo/]);
+        is_deeply([ $meta->get_primary_key ], [qw/foo/]);
     };
 
     it 'die_when_setting_primary_key_on_unknown_column' => sub {
@@ -73,8 +64,7 @@ describe 'meta' => sub {
 
         $meta->set_columns(qw/foo bar baz/);
 
-        like(exception { $meta->set_primary_key('unknown') },
-            qr/Unknown column 'unknown'/);
+        like(exception { $meta->set_primary_key('unknown') }, qr/Unknown column 'unknown'/);
     };
 
     it 'has_unique_keys' => sub {
@@ -83,7 +73,7 @@ describe 'meta' => sub {
         $meta->set_columns(qw/foo bar baz/);
         $meta->set_unique_keys('foo');
 
-        is_deeply([$meta->get_unique_keys], [['foo']]);
+        is_deeply([ $meta->get_unique_keys ], [ ['foo'] ]);
     };
 
     it 'has_unique_keys_2' => sub {
@@ -92,16 +82,16 @@ describe 'meta' => sub {
         $meta->set_columns(qw/foo bar baz/);
         $meta->set_unique_keys('foo', ['bar']);
 
-        is_deeply([$meta->get_unique_keys], [['foo'], ['bar']]);
+        is_deeply([ $meta->get_unique_keys ], [ ['foo'], ['bar'] ]);
     };
 
     it 'has_unique_keys_multi' => sub {
         my $meta = _build_meta();
 
         $meta->set_columns(qw/foo bar baz/);
-        $meta->set_unique_keys('foo', ['bar', 'baz']);
+        $meta->set_unique_keys('foo', [ 'bar', 'baz' ]);
 
-        is_deeply([$meta->get_unique_keys], [['foo'], ['bar', 'baz']]);
+        is_deeply([ $meta->get_unique_keys ], [ ['foo'], [ 'bar', 'baz' ] ]);
     };
 
     it 'throw when_setting_primary_key_on_unknown_column' => sub {
@@ -109,8 +99,7 @@ describe 'meta' => sub {
 
         $meta->set_columns(qw/foo bar baz/);
 
-        like(exception { $meta->set_primary_key('unknown') },
-            qr/Unknown column 'unknown'/);
+        like(exception { $meta->set_primary_key('unknown') }, qr/Unknown column 'unknown'/);
     };
 
     it 'has_auto_increment_key' => sub {
@@ -127,8 +116,7 @@ describe 'meta' => sub {
 
         $meta->set_columns(qw/foo bar baz/);
 
-        like(exception { $meta->set_auto_increment('unknown') },
-            qr/Unknown column 'unknown'/);
+        like(exception { $meta->set_auto_increment('unknown') }, qr/Unknown column 'unknown'/);
     };
 
     it 'return_regular_columns' => sub {
@@ -137,7 +125,7 @@ describe 'meta' => sub {
         $meta->set_columns(qw/foo bar baz/);
         $meta->set_primary_key('foo');
 
-        is_deeply([$meta->get_regular_columns], ['bar', 'baz']);
+        is_deeply([ $meta->get_regular_columns ], [ 'bar', 'baz' ]);
     };
 
     it 'check_is_column' => sub {
@@ -155,7 +143,7 @@ describe 'meta' => sub {
         $meta->set_columns(qw/foo bar baz/);
         $meta->set_primary_key('foo');
 
-        $meta->add_relationship(foo => {type => 'one to one'});
+        $meta->add_relationship(foo => { type => 'one to one' });
 
         ok($meta->get_relationship('foo'));
     };
@@ -166,7 +154,7 @@ describe 'meta' => sub {
         $meta->set_columns(qw/foo bar baz/);
         $meta->set_primary_key('foo');
 
-        $meta->add_relationship(foo => {type => 'one to one'});
+        $meta->add_relationship(foo => { type => 'one to one' });
 
         ok($meta->is_relationship('foo'));
     };
@@ -178,7 +166,7 @@ describe 'meta' => sub {
 
         $meta->set_columns(qw/foo bar baz/);
 
-        $meta->add_relationships(bar => {type => 'many to one'});
+        $meta->add_relationships(bar => { type => 'many to one' });
 
         ok($meta->is_relationship('bar'));
     };
@@ -188,7 +176,7 @@ describe 'meta' => sub {
 
         my $meta = _build_meta();
 
-        $meta->add_relationships(foo => {type => 'many to one'});
+        $meta->add_relationships(foo => { type => 'many to one' });
 
         ok($meta->is_relationship('foo'));
         ok(!$meta->is_relationship('unknown'));
@@ -234,7 +222,7 @@ describe 'meta' => sub {
 
         my $meta = ChildInheritingColumns->meta;
 
-        is_deeply([$meta->get_columns], [qw/foo bar/]);
+        is_deeply([ $meta->get_columns ], [qw/foo bar/]);
     };
 
     it 'generates columns methods' => sub {
