@@ -7,6 +7,7 @@ perl:
     - "5.24"
 before_script:
     - psql -c 'create database objectdb;' -U postgres
+    - mysql -e 'CREATE DATABASE objectdb;'
 before_install:
     - cpanm -n https://github.com/kritikaio/devel-cover-report-kritika-perl/archive/master.tar.gz
 install:
@@ -14,5 +15,5 @@ install:
     - cpanm -n -q DBD::SQLite DBD::Pg DBD::mysql
 script:
     - TEST_OBJECTDB_DBH=dbi:Pg:dbname=objectdb prove -Ilib -r t
-    - TEST_OBJECTDB_DBH=dbi:mysql:database=travis prove -Ilib -r t
+    - TEST_OBJECTDB_DBH=dbi:mysql:database=objectdb prove -Ilib -r t
     - perl Build.PL && ./Build build && cover -test -report kritika
