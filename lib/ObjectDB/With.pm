@@ -24,7 +24,14 @@ sub new {
         foreach my $with (@with) {
             my $meta = $self->{meta};
 
-            my @parts = split /[.]/xms, $with;
+            my $name = $with;
+            my $columns;
+            if (ref $name eq 'HASH') {
+                $name    = $with->{name};
+                $columns = $with->{columns};
+            }
+
+            my @parts = split /[.]/xms, $name;
 
             my $seen        = q{};
             my $parent_join = $joins;
@@ -55,7 +62,7 @@ sub new {
                         as       => $name_prefix . $join->{as},
                         on       => $join->{constraint},
                         op       => $join->{join},
-                        columns  => $join->{columns},
+                        columns  => $columns || $join->{columns},
                         join     => []
                       };
                 }

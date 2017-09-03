@@ -27,6 +27,23 @@ subtest 'convert with to joins' => sub {
       ];
 };
 
+subtest 'convert with to joins with custom columns' => sub {
+    my $with = ObjectDB::With->new(meta => Book->meta, with => [ { name => 'parent_author', columns => [qw/id/] } ]);
+
+    is_deeply $with->to_joins,
+      [
+        {
+            source   => 'author',
+            rel_name => 'parent_author',
+            as       => 'parent_author',
+            op       => 'left',
+            columns  => [qw/id/],
+            on       => [ 'book.author_id' => { -col => 'parent_author.id' } ],
+            join     => [],
+        }
+      ];
+};
+
 subtest 'convert with to joins deeply' => sub {
     my $with = ObjectDB::With->new(
         meta => BookDescription->meta,
