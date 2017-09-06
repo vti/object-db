@@ -50,6 +50,11 @@
             "SQL::Composer" : "0.19",
             "Storable" : "0",
             "perl" : "5.010"
+         },
+         "suggests" : {
+            "DBD::Pg" : "0",
+            "DBD::SQLite" : "0",
+            "DBD::mysql" : "0"
          }
       },
       "test" : {
@@ -71,7 +76,7 @@
          "web" : "https://github.com/vti/object-db"
       }
    },
-   "version" : "3.21",
+   "version" : "3.22",
    "x_contributors" : [
       "vti <viacheslav.t@gmail.com>",
       "vti <vti@clarive.com>"
