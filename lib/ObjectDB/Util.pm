@@ -140,14 +140,14 @@ sub merge_rows {
               ? $prev->{$key}->[-1]
               : $prev->{$key};
 
-            my $merged = merge_rows([ $prev_row, $row->{$key} ]);
-            if (@$merged > 1) {
+            my $merged_rows = merge_rows([ $prev_row, $row->{$key} ]);
+            if (@$merged_rows > 1) {
                 my $prev_rows =
                   ref $prev->{$key} eq 'ARRAY'
                   ? $prev->{$key}
                   : [ $prev->{$key} ];
                 pop @$prev_rows;
-                $prev->{$key} = [ @$prev_rows, @$merged ];
+                $prev->{$key} = [ @$prev_rows, @$merged_rows ];
             }
         }
     }
