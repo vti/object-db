@@ -8,6 +8,7 @@ perl:
 before_script:
     - psql -c 'create database objectdb;' -U postgres
     - mysql -e 'CREATE DATABASE objectdb;'
+    - mysql -e 'GRANT ALL ON objectdb.* TO travis@localhost;'
 before_install:
     - cpanm -n https://github.com/kritikaio/devel-cover-report-kritika-perl/archive/master.tar.gz
 install:
