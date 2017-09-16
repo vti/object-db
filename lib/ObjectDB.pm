@@ -15,7 +15,7 @@ use ObjectDB::Table;
 use ObjectDB::With;
 use ObjectDB::Util qw(execute filter_columns);
 
-our $VERSION = '3.22';
+our $VERSION = '3.23';
 
 $Carp::Internal{ (__PACKAGE__) }++;
 $Carp::Internal{"ObjectDB::$_"}++ for qw/
