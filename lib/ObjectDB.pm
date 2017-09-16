@@ -335,18 +335,20 @@ sub create {
     Carp::croak(q{Calling 'create' on already created object})
       if $self->is_in_db;
 
+    my $dbh = $self->init_db;
+
     my $sql = SQL::Composer->build(
         'insert',
-        driver => $self->init_db->{Driver}->{Name},
+        driver => $dbh->{Driver}->{Name},
         into   => $self->meta->table,
         values => [ map { $_ => $self->{columns}->{$_} } $self->columns ]
     );
 
-    my $rv = execute($self->init_db, $sql, context => $self);
+    my $rv = execute($dbh, $sql, context => $self);
 
     if (my $auto_increment = $self->meta->auto_increment) {
         $self->set_column(
-            $auto_increment => $self->init_db->last_insert_id(undef, undef, $self->meta->table, $auto_increment));
+            $auto_increment => $dbh->last_insert_id(undef, undef, $self->meta->table, $auto_increment));
     }
 
     $self->{is_in_db}    = 1;
