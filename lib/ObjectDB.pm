@@ -257,7 +257,7 @@ sub set_column {
         if (   !defined $value
             && !$self->meta->is_nullable($name) )
         {
-            $value = q{};
+            return $self;
         }
 
         if (   !exists $self->{columns}->{$name}
