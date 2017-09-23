@@ -13,3 +13,8 @@
 *.un~
 .cache
 *.swp
+
+Build
+MYMETA.*
+_build_params
+blib/
