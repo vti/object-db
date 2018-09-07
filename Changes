@@ -2,6 +2,10 @@ Revision history for Perl extension ObjectDB
 
 {{$NEXT}}
 
+3.27 2018-09-07T18:18:30Z
+
+    - test dependency check
+
 3.26 2018-09-05T17:17:35Z
 
     - type hints
