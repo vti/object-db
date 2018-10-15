@@ -20,7 +20,8 @@ sub new {
     my $joins = { join => [] };
 
     my %seen;
-    if (my @with = sort grep { defined } @{ $self->{with} || [] }) {
+    if (my @with = sort { (ref $a eq 'HASH' ? $a->{name} : $a)  cmp (ref $b eq 'HASH' ? $b->{name} : $b) }
+			grep { defined } @{ $self->{with} || [] }) {
         foreach my $with (@with) {
             my $meta = $self->{meta};
 
