@@ -2,6 +2,11 @@ Revision history for Perl extension ObjectDB
 
 {{$NEXT}}
 
+3.28 2018-10-15T18:10:25Z
+
+    [FIXES]
+    - fix with columns order by kitt-vl (github/kitt-vl)
+
 3.27 2018-09-07T18:18:30Z
 
     - test dependency check

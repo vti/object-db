@@ -4,7 +4,7 @@
       "Viacheslav Tykhanovskyi"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v3.0.13, CPAN::Meta::Converter version 2.150010",
+   "generated_by" : "Minilla/v3.1.2, CPAN::Meta::Converter version 2.150010",
    "license" : [
       "perl_5"
    ],
@@ -76,10 +76,12 @@
          "web" : "https://github.com/vti/object-db"
       }
    },
-   "version" : "3.27",
+   "version" : "3.28",
    "x_contributors" : [
+      "kitt [office] <kitt-vl@ya.ru>",
       "vti <viacheslav.t@gmail.com>",
       "vti <vti@clarive.com>"
    ],
-   "x_serialization_backend" : "JSON::PP version 2.27400_02"
+   "x_serialization_backend" : "JSON::PP version 2.27400_02",
+   "x_static_install" : 1
 }
