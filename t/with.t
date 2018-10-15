@@ -9,7 +9,6 @@ use ObjectDB::With;
 
 use Book;
 use BookDescription;
-use Thread;
 
 subtest 'convert with to joins' => sub {
     my $with = ObjectDB::With->new(meta => Book->meta, with => ['parent_author']);
