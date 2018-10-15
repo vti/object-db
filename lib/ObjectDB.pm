@@ -1017,6 +1017,10 @@ Converts object into a hash reference, including all preloaded objects.
 
 =back
 
+=head1 CREDITS
+
+kitt-vl (github/kitt-vl)
+
 =head1 AUTHOR
 
 Viacheslav Tykhanovskyi
